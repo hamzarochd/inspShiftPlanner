@@ -3,7 +3,6 @@
     xmlns="sap.m"
     xmlns:f="sap.f"
     xmlns:card="sap.f.cards"
-	xmlns:core="sap.ui.core"
     xmlns:fb="sap.ui.comp.filterbar">
     
     <Page id="page">
