@@ -1,6 +1,12 @@
 <mvc:View controllerName="inpsshiftplanner.controller.viewPianificazoineTurni"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m">
+    xmlns="sap.m"
+    xmlns:f="sap.f">
     <Page id="page" title="{i18n>title}">
+
+        <f:DynamicPage id="turniDynamicPage" headerExpanded="true" toggleHeaderOnTitleClick="false">
+            
+        </f:DynamicPage>
+
     </Page>
 </mvc:View>
