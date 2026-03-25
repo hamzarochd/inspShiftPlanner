@@ -2,16 +2,37 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:f="sap.f">
-    <Page id="page" title="{i18n>title}">
+    <Page id="page">
 
-        <f:DynamicPage id="turniDynamicPage" headerExpanded="true" toggleHeaderOnTitleClick="false">
+        <f:DynamicPage id="turniDynamicPage" headerExpanded="true" toggleHeaderOnTitleClick="true">
             <f:title>
                 <f:DynamicPageTitle>
                     <f:heading>
-                        <Title text="Titolo test" />
+                        <Title text="Pianificazione Turni" />
                     </f:heading>
+                    <f:expandedContent>
+                        <Label text="Gestione Turni Mensili"></Label>
+                    </f:expandedContent>
                 </f:DynamicPageTitle>
             </f:title>
+
+            <f:header>
+                <f:DynamicPageHeader pinnable="false">
+                    <f:content>
+                        <VBox >
+                            <fb:FilterBar>
+                                <!-- CHENYU FILTERBAR-->
+                            </fb:FilterBar>
+                            <HBox >
+                                <!-- ANTONIO KPIS -->
+                            </HBox>
+                        </VBox>
+                    </f:content>
+                </f:DynamicPageHeader>
+
+                <!-- HAMZA PLANNING CALENDAR -->
+
+            </f:header>
         </f:DynamicPage>
 
     </Page>
