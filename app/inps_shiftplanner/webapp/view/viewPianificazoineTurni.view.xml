@@ -15,6 +15,7 @@
                     </f:expandedContent>
                 </f:DynamicPageTitle>
             </f:title>
+            
 
             <f:header>
                 <f:DynamicPageHeader pinnable="false">
