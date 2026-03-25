@@ -68,7 +68,7 @@ sap.ui.define([
     };
 
     // Creiamo il modello JSON
-    var oModel = new sap.ui.model.json.JSONModel(oData);
+    // var oModel = new sap.ui.model.json.JSONModel(oData);
     
     // Assegniamo il modello alla vista con un nome (opzionale ma consigliato)
     this.getView().setModel(oModel, "ruoliModel");
