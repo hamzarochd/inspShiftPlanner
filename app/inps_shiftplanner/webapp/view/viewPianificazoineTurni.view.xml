@@ -22,10 +22,10 @@
                     <f:content>
                         <VBox >
                             <fb:FilterBar>
-                                <!-- CHENYU FILTERBAR-->
+                                <!-- Antonio FILTERBAR-->
                             </fb:FilterBar>
                             <HBox >
-                                <!-- ANTONIO KPIS -->
+                                <!-- Chenyu KPIS -->
                             </HBox>
                         </VBox>
                     </f:content>
