@@ -5,7 +5,13 @@
     <Page id="page" title="{i18n>title}">
 
         <f:DynamicPage id="turniDynamicPage" headerExpanded="true" toggleHeaderOnTitleClick="false">
-            
+            <f:title>
+                <f:DynamicPageTitle>
+                    <f:heading>
+                        <Title text="Titolo test" />
+                    </f:heading>
+                </f:DynamicPageTitle>
+            </f:title>
         </f:DynamicPage>
 
     </Page>
