@@ -6,7 +6,7 @@ sap.ui.define([
     return Controller.extend("inpsshiftplanner.controller.viewPianificazoineTurni", {
         onInit() {
 
-            const oKpiModel = new JSONModel({
+            const oKpiModel = new sap.ui.model.json.JSONModel({
                 understaffedDays: 0,
                 criticalStatus: "Neutral",
                 coverageMsg: "Caricamento dati...",
