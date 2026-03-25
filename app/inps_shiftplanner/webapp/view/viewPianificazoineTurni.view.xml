@@ -1,20 +1,22 @@
 <mvc:View controllerName="inpsshiftplanner.controller.viewPianificazoineTurni"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
+    xmlns:core="sap.ui.core"
     xmlns:f="sap.f"
     xmlns:card="sap.f.cards"
 	xmlns:core="sap.ui.core"
     xmlns:fb="sap.ui.comp.filterbar">
+    
     <Page id="page">
 
         <f:DynamicPage id="turniDynamicPage" headerExpanded="true" toggleHeaderOnTitleClick="true">
             <f:title>
                 <f:DynamicPageTitle>
                     <f:heading>
-                        <Title text="Pianificazione Turni" />
+                        <Title text="{i18n>titolo}" />
                     </f:heading>
                     <f:expandedContent>
-                        <Label text="Gestione Turni Mensili"></Label>
+                        <Label text="Gestione e monitoraggio turni del personale"></Label>
                     </f:expandedContent>
                 </f:DynamicPageTitle>
             </f:title>
@@ -24,8 +26,33 @@
                 <f:DynamicPageHeader pinnable="false">
                     <f:content>
                         <VBox >
-                            <fb:FilterBar>
-                                <!-- Antonio FILTERBAR-->
+                            <fb:FilterBar id="shiftFilterBar"
+                                          reset="onResetFilters"
+                                          clear="onResetfilters"
+                                          search="onSearch"
+                                          useToolbar="false"
+                                          showGoOnFB="true"
+                                          class="sapUiBottomMargin"
+                                          showClearOnFB="true"
+                                          showFilterConfiguration="false">
+
+                                <fb:filterGroupItems>
+                                  <fb:FilterGroupItem groupName="Main" name="Ruolo" label="Ruolo" visibleInFilterBar="true">
+                                   <fb:control>
+                                   <ComboBox  id="roleFilterCombo" items="{ruoliModel>/RuoliCollezione}">
+                                      <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+                                   </ComboBox>
+                                   </fb:control>
+
+                                  </fb:FilterGroupItem>
+                                  <fb:FilterGroupItem  groupName="cd" name="Reparti" label="Reparti" visibleInFilterBar="true">
+                                   <fb:control>
+                                   <ComboBox  id="" items="{ruoliModel>/Reparti}">
+                                      <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+                                   </ComboBox>
+                                   </fb:control>
+                                  </fb:FilterGroupItem>
+                                </fb:filterGroupItems>
                             </fb:FilterBar>
                             <HBox >
                                 <!-- Chenyu KPIS -->
