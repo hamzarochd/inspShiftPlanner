@@ -80,10 +80,46 @@
                         </VBox>
                     </f:content>
                 </f:DynamicPageHeader>
-
-                <!-- HAMZA PLANNING CALENDAR -->
-
             </f:header>
+
+            <f:content>
+                <VBox>
+                    <PlanningCalendar 
+                        id="planningCalendar"
+                        startDate="{mockdata>/startDate}"
+                        rows="{mockdata>/rows}"
+                        viewKey="One Month"
+                        appointmentsVisualization="Standard">
+                        <rows>
+                            <PlanningCalendarRow
+                                icon=""
+                                title=""
+                                text=""
+                                enableAppointmentsDragAndDrop="{path:'name', formatter:'.canModifyAppointments'}"
+                                enableAppointmentsCreate="{path:'name', formatter:'.canModifyAppointments'}"
+                                appointmentDrop="handleAppointmentDrop"
+                                appointmentDragEnter="handleAppointmentDragEnter"
+                                appointmentResize="handleAppointmentResize"
+                                appointmentCreate="handleAppointmentCreate"
+                                appointments="">
+                                <!-- <appointments>
+                                    <unified:CalendarAppointment
+                                        startDate="{start}"
+                                        endDate="{end}"
+                                        icon="{pic}"
+                                        title="{title}"
+                                        text="{info}"
+                                        type="{type}"
+                                        tentative="{tentative}">
+                                
+                                    </unified:CalendarAppointment>
+                                </appointments> -->
+                            </PlanningCalendarRow>
+                        </rows>
+                    
+                    </PlanningCalendar>
+                </VBox>
+            </f:content>
         </f:DynamicPage>
 
     </Page>

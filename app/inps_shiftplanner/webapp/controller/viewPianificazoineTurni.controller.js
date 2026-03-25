@@ -1,10 +1,20 @@
 sap.ui.define([
-    "sap/ui/core/mvc/Controller"
-], (Controller) => {
+    "sap/ui/core/mvc/Controller",
+    "sap/ui/model/json/JSONModel"
+], (Controller, JSONModel) => {
     "use strict";
 
     return Controller.extend("inpsshiftplanner.controller.viewPianificazoineTurni", {
         onInit() {
+            // Carichiamo dati da un file JSON
+            const oModel = new JSONModel();
+            oModel.loadData("model/mockdata.json").then(() => {
+                // Una volta caricati i dati, aggiorniamo il modello
+                oModel.refresh();
+            });
+            
+            // Lo settiamo come modello della view
+            this.getView().setModel(oModel, "mockdata");
 
             const oKpiModel = new sap.ui.model.json.JSONModel({
                 understaffedDays: 0,
@@ -58,7 +68,7 @@ sap.ui.define([
     };
 
     // Creiamo il modello JSON
-    var oModel = new sap.ui.model.json.JSONModel(oData);
+    // var oModel = new sap.ui.model.json.JSONModel(oData);
     
     // Assegniamo il modello alla vista con un nome (opzionale ma consigliato)
     this.getView().setModel(oModel, "ruoliModel");
