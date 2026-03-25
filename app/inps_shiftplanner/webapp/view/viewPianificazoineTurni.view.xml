@@ -2,6 +2,8 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:f="sap.f"
+    xmlns:card="sap.f.cards"
+	xmlns:core="sap.ui.core"
     xmlns:fb="sap.ui.comp.filterbar">
     <Page id="page">
 
@@ -27,6 +29,27 @@
                             </fb:FilterBar>
                             <HBox >
                                 <!-- Chenyu KPIS -->
+                                <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Mancanza personale"
+                                            frameType = "OneByHalf" press="">
+                                    <TileContent>
+                                        <NumericContent scale="M" value="{kpi>/understaffedDays}" valueColor="Error" indicator="Up" withMargin="false" />
+                                    </TileContent>
+                                </GenericTile>
+
+                                <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Rischio salute"
+                                            frameType = "OneByHalf" press="">
+                                    <TileContent>
+                                        <NumericContent scale="M" value="" valueColor="Error" indicator="Up" withMargin="false" />
+                                    </TileContent>
+                                </GenericTile>
+
+                                <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="terzo titole"
+                                            frameType = "OneByHalf" press="">
+                                    <TileContent>
+                                        <NumericContent scale="M" value="" valueColor="Error" indicator="Up" withMargin="false" />
+                                    </TileContent>
+                                </GenericTile>
+
                             </HBox>
                         </VBox>
                     </f:content>
