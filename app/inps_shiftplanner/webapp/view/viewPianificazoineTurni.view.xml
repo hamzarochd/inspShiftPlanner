@@ -86,48 +86,33 @@
 
             <f:content>
                 <VBox>
-                    <!-- PlanningCalendar collegato al modello "mockdata":
-                         startDate legge il campo "date" dalla radice del JSON,
-                         rows itera sull'array "Staff" (ogni elemento diventa una riga) -->
                     <PlanningCalendar
                         id="planningCalendar"
-                        startDate="{mockdata>/date}"
-                        rows="{mockdata>/Staff}"
+                        rows="{path: '/dipendenti'}"
+                        startDate="{path: '/startDate'}"
                         viewKey="One Month"
                         appointmentsVisualization="Standard">
+
                         <rows>
-                            <!-- Ogni PlanningCalendarRow corrisponde a un membro dello Staff.
-                                 I binding sono relativi all'elemento corrente di mockdata>/Staff:
-                                 title = "name", text = "role", icon = "icon" -->
                             <PlanningCalendarRow
                                 icon="{icon}"
                                 title="{name}"
-                                text="{role}">
-                                
-                                <!-- enableAppointmentsDragAndDrop="{path:'name', formatter:'.canModifyAppointments'}"
-                                enableAppointmentsCreate="{path:'name', formatter:'.canModifyAppointments'}"
-                                appointmentDrop="handleAppointmentDrop"
-                                appointmentDragEnter="handleAppointmentDragEnter"
-                                appointmentResize="handleAppointmentResize"
-                                appointmentCreate="handleAppointmentCreate"> -->
-                                
-                                
-                                <!-- Gli appuntamenti vengono letti dall'array "shifts" di ogni membro.
-                                     startDate e endDate usano il tipo DateTime per la conversione,
-                                     title, text, icon (shiftIcon) e type mappano i campi del turno -->
+                                text="{role}"
+                                appointments="{path: 'shifts', templateShareable: false}"
+                                enableAppointmentsDragAndDrop="true"
+                                enableAppointmentsResize="false">
                                 <appointments>
                                     <unified:CalendarAppointment
-                                        startDate="{path: 'startDate', type: 'sap.ui.model.type.DateTime'}"
-                                        endDate="{path: 'endDate', type: 'sap.ui.model.type.DateTime'}"
+                                        startDate="{startDate}"
+                                        endDate="{endDate}"
                                         title="{title}"
                                         text="{text}"
-                                        icon="{shiftIcon}"
-                                        type="{type}">
+                                        type="{type}"
+                                        icon="{shiftIcon}">
                                     </unified:CalendarAppointment>
                                 </appointments>
                             </PlanningCalendarRow>
                         </rows>
-
                     </PlanningCalendar>
                 </VBox>
             </f:content>

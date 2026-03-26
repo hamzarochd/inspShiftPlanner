@@ -1,22 +1,21 @@
 {
-    "date":"2026-03-01T00:00:00",
-    "Staff":[
+    "startDate": "2026-03-01T00:00:00",
+    "dipendenti": [
         {
-            "name":"Marco Rossi",
-            "role":"Infermiere",
-            "icon":"sap-icon://employee",
-            "shifts":[
+            "name": "Marco Rossi",
+            "role": "Infermiere",
+            "icon": "sap-icon://employee",
+            "shifts": [
                 {
-                    "ID_Utente" : 1,
-                    "title" : "Coordinamento reparto",
-                    "type": "",
+                    "title": "Coordinamento reparto",
+                    "type": "Type02",
                     "startDate": "2026-03-03T00:00:00",
                     "endDate": "2026-03-03T23:59:59",
-                    "text" : "descrizione prova testo testo testo testo testo testo",
-                    "notes" : "",
-                    "semanticColor": "#FFFFFF",
+                    "text": "descrizione prova testo testo testo testo testo testo",
+                    "notes": "notes",
                     "shiftIcon": "sap-icon://manager"
                 }
             ]
         }
-    ]}
+    ]
+}

@@ -1,20 +1,77 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
-    "sap/ui/model/json/JSONModel"
-], (Controller, JSONModel) => {
+    "sap/ui/model/json/JSONModel",
+    "sap/ui/core/date/UI5Date"
+], (Controller, JSONModel, UI5Date) => {
     "use strict";
 
     return Controller.extend("inpsshiftplanner.controller.viewPianificazoineTurni", {
         onInit() {
-            // Carichiamo dati da un file JSON
-            const oModel = new JSONModel();
-            oModel.loadData("model/mockdata.json").then(() => {
-                // Una volta caricati i dati, aggiorniamo il modello
-                oModel.refresh();
-            });
+            // ---- MOCKDATA DA FILE (commentato temporaneamente per debug) ----
+            // const oModel = new JSONModel();
+            // oModel.loadData("model/mockdata.json").then(() => {
+            //     const oMockData = oModel.getData();
+            //     oMockData.startDate = UI5Date.getInstance(oMockData.startDate);
+            //     oMockData.dipendenti.forEach(function(oMembro) {
+            //         oMembro.shifts.forEach(function(oTurno) {
+            //             oTurno.startDate = UI5Date.getInstance(oTurno.startDate);
+            //             oTurno.endDate   = UI5Date.getInstance(oTurno.endDate);
+            //         });
+            //     });
+            //     oModel.setData(oMockData);
+            //     this.getView().setModel(oModel, "mockdata");
+            // });
+            // ---- FINE MOCKDATA DA FILE ----
 
-            // Lo settiamo come modello della view
-            this.getView().setModel(oModel, "mockdata");
+            // Dati inline generati direttamente (come il sample ufficiale SAP)
+            // setData + setModel sincroni: la view trova il modello già pronto
+            const oModel = new JSONModel();
+            oModel.setData({
+                startDate: UI5Date.getInstance(2026, 2, 1),
+                dipendenti: [
+                    {
+                        name: "Marco Rossi",
+                        role: "Infermiere",
+                        icon: "sap-icon://employee",
+                        shifts: [
+                            {
+                                startDate: UI5Date.getInstance(2026, 2, 3, 0, 0),
+                                endDate:   UI5Date.getInstance(2026, 2, 3, 23, 59),
+                                title: "Turno mattina",
+                                text: "Reparto cardiologia",
+                                type: "Type02",
+                                shiftIcon: "sap-icon://stethoscope"
+                            },
+                            {
+                                startDate: UI5Date.getInstance(2026, 2, 5, 0, 0),
+                                endDate:   UI5Date.getInstance(2026, 2, 5, 23, 59),
+                                title: "Turno pomeriggio",
+                                text: "Pronto soccorso",
+                                type: "Type07",
+                                shiftIcon: "sap-icon://activity-2"
+                            }
+                        ]
+                    },
+                    {
+                        name: "Laura Bianchi",
+                        role: "Coordinatore",
+                        icon: "sap-icon://manager",
+                        shifts: [
+                            {
+                                startDate: UI5Date.getInstance(2026, 2, 3, 0, 0),
+                                endDate:   UI5Date.getInstance(2026, 2, 3, 23, 59),
+                                title: "Coordinamento reparto",
+                                text: "Pianificazione turni settimanali",
+                                type: "Type01",
+                                shiftIcon: "sap-icon://action-settings"
+                            }
+                        ]
+                    }
+                ]
+            });
+            // Modello default (senza nome) come nel sample SAP — necessario perché
+            // i binding relativi nelle aggregazioni annidate ereditino il modello correttamente
+            this.getView().setModel(oModel);
 
             const oKpiModel = new JSONModel({
                 understaffedDays: 0,
