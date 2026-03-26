@@ -8,13 +8,12 @@ entity Products {
     price  : Decimal;
 }
 
-entity appointments : cuid {
+// entity appointments : cuid {
 
-    ID_Utente : UUID;
-    title     : String;
-    type      : String;
-    startDate : Timestamp;
-    endDate   : Timestamp;
-    text      : String;
-    notes     : String;
-  };
+//     title     : String;
+//     type      : String;
+//     startDate : Timestamp;
+//     endDate   : Timestamp;
+//     text      : String;
+//     notes     : String;
+//   };
