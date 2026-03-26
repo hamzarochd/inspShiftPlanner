@@ -9,71 +9,37 @@ sap.ui.define([
 
     return Controller.extend("inpsshiftplanner.controller.viewPianificazoineTurni", {
         onInit() {
-            // ---- MOCKDATA DA FILE (commentato temporaneamente per debug) ----
-            // const oModel = new JSONModel();
-            // oModel.loadData("model/mockdata.json").then(() => {
-            //     const oMockData = oModel.getData();
-            //     oMockData.startDate = UI5Date.getInstance(oMockData.startDate);
-            //     oMockData.dipendenti.forEach(function(oMembro) {
-            //         oMembro.shifts.forEach(function(oTurno) {
-            //             oTurno.startDate = UI5Date.getInstance(oTurno.startDate);
-            //             oTurno.endDate   = UI5Date.getInstance(oTurno.endDate);
-            //         });
-            //     });
-            //     oModel.setData(oMockData);
-            //     this.getView().setModel(oModel, "mockdata");
-            // });
-            // ---- FINE MOCKDATA DA FILE ----
-
-            // Dati inline generati direttamente (come il sample ufficiale SAP)
-            // setData + setModel sincroni: la view trova il modello già pronto
+            // Carica i dati da mockdata.json, converte le date e setta il modello default.
+            // Il modello va settato senza nome (default) perché i binding relativi
+            // nelle aggregazioni annidate (appointments) lo ereditino correttamente.
             const oModel = new JSONModel();
-            oModel.setData({
-                startDate: UI5Date.getInstance(2026, 2, 1),
-                dipendenti: [
-                    {
-                        name: "Marco Rossi",
-                        role: "Infermiere",
-                        icon: "sap-icon://employee",
-                        shifts: [
-                            {
-                                startDate: UI5Date.getInstance(2026, 2, 3, 0, 0),
-                                endDate:   UI5Date.getInstance(2026, 2, 3, 23, 59),
-                                title: "Turno mattina",
-                                text: "Reparto cardiologia",
-                                type: "Type02",
-                                shiftIcon: "sap-icon://stethoscope"
-                            },
-                            {
-                                startDate: UI5Date.getInstance(2026, 2, 5, 0, 0),
-                                endDate:   UI5Date.getInstance(2026, 2, 5, 23, 59),
-                                title: "Turno pomeriggio",
-                                text: "Pronto soccorso",
-                                type: "Type07",
-                                shiftIcon: "sap-icon://activity-2"
-                            }
-                        ]
-                    },
-                    {
-                        name: "Laura Bianchi",
-                        role: "Coordinatore",
-                        icon: "sap-icon://manager",
-                        shifts: [
-                            {
-                                startDate: UI5Date.getInstance(2026, 2, 3, 0, 0),
-                                endDate:   UI5Date.getInstance(2026, 2, 3, 23, 59),
-                                title: "Coordinamento reparto",
-                                text: "Pianificazione turni settimanali",
-                                type: "Type01",
-                                shiftIcon: "sap-icon://action-settings"
-                            }
-                        ]
-                    }
-                ]
+            oModel.loadData("model/mockdata.json").then(() => {
+                const oData = oModel.getData();
+
+                // Converte le stringhe ISO in UI5Date usando i componenti locali
+                // per evitare problemi di timezone (es. data spostata di un giorno)
+                function toUI5Date(sISO) {
+                    const d = new Date(sISO);
+                    return UI5Date.getInstance(
+                        d.getFullYear(), d.getMonth(), d.getDate(),
+                        d.getHours(), d.getMinutes()
+                    );
+                }
+
+                oData.startDate = toUI5Date(oData.startDate);
+                oData.dipendenti.forEach(function(oMembro) {
+                    oMembro.shifts.forEach(function(oTurno) {
+                        oTurno.startDate = toUI5Date(oTurno.startDate);
+                        oTurno.endDate   = toUI5Date(oTurno.endDate);
+                    });
+                });
+
+                oModel.setData(oData);
+                this.getView().setModel(oModel);
+
+                // updateUnderstaffing va chiamato dopo che il modello è pronto
+                this.updateUnderstaffing();
             });
-            // Modello default (senza nome) come nel sample SAP — necessario perché
-            // i binding relativi nelle aggregazioni annidate ereditino il modello correttamente
-            this.getView().setModel(oModel);
 
             const oKpiModel = new sap.ui.model.json.JSONModel({
                 understaffedDays: 0,
@@ -134,8 +100,6 @@ sap.ui.define([
 
             // Assegniamo il modello ruoli/reparti alla vista
             this.getView().setModel(oRuoliModel, "ruoliModel");
-
-            this.updateUnderstaffing();
             // -------------------------------------------------------
         },
 
@@ -164,13 +128,11 @@ sap.ui.define([
         /////// funzione da chiamare all'interno di kpiCountDay-
 
         updateUnderstaffing: function(bUpdateCalendar) { //// true oppure false
-            const oModel = this.getView().getModel("mockdata");
+            const oModel = this.getView().getModel(); // modello default (no nome)
             const oKpiModel = this.getView().getModel("kpi");
             const oCalendar = this.byId("planningCalendar");
-            
-            const aStaff = oModel?.getProperty("/Staff") || [];
-            ///console.log(aStaff);
 
+            const aStaff = oModel?.getProperty("/dipendenti") || [];
 
             const oStartDate = oCalendar?.getStartDate() || new Date();
             const iYear = oStartDate.getFullYear(), iMonth = oStartDate.getMonth();
@@ -178,7 +140,7 @@ sap.ui.define([
 
             const staffCountByDate = {};
             aStaff.forEach(person => {
-                person.appointments?.forEach(appointment => {
+                person.shifts?.forEach(appointment => {
                     if (appointment.type && appointment.type !== "OFF") {
                         const sDate = new Date(appointment.startDate).toDateString();
                         staffCountByDate[sDate] = (staffCountByDate[sDate] || 0) + 1;
