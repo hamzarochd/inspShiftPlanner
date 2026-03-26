@@ -33,28 +33,49 @@
                                           search="onSearch"
                                           useToolbar="false"
                                           showGoOnFB="true"
-                                          class="sapUiBottomMargin"
+                                          class="sapUiBottomMargin sapUiResponsiveMargin"
                                           showClearOnFB="true"
                                           showFilterConfiguration="false">
 
                                 <fb:filterGroupItems>
-                                  <fb:FilterGroupItem groupName="Main" name="Ruolo" label="Ruolo" visibleInFilterBar="true">
+                                      <!--Ruolo-->
+                                  <fb:FilterGroupItem 
+                                     groupName="Main" 
+                                     name="Ruolo" 
+                                     label="Ruolo" 
+                                     visibleInFilterBar="true">
                                    <fb:control>
-                                   <ComboBox  id="roleFilterCombo" width="100%" items="{ruoliModel>/RuoliCollezione}" placeholder="Seleziona ruolo" showClearIcon="true">
-                                      <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+                                   <ComboBox  
+                                     id="roleFilterCombo" 
+                                     width="100%" 
+                                     items="{ruoliModel>/RuoliCollezione}" 
+                                     placeholder="Seleziona ruolo" 
+                                     showClearIcon="true">
+                                      <core:Item key="{ruoliModel>key}"  text="{ruoliModel>text}" />
                                    </ComboBox>
                                    </fb:control>
+                                </fb:FilterGroupItem>
 
-                                  </fb:FilterGroupItem>
-                                  <fb:FilterGroupItem  groupName="cd" name="Reparti" label="Reparti" visibleInFilterBar="true">
+                                  <!--Reparti-->
+                                <fb:FilterGroupItem  
+                                     groupName="cd" 
+                                     name="Reparti" 
+                                     label="Reparti" 
+                                     visibleInFilterBar="true">
                                    <fb:control>
-                                   <ComboBox  id="repartoFilterCombo" width="100%" items="{ruoliModel>/Reparti}" placeholder="Seleziona reparto" showClearIcon="true">
-                                      <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+                                   <ComboBox  
+                                     id="repartoFilterCombo" 
+                                     width="100%" 
+                                     items="{ruoliModel>/Reparti}" 
+                                     placeholder="Seleziona reparto" 
+                                     showClearIcon="true">
+                                     <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
                                    </ComboBox>
                                    </fb:control>
                                   </fb:FilterGroupItem>
                                 </fb:filterGroupItems>
                             </fb:FilterBar>
+
                             <HBox >
                                 <!-- Chenyu KPIS -->
                                 <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Mancanza personale"
