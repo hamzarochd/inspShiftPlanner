@@ -121,7 +121,9 @@
                         rows="{path: '/dipendenti'}"
                         startDate="{path: '/startDate'}"
                         viewKey="One Month"
-                        appointmentsVisualization="Standard">
+                        appointmentsVisualization="Standard"
+                        showEmptyIntervalHeaders="false"
+                        appointmentHeight="Regular">
 
                         <rows>
                             <PlanningCalendarRow
@@ -135,10 +137,9 @@
                                     <unified:CalendarAppointment
                                         startDate="{startDate}"
                                         endDate="{endDate}"
-                                        title="{title}"
-                                        text="{text}"
-                                        type="{type}"
-                                        icon="{shiftIcon}">
+                                        icon="{shiftIcon}"
+                                        color="{color}"
+                                        tooltip="{title}">
                                     </unified:CalendarAppointment>
                                 </appointments>
                             </PlanningCalendarRow>
