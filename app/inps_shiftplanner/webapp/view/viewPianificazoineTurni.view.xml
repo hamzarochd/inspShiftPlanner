@@ -33,7 +33,7 @@
                                           search="onSearch"
                                           useToolbar="false"
                                           showGoOnFB="true"
-                                          class="sapUiBottomMargin sapUiResponsiveMargin"
+                                          class="sapUiBottomMargin"
                                           showClearOnFB="true"
                                           showFilterConfiguration="false">
 
@@ -42,7 +42,7 @@
                                   <fb:FilterGroupItem 
                                      groupName="Main" 
                                      name="Ruolo" 
-                                     label="Ruolo" 
+                                     label="Ruoli" 
                                      visibleInFilterBar="true">
                                    <fb:control>
                                    <ComboBox  
