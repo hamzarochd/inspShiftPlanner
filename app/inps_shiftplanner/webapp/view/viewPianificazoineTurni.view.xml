@@ -138,7 +138,8 @@
                                         startDate="{startDate}"
                                         endDate="{endDate}"
                                         icon="{shiftIcon}"
-                                        color="{color}">
+                                        color="{color}"
+                                        tooltip="{title}">
                                     </unified:CalendarAppointment>
                                 </appointments>
                             </PlanningCalendarRow>
