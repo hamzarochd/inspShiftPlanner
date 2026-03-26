@@ -47,6 +47,7 @@ sap.ui.define([
                 //coverageMsg: "Caricamento dati...",
                 todayCount: 0,
                 consecutiveCount: 0,
+                personaleSenzaMinimoRiposoCount: 0,
                 showConsecutiveHighlight: false,
                 showUnderstaffingHighlight: false
             });
@@ -160,7 +161,7 @@ sap.ui.define([
             const staffCountByDate = {};
             aStaff.forEach(person => {
                 person.shifts?.forEach(appointment => {
-                    if (appointment.type && appointment.type !== "OFF") {
+                    if (appointment.type && appointment.type !== "riposo") { 
                         const sDate = new Date(appointment.startDate).toDateString();
                         staffCountByDate[sDate] = (staffCountByDate[sDate] || 0) + 1;
                     }
@@ -240,13 +241,13 @@ sap.ui.define([
             const aStaff = oModel.getProperty("/Staff") || [];
 
 
-            aStaff.forEach(staff => {
+            aStaff.forEach(person => {
                 let singleConsCount = 0;
 
                 const personalShifts = {};
                 if (person.shifts) {
                     person.shifts.forEach(shift => {
-                        if (shift.shiftCode && shift.shiftCode !== "OFF") {
+                        if (shift.type && shift.type !== "riposo") { /////// 'OFF' --> riposp
                             const sDate = new Date(shift.start).toDateString();
                             personalShifts[sDate] = true;
                         }
@@ -278,7 +279,62 @@ sap.ui.define([
         },
 
 
-/////// 
+/////////////// minimo una casella di riposo per ogni settimana!!!! 
+//////---> verrà fuori il numero di personale che non soddisfa la condizone.
+
+////// va nell  kpi/personaleSenzaMinimoRiposoCount ---> per default 0;
+
+        onPressMancazaRiposso: function(oEvent){ //// dovrebbe evidenziare i dipendenti che non soddisfa la condizione:
+            ///Recuperiamo i modelli:
+            const oModel = this.getView().getModel(); 
+            const oKpiModel = this.getView().getModel("kpi");
+            const aStaff = oModel.getProperty("/Staff") || [];
+
+            let totCountPersone = 0;
+
+            const {iYear,iMonth,iDaysInMonth} = this.GGMMAA();
+
+            //// prende ogni settimana --> controlla se soddisfa la condizione
+            aStaff.forEach(person => {
+                    let bHasRestThisWeek = false; /////
+                    let bIsPersonViolating = false; 
+
+                    const personalShifts = {};
+                    if (person.shifts) {
+                        person.shifts.forEach(shift => {
+                            const sDate = new Date(shift.startDate).toDateString();
+                            personalShifts[sDate] = shift.type; 
+                        });
+                    }
+
+                    console.log(personalShifts);
+
+
+                    for (let d = 1; d <= iDaysInMonth; d++) {
+                        const oDate = new Date(iYear, iMonth, d);
+                        const sDateStr = oDate.toDateString();
+
+                        if (!personalShifts[sDateStr] || personalShifts[sDateStr] === "riposo") {
+                            bHasRestThisWeek = true;
+                        }
+
+                        if (oDate.getDay() === 0 || d === iDaysInMonth) {
+                            if (!bHasRestThisWeek) {
+                                bIsPersonViolating = true;
+                            }
+                            bHasRestThisWeek = false;
+                        }
+                    }
+
+                    if (bIsPersonViolating) { ///// se esiste al meno una settimana che non ha preso riposo, ++
+                        totCountPersone++;
+                    }
+                });
+
+                oKpiModel.setProperty("/personaleSenzaMinimoRiposoCount", totCountPersone);               
+                MessageToast.show("Rilevate " + totCountPersone + " persone senza riposo settimanale");
+
+        },
 
 
 
