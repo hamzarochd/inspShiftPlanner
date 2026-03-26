@@ -29,15 +29,15 @@
                         <VBox >
                             <fb:FilterBar id="shiftFilterBar"
                                           reset="onResetFilters"
-                                          clear="onResetfilters"
+                                          clear="onResetFilters"
                                           search="onSearch"
                                           useToolbar="false"
                                           showGoOnFB="true"
                                           class="sapUiBottomMargin"
                                           showClearOnFB="true"
                                           showFilterConfiguration="false">
+                            <fb:filterGroupItems>
 
-                                <fb:filterGroupItems>
                                       <!--Ruolo-->
                                   <fb:FilterGroupItem 
                                      groupName="Main" 
