@@ -19,7 +19,7 @@ sap.ui.define([
             // Lo settiamo come modello della view
             this.getView().setModel(oModel, "mockdata");
 
-            const oKpiModel = new JSONModel({
+            const oKpiModel = new sap.ui.model.json.JSONModel({
                 understaffedDays: 0,
                 criticalStatus: "Neutral",
                 coverageMsg: "Caricamento dati...",

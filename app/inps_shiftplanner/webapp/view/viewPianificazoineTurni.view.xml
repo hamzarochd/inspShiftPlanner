@@ -1,8 +1,8 @@
 <mvc:View controllerName="inpsshiftplanner.controller.viewPianificazoineTurni"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:core="sap.ui.core"
     xmlns:f="sap.f"
+    xmlns:core="sap.ui.core"
     xmlns:card="sap.f.cards"
     xmlns:fb="sap.ui.comp.filterbar"
     xmlns:unified="sap.ui.unified">
@@ -29,27 +29,47 @@
                         <VBox >
                             <fb:FilterBar id="shiftFilterBar"
                                           reset="onResetFilters"
-                                          clear="onResetfilters"
+                                          clear="onResetFilters"
                                           search="onSearch"
                                           useToolbar="false"
                                           showGoOnFB="true"
                                           class="sapUiBottomMargin"
                                           showClearOnFB="true"
                                           showFilterConfiguration="false">
+                            <fb:filterGroupItems>
 
-                                <fb:filterGroupItems>
-                                  <fb:FilterGroupItem groupName="Main" name="Ruolo" label="Ruolo" visibleInFilterBar="true">
+                                      <!--Ruolo-->
+                                  <fb:FilterGroupItem 
+                                     groupName="Main" 
+                                     name="Ruolo" 
+                                     label="Ruoli" 
+                                     visibleInFilterBar="true">
                                    <fb:control>
-                                   <ComboBox  id="roleFilterCombo" items="{ruoliModel>/RuoliCollezione}">
-                                      <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+                                   <ComboBox  
+                                     id="roleFilterCombo" 
+                                     width="100%" 
+                                     items="{ruoliModel>/RuoliCollezione}" 
+                                     placeholder="Seleziona ruolo" 
+                                     showClearIcon="true">
+                                      <core:Item key="{ruoliModel>key}"  text="{ruoliModel>text}" />
                                    </ComboBox>
                                    </fb:control>
+                                </fb:FilterGroupItem>
 
-                                  </fb:FilterGroupItem>
-                                  <fb:FilterGroupItem  groupName="cd" name="Reparti" label="Reparti" visibleInFilterBar="true">
+                                  <!--Reparti-->
+                                <fb:FilterGroupItem  
+                                     groupName="cd" 
+                                     name="Reparti" 
+                                     label="Reparti" 
+                                     visibleInFilterBar="true">
                                    <fb:control>
-                                   <ComboBox  id="" items="{ruoliModel>/Reparti}">
-                                      <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+                                   <ComboBox  
+                                     id="repartoFilterCombo" 
+                                     width="100%" 
+                                     items="{ruoliModel>/Reparti}" 
+                                     placeholder="Seleziona reparto" 
+                                     showClearIcon="true">
+                                     <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
                                    </ComboBox>
                                    </fb:control>
                                   </fb:FilterGroupItem>
