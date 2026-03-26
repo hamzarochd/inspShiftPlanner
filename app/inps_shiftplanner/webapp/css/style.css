@@ -6,5 +6,5 @@
 .sapUiCalendarApp {
     box-sizing: border-box !important;
     border-radius: 4px !important;
-    /* border: 2px solid rgba(230, 15, 15, 1) !important; */
+    /* border: 2px solid rgba(230, 15, 15, 1) !important;       evidenzia appointment*/
 }
