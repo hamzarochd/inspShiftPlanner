@@ -55,23 +55,33 @@
                                   </fb:FilterGroupItem>
                                 </fb:filterGroupItems>
                             </fb:FilterBar>
-                            <HBox >
+                            <HBox class = "sapUiSmallMarginEnd sapUiSmallMarginTop sapUiSmallMarginBottom">
                                 <!-- Chenyu KPIS -->
-                                <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Mancanza personale"
-                                            frameType = "OneByHalf" press="">
+                                <GenericTile class="" header="Mancanza personale"
+                                            frameType = "OneByHalf" press="kpiCountDay" wrappingType="Hyphenated">
                                     <TileContent>
-                                        <NumericContent scale="M" value="{kpi>/understaffedDays}" valueColor="Error" indicator="Up" withMargin="false" />
+                                        <NumericContent scale="G" value="{kpi>/understaffedDays}" valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
                                 </GenericTile>
 
-                                <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Rischio salute"
+                                <GenericTile class="sapUiTinyMarginBegin" header="Rischio salute"
                                             frameType = "OneByHalf" press="">
                                     <TileContent>
                                         <NumericContent scale="M" value="" valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
                                 </GenericTile>
 
-                                <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="terzo titole"
+                                <!-- card: avere almeno un giorno di riposto alla settimana-->
+
+                                <GenericTile class="sapUiTinyMarginBegin" header="Mancanza riposo"
+                                            frameType = "OneByHalf" press="" wrappingType="Hyphenated">
+                                    <TileContent>
+                                        <NumericContent scale="M" value="" valueColor="Error" indicator="Up" withMargin="false" />
+                                    </TileContent>
+                                </GenericTile>
+
+
+                                <GenericTile class="sapUiTinyMarginBegin" header="Composizione Staff"
                                             frameType = "OneByHalf" press="">
                                     <TileContent>
                                         <NumericContent scale="M" value="" valueColor="Error" indicator="Up" withMargin="false" />

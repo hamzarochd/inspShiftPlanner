@@ -1,7 +1,10 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
-    "sap/ui/model/json/JSONModel"
-], (Controller, JSONModel) => {
+    "sap/ui/model/json/JSONModel",
+    "sap/m/MessageToast",
+    "sap/ui/unified/DateTypeRange", 
+    "sap/ui/core/format/DateFormat",
+], (Controller, JSONModel, MessageToast, DateTypeRange, DateFormat) => {
     "use strict";
 
     return Controller.extend("inpsshiftplanner.controller.viewPianificazoineTurni", {
@@ -22,8 +25,8 @@ sap.ui.define([
                 coverageMsg: "Caricamento dati...",
                 todayCount: 0,
                 consecutiveCount: 0,
-                ///showConsecutiveHighlight: false,
-                /////showUnderstaffingHighlight: false
+                showConsecutiveHighlight: false,
+                showUnderstaffingHighlight: false
             });
             this.getView().setModel(oKpiModel, "kpi");
 
@@ -75,7 +78,86 @@ sap.ui.define([
 
             // Assegniamo il modello ruoli/reparti alla vista
             this.getView().setModel(oRuoliModel, "ruoliModel");
+
+            this.updateUnderstaffing();
             // -------------------------------------------------------
+        },
+
+
+        //////// per mancanza personale, deve controllare tutti i giorni per vedere se ci sono abbasanta personale. 
+        kpiCountDay: function(oEvent){
+            //////const sHeader = oEvent.getSource().getHeader();
+            const oKpiModel = this.getView().getModel("kpi");
+            ///const oModel = this.getView().getModel("mockdata");
+            
+            const bActive = oKpiModel?.getProperty("/showUnderstaffingHighlight") || false;
+            oKpiModel?.setProperty("/showUnderstaffingHighlight", !bActive);
+
+            ///// prendere il calendario.
+
+            const calendar = this.byId("planningCalendar")
+
+            if (!bActive){
+                this.updateUnderstaffing(true); 
+            } else {
+                calendar?.removeAllSpecialDates();
+                sap.m.MessageToast.show("Evidenziazione rimossa");
+                }
+            },
+
+        /////// funzione da chiamare all'interno di kpiCountDay-
+
+        updateUnderstaffing: function(bUpdateCalendar) { //// true oppure false
+            const oModel = this.getView().getModel("mockdata");
+            const oKpiModel = this.getView().getModel("kpi");
+            const oCalendar = this.byId("planningCalendar");
+            
+            const aStaff = oModel?.getProperty("/Staff") || [];
+            ///console.log(aStaff);
+
+
+            const oStartDate = oCalendar?.getStartDate() || new Date();
+            const iYear = oStartDate.getFullYear(), iMonth = oStartDate.getMonth();
+            const iDaysInMonth = new Date(iYear, iMonth + 1, 0).getDate();
+
+            const staffCountByDate = {};
+            aStaff.forEach(person => {
+                person.appointments?.forEach(appointment => {
+                    if (appointment.type && appointment.type !== "OFF") {
+                        const sDate = new Date(appointment.startDate).toDateString();
+                        staffCountByDate[sDate] = (staffCountByDate[sDate] || 0) + 1;
+                    }
+                });
+            });
+
+            let iCriticalDays = 0;
+            if (bUpdateCalendar) oCalendar?.removeAllSpecialDates();
+
+            for (let d = 1; d <= iDaysInMonth; d++) {
+                const oDate = new Date(iYear, iMonth, d);
+                const isWeekend = (oDate.getDay() === 0 || oDate.getDay() === 6);
+                const threshold = isWeekend ? 2 : 3;
+                const count = staffCountByDate[oDate.toDateString()] || 0;
+
+                if (count < threshold) {
+                    iCriticalDays++;
+                    if (bUpdateCalendar) {
+                        oCalendar?.addSpecialDate(new sap.ui.unified.DateTypeRange({
+                            startDate: oDate
+                        }));
+                    }
+                }
+            }
+
+            oKpiModel?.setProperty("/understaffedDays", iCriticalDays);
+            oKpiModel?.setProperty("/criticalStatus", iCriticalDays > 0 ? "Critical" : "Success");
+            
+            if (bUpdateCalendar && iCriticalDays > 0) {
+                sap.m.MessageToast.show("Trovati " + iCriticalDays + " giorni sottorganico");
+            }
         }
+
+        
+
     });
 });

@@ -5,7 +5,7 @@
             "name":"Marco Rossi",
             "role":"Infermiere",
             "icon":"sap-icon://employee",
-            "shifts":[
+            "appointments":[
                 {
                     "ID_Utente" : 1,
                     "title" : "Coordinamento reparto",
