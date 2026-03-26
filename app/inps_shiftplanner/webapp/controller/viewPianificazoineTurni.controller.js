@@ -44,9 +44,10 @@ sap.ui.define([
             const oKpiModel = new sap.ui.model.json.JSONModel({
                 understaffedDays: 0,
                 criticalStatus: "Neutral",
-                coverageMsg: "Caricamento dati...",
+                //coverageMsg: "Caricamento dati...",
                 todayCount: 0,
                 consecutiveCount: 0,
+                personaleSenzaMinimoRiposoCount: 0,
                 showConsecutiveHighlight: false,
                 showUnderstaffingHighlight: false
             });
@@ -105,13 +106,14 @@ sap.ui.define([
 
 
         //////// per mancanza personale, deve controllare tutti i giorni per vedere se ci sono abbasanta personale. 
-        kpiCountDay: function(oEvent){
+        onPressMancanzaPersonale: function(oEvent){
             //////const sHeader = oEvent.getSource().getHeader();
             const oKpiModel = this.getView().getModel("kpi");
-            ///const oModel = this.getView().getModel("mockdata");
+            const oModel = this.getView().getModel("mockdata");
             
             const bActive = oKpiModel?.getProperty("/showUnderstaffingHighlight") || false;
             oKpiModel?.setProperty("/showUnderstaffingHighlight", !bActive);
+            oModel?.refresh(true);
 
             ///// prendere il calendario.
 
@@ -121,11 +123,26 @@ sap.ui.define([
                 this.updateUnderstaffing(true); 
             } else {
                 calendar?.removeAllSpecialDates();
-                sap.m.MessageToast.show("Evidenziazione rimossa");
+                MessageToast.show("Evidenziazione rimossa");
                 }
             },
 
+
+//// definisco una funzione che recupera l'anno, il mese ed quanti giorni in quel mese:::.
+
+        GGMMAA: function(){
+            const oCalendar = this.byId("planningCalendar");
+            const oStartDate = oCalendar?.getStartDate() || new Date();
+
+            const iYear = oStartDate.getFullYear();
+            const iMonth = oStartDate.getMonth();
+            const iDaysInMonth = new Date(iYear, iMonth + 1, 0).getDate();
+
+            return {iYear,iMonth,iDaysInMonth};
+        },
+
         /////// funzione da chiamare all'interno di kpiCountDay-
+
 
         updateUnderstaffing: function(bUpdateCalendar) { //// true oppure false
             const oModel = this.getView().getModel(); // modello default (no nome)
@@ -134,14 +151,17 @@ sap.ui.define([
 
             const aStaff = oModel?.getProperty("/dipendenti") || [];
 
-            const oStartDate = oCalendar?.getStartDate() || new Date();
-            const iYear = oStartDate.getFullYear(), iMonth = oStartDate.getMonth();
-            const iDaysInMonth = new Date(iYear, iMonth + 1, 0).getDate();
+            /*const oStartDate = oCalendar?.getStartDate() || new Date();
+            const iYear = oStartDate.getFullYear();
+            const iMonth = oStartDate.getMonth();
+            const iDaysInMonth = new Date(iYear, iMonth + 1, 0).getDate();*/
+
+            const {iYear,iMonth,iDaysInMonth} = this.GGMMAA();
 
             const staffCountByDate = {};
             aStaff.forEach(person => {
                 person.shifts?.forEach(appointment => {
-                    if (appointment.type && appointment.type !== "OFF") {
+                    if (appointment.type && appointment.type !== "riposo") { 
                         const sDate = new Date(appointment.startDate).toDateString();
                         staffCountByDate[sDate] = (staffCountByDate[sDate] || 0) + 1;
                     }
@@ -154,13 +174,13 @@ sap.ui.define([
             for (let d = 1; d <= iDaysInMonth; d++) {
                 const oDate = new Date(iYear, iMonth, d);
                 const isWeekend = (oDate.getDay() === 0 || oDate.getDay() === 6);
-                const threshold = isWeekend ? 2 : 3;
+                const threshold = isWeekend ? 2 : 1; //////// min 2 per il weekend, min 1 durante i giorni lavorativi.
                 const count = staffCountByDate[oDate.toDateString()] || 0;
 
                 if (count < threshold) {
                     iCriticalDays++;
-                    if (bUpdateCalendar) {
-                        oCalendar?.addSpecialDate(new sap.ui.unified.DateTypeRange({
+                    if (bUpdateCalendar) { ///// perché adesso il showUnderstaffingHighlight risulta true.
+                        oCalendar?.addSpecialDate(new DateTypeRange({
                             startDate: oDate
                         }));
                     }
@@ -169,13 +189,154 @@ sap.ui.define([
 
             oKpiModel?.setProperty("/understaffedDays", iCriticalDays);
             oKpiModel?.setProperty("/criticalStatus", iCriticalDays > 0 ? "Critical" : "Success");
+
+            
             
             if (bUpdateCalendar && iCriticalDays > 0) {
-                sap.m.MessageToast.show("Trovati " + iCriticalDays + " giorni sottorganico");
+                MessageToast.show("Trovati " + iCriticalDays + " giorni sottorganico");
             }
-        }
+        },
 
-        
+        ////////// per tile Rischio salute:::
+        /////// non più di 6 giorni consecutivi.
+
+        onPressRischioSalute: function(oEvent){
+            // recuperiamo il modello:::
+            const oModel = this.getView().getModel(); 
+            const oKpiModel = this.getView().getModel("kpi");
+
+            ////////
+            const bActive = oKpiModel?.getProperty("/showConsecutiveHighlight") || false;
+            oKpiModel?.setProperty("/showConsecutiveHighlight", !bActive);
+            oModel?.refresh(true);
+
+
+            ///// segue la logica simile.:::
+            if (!bActive){
+                this.countConsecutive(true);
+            } else {
+                MessageToast.show('Rischio salute rimossa')
+            }
+
+        },
+
+        ////// da chiamare al interno di onPressRischioSalute --> per contare i giorni consicutivi 
+
+        countConsecutive: function(){
+            const oModel = this.getView().getModel(); 
+            const oKpiModel = this.getView().getModel("kpi");
+            const oCalendar = this.byId("planningCalendar");
+
+            if(!oCalendar){
+                return;
+            }
+
+            const limitDat = 6; //// massimo 6 giorni consecutivi.
+
+            const {iYear,iMonth,iDaysInMonth} = this.GGMMAA();
+             
+            let consecutCount = 0; //// per default
+
+            ////// array degli staff
+            const aStaff = oModel.getProperty("/Staff") || [];
+
+
+            aStaff.forEach(person => {
+                let singleConsCount = 0;
+
+                const personalShifts = {};
+                if (person.shifts) {
+                    person.shifts.forEach(shift => {
+                        if (shift.type && shift.type !== "riposo") { /////// 'OFF' --> riposp
+                            const sDate = new Date(shift.start).toDateString();
+                            personalShifts[sDate] = true;
+                        }
+                    });
+                }
+
+                for (let d = 1; d <= iDaysInMonth; d++) {
+                    const tempDate = new Date(iYear, iMonth, d).toDateString();
+
+                    if (personalShifts[tempDate]) {
+
+                        singleConsCount++;
+                    } else {
+                        singleConsCount = 0;
+                    }
+
+
+                    if (singleConsCount > limitDat) {
+                        consecutCount++;
+                    }
+                }
+            });
+            
+
+            oKpiModel.setProperty("/consecutiveCount", consecutCount);
+            oKpiModel.setProperty("/consecutiveStatus", consecutCount > 0 ? "Warning" : "Success");
+            oKpiModel.setProperty("/consecutiveMsg", consecutCount > 0 ? consecutCount + " Turni a Rischio" : "Riposo Garantito");
+
+        },
+
+
+/////////////// minimo una casella di riposo per ogni settimana!!!! 
+//////---> verrà fuori il numero di personale che non soddisfa la condizone.
+
+////// va nell  kpi/personaleSenzaMinimoRiposoCount ---> per default 0;
+
+        onPressMancazaRiposso: function(oEvent){ //// dovrebbe evidenziare i dipendenti che non soddisfa la condizione:
+            ///Recuperiamo i modelli:
+            const oModel = this.getView().getModel(); 
+            const oKpiModel = this.getView().getModel("kpi");
+            const aStaff = oModel.getProperty("/Staff") || [];
+
+            let totCountPersone = 0;
+
+            const {iYear,iMonth,iDaysInMonth} = this.GGMMAA();
+
+            //// prende ogni settimana --> controlla se soddisfa la condizione
+            aStaff.forEach(person => {
+                    let bHasRestThisWeek = false; /////
+                    let bIsPersonViolating = false; 
+
+                    const personalShifts = {};
+                    if (person.shifts) {
+                        person.shifts.forEach(shift => {
+                            const sDate = new Date(shift.startDate).toDateString();
+                            personalShifts[sDate] = shift.type; 
+                        });
+                    }
+
+                    console.log(personalShifts);
+
+
+                    for (let d = 1; d <= iDaysInMonth; d++) {
+                        const oDate = new Date(iYear, iMonth, d);
+                        const sDateStr = oDate.toDateString();
+
+                        if (!personalShifts[sDateStr] || personalShifts[sDateStr] === "riposo") {
+                            bHasRestThisWeek = true;
+                        }
+
+                        if (oDate.getDay() === 0 || d === iDaysInMonth) {
+                            if (!bHasRestThisWeek) {
+                                bIsPersonViolating = true;
+                            }
+                            bHasRestThisWeek = false;
+                        }
+                    }
+
+                    if (bIsPersonViolating) { ///// se esiste al meno una settimana che non ha preso riposo, ++
+                        totCountPersone++;
+                    }
+                });
+
+                oKpiModel.setProperty("/personaleSenzaMinimoRiposoCount", totCountPersone);               
+                MessageToast.show("Rilevate " + totCountPersone + " persone senza riposo settimanale");
+
+        },
+
+
 
     });
 });

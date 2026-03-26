@@ -78,25 +78,25 @@
                             <HBox class = "sapUiSmallMarginEnd sapUiSmallMarginTop sapUiSmallMarginBottom">
                                 <!-- Chenyu KPIS -->
                                 <GenericTile class="" header="Mancanza personale"
-                                            frameType = "OneByHalf" press="kpiCountDay" wrappingType="Hyphenated">
+                                            frameType = "OneByHalf" press="onPressMancanzaPersonale" wrappingType="Hyphenated">
                                     <TileContent>
                                         <NumericContent scale="G" value="{kpi>/understaffedDays}" valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
                                 </GenericTile>
 
                                 <GenericTile class="sapUiTinyMarginBegin" header="Rischio salute"
-                                            frameType = "OneByHalf" press="">
+                                            frameType = "OneByHalf" press="onPressRischioSalute">
                                     <TileContent>
-                                        <NumericContent scale="M" value="" valueColor="Error" indicator="Up" withMargin="false" />
+                                        <NumericContent scale="P" value="{kpi>/consecutiveCount}" valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
                                 </GenericTile>
 
                                 <!-- card: avere almeno un giorno di riposto alla settimana-->
 
                                 <GenericTile class="sapUiTinyMarginBegin" header="Mancanza riposo"
-                                            frameType = "OneByHalf" press="" wrappingType="Hyphenated">
+                                            frameType = "OneByHalf" press="onPressMancazaRiposso" wrappingType="Hyphenated">
                                     <TileContent>
-                                        <NumericContent scale="M" value="" valueColor="Error" indicator="Up" withMargin="false" />
+                                        <NumericContent scale="P" value="{kpi/personaleSenzaMinimoRiposoCount}" valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
                                 </GenericTile>
 
@@ -121,7 +121,9 @@
                         rows="{path: '/dipendenti'}"
                         startDate="{path: '/startDate'}"
                         viewKey="One Month"
-                        appointmentsVisualization="Standard">
+                        appointmentsVisualization="Standard"
+                        showEmptyIntervalHeaders="false"
+                        appointmentHeight="Regular">
 
                         <rows>
                             <PlanningCalendarRow
@@ -135,10 +137,9 @@
                                     <unified:CalendarAppointment
                                         startDate="{startDate}"
                                         endDate="{endDate}"
-                                        title="{title}"
-                                        text="{text}"
-                                        type="{type}"
-                                        icon="{shiftIcon}">
+                                        icon="{shiftIcon}"
+                                        color="{color}"
+                                        tooltip="{title}">
                                     </unified:CalendarAppointment>
                                 </appointments>
                             </PlanningCalendarRow>

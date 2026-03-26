@@ -4,3 +4,12 @@
   padding: 1rem;
   background: #f8f9fb;
 }
+
+/* Stile della card appointment del PlanningCalendar.
+   Agiamo su .sapUiCalendarApp (contenitore esterno) che è sicuro da modificare
+   senza rompere il layout interno di SAP UI5. */
+.sapUiCalendarApp {
+    box-sizing: border-box !important;
+    border-radius: 4px !important;
+    /* border: 2px solid rgba(230, 15, 15, 1) !important; */
+}
