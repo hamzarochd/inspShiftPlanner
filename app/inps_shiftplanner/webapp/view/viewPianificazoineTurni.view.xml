@@ -78,16 +78,16 @@
                             <HBox class = "sapUiSmallMarginEnd sapUiSmallMarginTop sapUiSmallMarginBottom">
                                 <!-- Chenyu KPIS -->
                                 <GenericTile class="" header="Mancanza personale"
-                                            frameType = "OneByHalf" press="kpiCountDay" wrappingType="Hyphenated">
+                                            frameType = "OneByHalf" press="onPressMancanzaPersonale" wrappingType="Hyphenated">
                                     <TileContent>
                                         <NumericContent scale="G" value="{kpi>/understaffedDays}" valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
                                 </GenericTile>
 
                                 <GenericTile class="sapUiTinyMarginBegin" header="Rischio salute"
-                                            frameType = "OneByHalf" press="">
+                                            frameType = "OneByHalf" press="onPressRischioSalute">
                                     <TileContent>
-                                        <NumericContent scale="M" value="" valueColor="Error" indicator="Up" withMargin="false" />
+                                        <NumericContent scale="P" value="{kpi>/consecutiveCount}" valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
                                 </GenericTile>
 
