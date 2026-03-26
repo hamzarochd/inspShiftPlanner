@@ -137,5 +137,10 @@
   "sap.cloud": {
     "public": true,
     "service": "inps_shiftplanner"
+  },
+  "libs":{
+    "sap.m":{},
+    "sap.ui.core":{},
+    "sap.f":{}
   }
 }
