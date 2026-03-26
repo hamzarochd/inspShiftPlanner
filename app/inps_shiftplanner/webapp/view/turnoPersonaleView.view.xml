@@ -1,0 +1,10 @@
+<mvc:View 
+    controllerName="inpsshiftplanner.controller.turnoPersonale"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:unified="sap.ui.unified"
+    xmlns:core="sap.ui.core">
+
+    
+
+</mvc:View>

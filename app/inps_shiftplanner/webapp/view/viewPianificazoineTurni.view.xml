@@ -1,4 +1,4 @@
-<mvc:View controllerName="inpsshiftplanner.controller.viewPianificazoineTurni"
+<mvc:View controllerName="inpsshiftplanner.controller.viewPianificazioneTurni"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:f="sap.f"
