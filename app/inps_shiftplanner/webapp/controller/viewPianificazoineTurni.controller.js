@@ -109,7 +109,7 @@ sap.ui.define([
         onPressMancanzaPersonale: function(oEvent){
             //////const sHeader = oEvent.getSource().getHeader();
             const oKpiModel = this.getView().getModel("kpi");
-            ///const oModel = this.getView().getModel("mockdata");
+            const oModel = this.getView().getModel("mockdata");
             
             const bActive = oKpiModel?.getProperty("/showUnderstaffingHighlight") || false;
             oKpiModel?.setProperty("/showUnderstaffingHighlight", !bActive);
