@@ -1,0 +1,115 @@
+<mvc:View 
+    controllerName="inpsshiftplanner.controller.turnoPersonale"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:core="sap.ui.core">
+
+    <f:DynamicPage>
+
+        <!-- HEADER -->
+        <f:title>
+            <f:DynamicPageTitle>
+                <f:heading>
+                    <Title text="Profilo Personale"/>
+                </f:heading>
+                <f:expandedContent>
+                    <Text text="Visualizza turni e informazioni personali"/>
+                </f:expandedContent>
+            </f:DynamicPageTitle>
+        </f:title>
+
+        <!-- CONTENUTO -->
+        <f:content>
+            <VBox class="sapUiMediumMargin">
+
+                <!-- CARD PROFILO -->
+                <HBox class="sapUiMediumMarginBottom" justifyContent="SpaceBetween">
+
+                    <!-- Avatar + Nome -->
+                    <VBox width="30%">
+                        <Avatar 
+                            displayShape="Circle"
+                            initials="MR"
+                            displaySize="XL"
+                            class="sapUiMediumMarginBottom"/>
+                        
+                        <Title text="Mario Rossi"/>
+                        <Text text="Matricola: INF-2458"/>
+                    </VBox>
+
+                    <!-- Info -->
+                    <VBox width="65%">
+
+                        <HBox justifyContent="SpaceBetween">
+                            <VBox>
+                                <Text text="RUOLO" class="sapUiTinyMarginBottom"/>
+                                <Title text="Infermiere"/>
+                            </VBox>
+
+                            <VBox>
+                                <Text text="REPARTO"/>
+                                <Title text="Terapia Intensiva"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox justifyContent="SpaceBetween" class="sapUiMediumMarginTop">
+                            <VBox>
+                                <Text text="EMAIL"/>
+                                <Text text="mario.rossi@ospedale.it"/>
+                            </VBox>
+
+                            <VBox>
+                                <Text text="TELEFONO"/>
+                                <Text text="+39 348 123 4567"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox justifyContent="SpaceBetween" class="sapUiMediumMarginTop">
+                            <VBox>
+                                <Text text="ASSUNTO DAL"/>
+                                <Text text="15/03/2020"/>
+                            </VBox>
+
+                            <VBox>
+                                <Text text="STATO"/>
+                                <ObjectStatus text="Attivo" state="Success"/>
+                            </VBox>
+                        </HBox>
+
+                    </VBox>
+
+                </HBox>
+
+                <!-- KPI -->
+                <HBox justifyContent="SpaceBetween">
+
+                    <!-- Ore lavorate -->
+                    <VBox width="32%" class="sapUiSmallMargin">
+                        <Title text="Ore Lavorate (Marzo)"/>
+                        <Text text="156 / 168 ore"/>
+                        <ProgressIndicator percentValue="93" />
+                    </VBox>
+
+                    <!-- Turni -->
+                    <VBox width="32%" class="sapUiSmallMargin">
+                        <Title text="Turni Completati"/>
+                        <Text text="18 / 21 turni"/>
+                        <ProgressIndicator percentValue="85" state="Success"/>
+                    </VBox>
+
+                    <!-- Ferie -->
+                    <VBox width="32%" class="sapUiSmallMargin">
+                        <Title text="Ferie & Recuperi"/>
+                        <Text text="Ferie residue: 12 giorni"/>
+                        <Text text="Recuperi: 8 ore"/>
+                    </VBox>
+
+                </HBox>
+
+            </VBox>
+        </f:content>
+
+    </f:DynamicPage>
+
+</mvc:View>

@@ -108,15 +108,22 @@
         {
           "name": "RouteviewPianificazoineTurni",
           "pattern": ":?query:",
-          "target": [
-            "TargetviewPianificazoineTurni"
-          ]
+          "target": ["TargetviewPianificazoineTurni"]
+        },
+        {
+          "name": "RoutePianificazione",
+          "pattern": "turno",
+          "target":["TargetTurnoPersonale"]
         }
       ],
       "targets": {
         "TargetviewPianificazoineTurni": {
           "id": "viewPianificazoineTurni",
           "name": "viewPianificazoineTurni"
+        },
+        "TargetTurnoPersonale":{
+          "id":"turnoPersonaleView",
+          "name":"turnoPersonaleView"
         }
       }
     },
@@ -130,5 +137,10 @@
   "sap.cloud": {
     "public": true,
     "service": "inps_shiftplanner"
+  },
+  "libs":{
+    "sap.m":{},
+    "sap.ui.core":{},
+    "sap.f":{}
   }
 }

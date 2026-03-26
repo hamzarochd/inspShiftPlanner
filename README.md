@@ -23,3 +23,8 @@ File or Folder | Purpose
 ## Learn More
 
 Learn more at https://cap.cloud.sap/docs/get-started/.
+
+
+<!--Url per la pagina turno:http://localhost:4004/inps_shiftplanner/index.html#/turno
+ Url per la pagina pianificazione :https://port4004-workspaces-ws-gzmwm.us10.trial.applicationstudio.cloud.sap/inpsshiftplanner/index.html
+>

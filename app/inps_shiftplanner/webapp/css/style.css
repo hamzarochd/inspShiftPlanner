@@ -1,4 +1,9 @@
 /* Enter your custom styles here */
+.cardBox {
+  border-radius: 12px;
+  padding: 1rem;
+  background: #f8f9fb;
+}
 
 /* Stile della card appointment del PlanningCalendar.
    Agiamo su .sapUiCalendarApp (contenitore esterno) che è sicuro da modificare
