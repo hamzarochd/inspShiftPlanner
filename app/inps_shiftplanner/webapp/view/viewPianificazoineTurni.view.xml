@@ -102,13 +102,16 @@
                             <PlanningCalendarRow
                                 icon="{icon}"
                                 title="{name}"
-                                text="{role}"
-                                enableAppointmentsDragAndDrop="{path:'name', formatter:'.canModifyAppointments'}"
+                                text="{role}">
+                                
+                                <!-- enableAppointmentsDragAndDrop="{path:'name', formatter:'.canModifyAppointments'}"
                                 enableAppointmentsCreate="{path:'name', formatter:'.canModifyAppointments'}"
                                 appointmentDrop="handleAppointmentDrop"
                                 appointmentDragEnter="handleAppointmentDragEnter"
                                 appointmentResize="handleAppointmentResize"
-                                appointmentCreate="handleAppointmentCreate">
+                                appointmentCreate="handleAppointmentCreate"> -->
+                                
+                                
                                 <!-- Gli appuntamenti vengono letti dall'array "shifts" di ogni membro.
                                      startDate e endDate usano il tipo DateTime per la conversione,
                                      title, text, icon (shiftIcon) e type mappano i campi del turno -->
