@@ -40,7 +40,7 @@ sap.ui.define([
                 // updateUnderstaffing va chiamato dopo che il modello è pronto
                 this.countConsecutive();
                 this.updateUnderstaffing();
-                this.countMissingWeeklyRest();
+                this.countNonroposoSettimanale();
 
             });
 
@@ -166,7 +166,7 @@ sap.ui.define([
             const staffCountByDate = {};
             aStaff.forEach(person => {
                 person.shifts?.forEach(appointment => {
-                    if (appointment.type && appointment.type !== "riposo") { 
+                    if (appointment.type && appointment.type !== "RIPOSO") { 
                         const sDate = new Date(appointment.startDate).toDateString();
                         staffCountByDate[sDate] = (staffCountByDate[sDate] || 0) + 1;
                     }
@@ -236,7 +236,7 @@ sap.ui.define([
 
             ///if (!oCalendar) return;
 
-            const limitDays = 3; 
+            const limitDays = 3; ///// per testare
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
             
             ////total personale
@@ -293,64 +293,30 @@ sap.ui.define([
 //////---> verrà fuori il numero di personale che non soddisfa la condizone.
 
 ////// va nell  kpi/personaleSenzaMinimoRiposoCount ---> per default 0;
-/*
-onPressMancazaRiposso: function(oEvent) {
-    const oModel = this.getView().getModel(); 
-    const oKpiModel = this.getView().getModel("kpi");
-    const aStaff = oModel.getProperty("/dipendenti") || []; // 统一路径
 
-    let iViolatingPeopleCount = 0; // 违规的人数
-    const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
+        onPressMancazaRiposso: function(oEvent) {
+            const oKpiModel = this.getView().getModel("kpi");
+            
+            const TotPersonale = this.countNonroposoSettimanale();
 
-    aStaff.forEach(person => {
-        let bHasRestThisWeek = false; 
-        let bPersonIsViolating = false; // 员工违规标记
+            
+            //const sStatus = TotPersonale > 0 ? "Error" : "Success";
+            //oKpiModel.setProperty("/restStatus", sStatus); 
 
-        // 提取该员工所有的 RIPOSO 日期
-        const restDays = {};
-        if (person.shifts) {
-            person.shifts.forEach(shift => {
-                if (shift.type === "RIPOSO" && shift.startDate) {
-                    const sDate = shift.startDate.toDateString();
-                    restDays[sDate] = true;
-                }
-            });
-        }
-
-        // 按日扫描，周结算
-        for (let d = 1; d <= iDaysInMonth; d++) {
-            const oDate = new Date(iYear, iMonth, d);
-            const sDateStr = oDate.toDateString();
-
-            if (restDays[sDateStr]) {
-                bHasRestThisWeek = true;
+            // 3. 弹出消息提示
+            if (TotPersonale > 0) {
+                MessageToast.show("Attenzione: " + TotPersonale + " dipendenti senza riposo settimanale.");
+            } else {
+                MessageToast.show("Tutto in regola: ogni dipendente ha almeno un riposo a settimana.");
             }
+        },
 
-            // 结算点：周日 (0) 或 月末
-            if (oDate.getDay() === 0 || d === iDaysInMonth) {
-                if (!bHasRestThisWeek) {
-                    bPersonIsViolating = true; // 这一周没休，整个人标记违规
-                    // 已经确定违规了，可以直接跳出日期循环提高效率
-                    break; 
-                }
-                bHasRestThisWeek = false; // 开启下一周检测
-            }
-        }
-
-        // 如果该员工被标记为违规，总人数加 1
-        if (bPersonIsViolating) {
-            iViolatingPeopleCount++;
-        }
-    });
-
-    // 更新模型中的人数属性
-    oKpiModel.setProperty("/personaleSenzaMinimoRiposoCount", iViolatingPeopleCount);
-    sap.m.MessageToast.show("Persone non a norma: " + iViolatingPeopleCount);
-    console.log("每周一休违规总人数:", iViolatingPeopleCount);
-},*/
+        
 
 
-        countMissingWeeklyRest: function() {
+        ////// la funzione da chiamare al interno di onPressMancanzaRiposo
+
+        countNonroposoSettimanale: function() {
 
             const oModel = this.getView().getModel();
             const oKpiModel = this.getView().getModel("kpi");
@@ -410,7 +376,7 @@ onPressMancazaRiposso: function(oEvent) {
 
 
             oKpiModel.setProperty("/personaleSenzaMinimoRiposoCount", TotPersonale);
-            //return TotPersonale;
+            return TotPersonale;
         },
 
 
