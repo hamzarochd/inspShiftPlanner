@@ -96,7 +96,7 @@
                                 <GenericTile class="sapUiTinyMarginBegin" header="Mancanza riposo"
                                             frameType = "OneByHalf" press="onPressMancazaRiposso" wrappingType="Hyphenated">
                                     <TileContent>
-                                        <NumericContent scale="P" value="{kpi/personaleSenzaMinimoRiposoCount}" valueColor="Error" indicator="Up" withMargin="false" />
+                                        <NumericContent scale="P" value="{kpi>/personaleSenzaMinimoRiposoCount}" valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
                                 </GenericTile>
 
