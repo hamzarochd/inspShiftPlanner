@@ -44,6 +44,8 @@ sap.ui.define([
 
             });
 
+
+
             const oKpiModel = new sap.ui.model.json.JSONModel({
                 understaffedDays: 0,
                 criticalStatus: "Neutral",
