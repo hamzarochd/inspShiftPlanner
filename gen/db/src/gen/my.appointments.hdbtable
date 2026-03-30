@@ -7,5 +7,7 @@ COLUMN TABLE my_appointments (
   endDate TIMESTAMP,
   "TEXT" NVARCHAR(5000),
   notes NVARCHAR(5000),
+  shiftIcon NVARCHAR(5000),
+  color NVARCHAR(5000),
   PRIMARY KEY(ID)
 )

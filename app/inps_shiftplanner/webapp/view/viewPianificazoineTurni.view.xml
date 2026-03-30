@@ -127,8 +127,8 @@
 
                         <rows>
                             <PlanningCalendarRow
-                                icon="{icon}"
-                                title="{name}"
+                                icon="{= ${highlight} === true ? 'sap-icon://message-warning' : ${icon} }"                               
+                                title="{= ${highlight} === true ? '🔴 ' + ${name} : ${name} }"
                                 text="{role}"
                                 appointments="{path: 'shifts', templateShareable: false}"
                                 enableAppointmentsDragAndDrop="true"

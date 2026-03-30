@@ -23,8 +23,9 @@ entity Products {
 ////// gli staff
 entity staffs : cuid {
     Name       : String;
+    Surname    : String;
     Role       : String;
-    ///icon       : String;
+    icon       : String;
     Appointments     : Composition of many appointments on Appointments.ID_Utente = $self.ID;
 }
 
@@ -38,6 +39,6 @@ entity appointments : cuid {
     endDate   : Timestamp;
     text      : String;
     notes     : String;
-    ///// shiftIcon  : String;   ---> va presa con il modello fuori --> per title prendonno l'icona
-    ///color      : String; 
+    shiftIcon  : String;   ///---> va presa con il modello fuori --> per title prendonno l'icona
+    color      : String; 
 }
