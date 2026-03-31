@@ -7,31 +7,8 @@ sap.ui.define([
 ], (Controller, JSONModel, UI5Date, MessageToast, DateTypeRange) => {
     "use strict";
 
-    var CalendarDayType = unifiedLibrary.CalendarDayType;
-
     return Controller.extend("inpsshiftplanner.controller.viewPianificazoineTurni", {
-        onInit: async function () {
-
-            var oToday = new Date();
-            
-
-            var oFirstDayOfMonth = new Date(oToday.getFullYear(), oToday.getMonth(), 1);
-
-
-            var oViewModel = new JSONModel({
-                calendarStartDate: oFirstDayOfMonth
-            });
-
-
-            this.getView().setModel(oViewModel, "view");
-
-            this.countConsecutive(false);
-            this.updateUnderstaffing();
-            this.countNonroposoSettimanale(false);
-            
-
-
-            /*
+        onInit() {
             // Converte stringhe ISO in UI5Date usando componenti locali
             // per evitare problemi di timezone (es. data spostata di un giorno)
             function toUI5Date(sISO) {
@@ -74,12 +51,14 @@ sap.ui.define([
                     const oModel = new JSONModel(oData);
                     this.getView().setModel(oModel);
 
-                // updateUnderstaffing va chiamato dopo che il modello è pronto
-                this.countConsecutive(false);
-                this.updateUnderstaffing();
-                this.countNonroposoSettimanale(false);
-
-            });
+                    // KPI vanno calcolati dopo che il modello è pronto
+                    this.countConsecutive(false);
+                    this.updateUnderstaffing();
+                    this.countNonroposoSettimanale(false);
+                }.bind(this))
+                .catch(function(oErr) {
+                    sap.m.MessageToast.show("Errore caricamento dati: " + oErr.message);
+                });
 
 
 
