@@ -118,13 +118,8 @@
                 <VBox>
                     <PlanningCalendar
                         id="planningCalendar"
-                        rows="{
-                                path: '/staffs',
-                                parameters: {
-                                    $expand: 'Appointments'
-                                }
-                            }"
-                        startDate="{view>/calendarStartDate}"
+                        rows="{path: '/dipendenti'}"
+                        startDate="{path: '/startDate'}"
                         viewKey="One Month"
                         appointmentsVisualization="Standard"
                         showEmptyIntervalHeaders="false"
@@ -133,19 +128,18 @@
                         <rows>
                             <PlanningCalendarRow
                                 icon="{= ${highlight} === true ? 'sap-icon://message-warning' : ${icon} }"                               
-                                title="{= ${highlight} === true ? '🔴 ' + ${Name} : ${Name} }"
+                                title="{= ${highlight} === true ? '🔴 ' + ${name} : ${name} }"
                                 text="{role}"
-                                appointments="{path: 'Appointments', templateShareable: false}"
+                                appointments="{path: 'shifts', templateShareable: false}"
                                 enableAppointmentsDragAndDrop="true"
                                 enableAppointmentsResize="false">
                                 <appointments>
                                     <unified:CalendarAppointment
-                                                startDate="{startDate}"
-                                                endDate="{endDate}"
-                                                title="{title}"
-                                                text="{text}"
-                                                type="{type}"
-                                                icon="{shiftIcon}">
+                                        startDate="{startDate}"
+                                        endDate="{endDate}"
+                                        icon="{shiftIcon}"
+                                        color="{color}"
+                                        tooltip="{title}">
                                     </unified:CalendarAppointment>
                                 </appointments>
                             </PlanningCalendarRow>
