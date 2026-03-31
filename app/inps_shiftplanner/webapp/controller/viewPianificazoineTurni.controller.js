@@ -7,8 +7,31 @@ sap.ui.define([
 ], (Controller, JSONModel, UI5Date, MessageToast, DateTypeRange) => {
     "use strict";
 
+    var CalendarDayType = unifiedLibrary.CalendarDayType;
+
     return Controller.extend("inpsshiftplanner.controller.viewPianificazoineTurni", {
-        onInit() {
+        onInit: async function () {
+
+            var oToday = new Date();
+            
+
+            var oFirstDayOfMonth = new Date(oToday.getFullYear(), oToday.getMonth(), 1);
+
+
+            var oViewModel = new JSONModel({
+                calendarStartDate: oFirstDayOfMonth
+            });
+
+
+            this.getView().setModel(oViewModel, "view");
+
+            this.countConsecutive(false);
+            this.updateUnderstaffing();
+            this.countNonroposoSettimanale(false);
+            
+
+
+            /*
             // Carica i dati da mockdata.json, converte le date e setta il modello default.
             // Il modello va settato senza nome (default) perché i binding relativi
             // nelle aggregazioni annidate (appointments) lo ereditino correttamente.
@@ -43,7 +66,7 @@ sap.ui.define([
                 this.countNonroposoSettimanale(false);
 
             });
-
+*/
 
 
             const oKpiModel = new sap.ui.model.json.JSONModel({
