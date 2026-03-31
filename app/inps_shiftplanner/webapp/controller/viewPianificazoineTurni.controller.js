@@ -22,7 +22,7 @@ sap.ui.define([
             // Carica staffs con appointments espansi dall'OData backend
             fetch("/odata/v4/catalog/staffs?$expand=Appointments")
                 .then(res => res.json())
-                .then(oResponse => {
+                .then(function(oResponse) {
                     const aStaffs = oResponse.value || [];
 
                     const now = new Date();
