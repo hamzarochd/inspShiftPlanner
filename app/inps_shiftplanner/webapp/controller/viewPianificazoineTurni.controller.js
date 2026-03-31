@@ -9,40 +9,56 @@ sap.ui.define([
 
     return Controller.extend("inpsshiftplanner.controller.viewPianificazoineTurni", {
         onInit() {
-            // Carica i dati da mockdata.json, converte le date e setta il modello default.
-            // Il modello va settato senza nome (default) perché i binding relativi
-            // nelle aggregazioni annidate (appointments) lo ereditino correttamente.
-            const oModel = new JSONModel();
-            oModel.loadData("model/mockdata.json").then(() => {
-                const oData = oModel.getData();
+            // Converte stringhe ISO in UI5Date usando componenti locali
+            // per evitare problemi di timezone (es. data spostata di un giorno)
+            function toUI5Date(sISO) {
+                const d = new Date(sISO);
+                return UI5Date.getInstance(
+                    d.getFullYear(), d.getMonth(), d.getDate(),
+                    d.getHours(), d.getMinutes()
+                );
+            }
 
-                // Converte le stringhe ISO in UI5Date usando i componenti locali
-                // per evitare problemi di timezone (es. data spostata di un giorno)
-                function toUI5Date(sISO) {
-                    const d = new Date(sISO);
-                    return UI5Date.getInstance(
-                        d.getFullYear(), d.getMonth(), d.getDate(),
-                        d.getHours(), d.getMinutes()
-                    );
-                }
+            // Carica staffs con appointments espansi dall'OData backend
+            fetch("/odata/v4/catalog/staffs?$expand=Appointments")
+                .then(res => res.json())
+                .then(oResponse => {
+                    const aStaffs = oResponse.value || [];
 
-                oData.startDate = toUI5Date(oData.startDate);
-                oData.dipendenti.forEach(function(oMembro) {
-                    oMembro.shifts.forEach(function(oTurno) {
-                        oTurno.startDate = toUI5Date(oTurno.startDate);
-                        oTurno.endDate   = toUI5Date(oTurno.endDate);
-                    });
+                    const now = new Date();
+                    const oData = {
+                        startDate: UI5Date.getInstance(now.getFullYear(), now.getMonth(), 1),
+                        dipendenti: aStaffs.map(function(oStaff) {
+                            return {
+                                name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
+                                role: oStaff.Role || "",
+                                icon: oStaff.icon || "",
+                                highlight: false,
+                                shifts: (oStaff.Appointments || []).map(function(oAppt) {
+                                    return {
+                                        startDate: toUI5Date(oAppt.startDate),
+                                        endDate:   toUI5Date(oAppt.endDate),
+                                        title:     oAppt.title || "",
+                                        type:      oAppt.type  || "",
+                                        shiftIcon: oAppt.shiftIcon || "",
+                                        color:     oAppt.color || ""
+                                    };
+                                })
+                            };
+                        })
+                    };
+
+                    const oModel = new JSONModel(oData);
+                    this.getView().setModel(oModel);
+
+                    // KPI vanno calcolati dopo che il modello è pronto
+                    this.countConsecutive(false);
+                    this.updateUnderstaffing();
+                    this.countNonroposoSettimanale(false);
+                }.bind(this))
+                .catch(function(oErr) {
+                    sap.m.MessageToast.show("Errore caricamento dati: " + oErr.message);
                 });
-
-                oModel.setData(oData);
-                this.getView().setModel(oModel);
-
-                // updateUnderstaffing va chiamato dopo che il modello è pronto
-                this.countConsecutive(false);
-                this.updateUnderstaffing();
-                this.countNonroposoSettimanale(false);
-
-            });
 
 
 
