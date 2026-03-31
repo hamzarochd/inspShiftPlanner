@@ -1,0 +1,13 @@
+COLUMN TABLE my_appointments (
+  ID NVARCHAR(36) NOT NULL,
+  ID_Utente NVARCHAR(36),
+  title NVARCHAR(5000),
+  type NVARCHAR(5000),
+  startDate TIMESTAMP,
+  endDate TIMESTAMP,
+  "TEXT" NVARCHAR(5000),
+  notes NVARCHAR(5000),
+  shiftIcon NVARCHAR(5000),
+  color NVARCHAR(5000),
+  PRIMARY KEY(ID)
+)

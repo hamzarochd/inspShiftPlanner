@@ -1,0 +1,12 @@
+VIEW CatalogService_appointments AS SELECT
+  appointments_0.ID,
+  appointments_0.ID_Utente,
+  appointments_0.title,
+  appointments_0.type,
+  appointments_0.startDate,
+  appointments_0.endDate,
+  appointments_0."TEXT",
+  appointments_0.notes,
+  appointments_0.shiftIcon,
+  appointments_0.color
+FROM my_appointments AS appointments_0

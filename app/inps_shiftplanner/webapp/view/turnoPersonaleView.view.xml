@@ -1,13 +1,14 @@
-<mvc:View 
+<mvc:View
     controllerName="inpsshiftplanner.controller.turnoPersonale"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:f="sap.f"
-    xmlns:core="sap.ui.core">
+    xmlns:core="sap.ui.core"
+    xmlns:unified="sap.ui.unified">
 
     <f:DynamicPage>
 
-        <!-- HEADER -->
+        <!-- Inizio Pagina -->
         <f:title>
             <f:DynamicPageTitle>
                 <f:heading>
@@ -24,88 +25,160 @@
             <VBox class="sapUiMediumMargin">
 
                 <!-- CARD PROFILO -->
-                <HBox class="sapUiMediumMarginBottom" justifyContent="SpaceBetween">
+                <Panel class="cardProfile sapUiResponsiveMargin">
 
-                    <!-- Avatar + Nome -->
-                    <VBox width="30%">
-                        <Avatar 
-                            displayShape="Circle"
-                            initials="MR"
-                            displaySize="XL"
-                            class="sapUiMediumMarginBottom"/>
-                        
-                        <Title text="Mario Rossi"/>
-                        <Text text="Matricola: INF-2458"/>
-                    </VBox>
+                    <content>
+                        <FlexBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap">
 
-                    <!-- Info -->
-                    <VBox width="65%">
-
-                        <HBox justifyContent="SpaceBetween">
-                            <VBox>
-                                <Text text="RUOLO" class="sapUiTinyMarginBottom"/>
-                                <Title text="Infermiere"/>
+                            <!-- Profilo-->
+                            <VBox class="sapUiMediumMarginEnd">
+                                <Avatar initials="MR" displaySize="XL"/>
+                                <Title text="Mario Rossi" class="sapUiSmallMarginTop"/>
+                                <Text text="Matricola: INF-2458"/>
                             </VBox>
 
-                            <VBox>
-                                <Text text="REPARTO"/>
-                                <Title text="Terapia Intensiva"/>
-                            </VBox>
-                        </HBox>
+                            <!-- INFO -->
+                            <FlexBox wrap="Wrap" width="600px" justifyContent="SpaceBetween">
 
-                        <HBox justifyContent="SpaceBetween" class="sapUiMediumMarginTop">
-                            <VBox>
-                                <Text text="EMAIL"/>
-                                <Text text="mario.rossi@ospedale.it"/>
-                            </VBox>
+                                <HBox class="infoItem">
+                                    <core:Icon src="sap-icon://briefcase" class="icon blue"/>
+                                    <VBox>
+                                        <Text text="RUOLO" class="label"/>
+                                        <Text text="Infermiere" class="value"/>
+                                    </VBox>
+                                </HBox>
 
-                            <VBox>
-                                <Text text="TELEFONO"/>
-                                <Text text="+39 348 123 4567"/>
-                            </VBox>
-                        </HBox>
+                                <HBox class="infoItem">
+                                    <core:Icon src="sap-icon://map-marker" class="icon purple"/>
+                                    <VBox>
+                                        <Text text="REPARTO" class="label"/>
+                                        <Text text="Terapia Intensiva" class="value"/>
+                                    </VBox>
+                                </HBox>
 
-                        <HBox justifyContent="SpaceBetween" class="sapUiMediumMarginTop">
-                            <VBox>
-                                <Text text="ASSUNTO DAL"/>
-                                <Text text="15/03/2020"/>
-                            </VBox>
+                                <HBox class="infoItem">
+                                    <core:Icon src="sap-icon://email" class="icon green"/>
+                                    <VBox>
+                                        <Text text="EMAIL" class="label"/>
+                                        <Text text="mario.rossi@ospedale.it" class="value"/>
+                                    </VBox>
+                                </HBox>
 
-                            <VBox>
-                                <Text text="STATO"/>
-                                <ObjectStatus text="Attivo" state="Success"/>
-                            </VBox>
-                        </HBox>
+                                <HBox class="infoItem">
+                                    <core:Icon src="sap-icon://call" class="icon orange"/>
+                                    <VBox>
+                                        <Text text="TELEFONO" class="label"/>
+                                        <Text text="+39 348 123 4567" class="value"/>
+                                    </VBox>
+                                </HBox>
 
-                    </VBox>
+                                <HBox class="infoItem">
+                                    <core:Icon src="sap-icon://calendar" class="icon violet"/>
+                                    <VBox>
+                                        <Text text="ASSUNTO DAL" class="label"/>
+                                        <Text text="15/03/2020" class="value"/>
+                                    </VBox>
+                                </HBox>
 
-                </HBox>
+                                <HBox class="infoItem">
+                                    <core:Icon src="sap-icon://employee" class="icon green"/>
+                                    <VBox>
+                                        <Text text="STATO" class="label"/>
+                                        <ObjectStatus text="Attivo" state="Success"/>
+                                    </VBox>
+                                </HBox>
+
+                            </FlexBox>
+
+                        </FlexBox>
+                    </content>
+
+                </Panel>
 
                 <!-- KPI -->
-                <HBox justifyContent="SpaceBetween">
+                <FlexBox wrap="Wrap" justifyContent="Center" alignItems="Stretch"> 
 
-                    <!-- Ore lavorate -->
-                    <VBox width="32%" class="sapUiSmallMargin">
-                        <Title text="Ore Lavorate (Marzo)"/>
-                        <Text text="156 / 168 ore"/>
-                        <ProgressIndicator percentValue="93" />
+                    <!-- Ore -->
+                    <VBox class="kpiCard blue">
+                        <HBox alignItems="Center">
+                            <core:Icon src="sap-icon://history" class="kpiIcon"/>
+                            <Title text="Ore Lavorate (Marzo)"/>
+                        </HBox>
+
+                        <HBox alignItems="End">
+                            <Text text="0/168 ore" class="sapUiSmallMarginBegin"/>
+                        </HBox>
+
+                        <ProgressIndicator percentValue="0"/>
                     </VBox>
 
                     <!-- Turni -->
-                    <VBox width="32%" class="sapUiSmallMargin">
-                        <Title text="Turni Completati"/>
-                        <Text text="18 / 21 turni"/>
-                        <ProgressIndicator percentValue="85" state="Success"/>
+                    <VBox class="kpiCard green">
+                        <HBox alignItems="Center">
+                            <core:Icon src="sap-icon://calendar" class="kpiIcon"/>
+                            <Title text="Turni Completati"/>
+                        </HBox>
+
+                        <HBox alignItems="End">
+                           <Text text="0/ 21 turni" class="sapUiSmallMarginBegin"/>
+                        </HBox>
+
+                        <ProgressIndicator percentValue="0"/>  <!--state=""(usalo per segnalare un  successo)-->
                     </VBox>
 
                     <!-- Ferie -->
-                    <VBox width="32%" class="sapUiSmallMargin">
-                        <Title text="Ferie & Recuperi"/>
-                        <Text text="Ferie residue: 12 giorni"/>
-                        <Text text="Recuperi: 8 ore"/>
+                    <VBox class="kpiCard purple">
+                        <HBox alignItems="Center">
+                            <core:Icon src="sap-icon://calendar" class="kpiIcon"/>
+                            <Title text="Ferie e Recuperi"/>
+                        </HBox>
+
+                        <FlexBox wrap="Wrap" width="600px" justifyContent="SpaceBetween">
+                         <HBox  justifyContent="SpaceBetween" width="55%">
+                            <VBox >
+                            <Title text="Ferie residue"/>
+                            <Text text="12 giorni"/>
+                            </VBox>
+
+                            <VBox>
+                            <Title text="Recuperi"/>
+                            <Text text="8 ore"/>
+                            </VBox>
+                        </HBox>
+                        </FlexBox>
                     </VBox>
 
-                </HBox>
+                </FlexBox>
+
+                <!--Calendario-->
+                <Panel headerText="I miei turni" class="sapUiMediumMarginTop">
+
+                    <PlanningCalendar
+                        id="PlanningCalendar"
+                        startDate="{/startDate}"
+                        viewKey="One Month"
+                        rows="{/dipendenti}">
+
+                        <rows>
+                            <PlanningCalendarRow
+                                title="{name}"
+                                text="{role}"
+                                appointments="{path: 'shifts'}">
+
+                                <appointments>
+                                    <unified:CalendarAppointment
+                                        startDate="{startDate}"
+                                        endDate="{endDate}"
+                                        title="{title}"
+                                        color="{color}"/>
+                                </appointments>
+
+                            </PlanningCalendarRow>
+                        </rows>
+
+                    </PlanningCalendar>
+
+                </Panel>
 
             </VBox>
         </f:content>

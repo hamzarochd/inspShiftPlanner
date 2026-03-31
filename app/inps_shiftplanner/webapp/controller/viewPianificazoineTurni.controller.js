@@ -38,8 +38,13 @@ sap.ui.define([
                 this.getView().setModel(oModel);
 
                 // updateUnderstaffing va chiamato dopo che il modello è pronto
+                this.countConsecutive(false);
                 this.updateUnderstaffing();
+                this.countNonroposoSettimanale(false);
+
             });
+
+
 
             const oKpiModel = new sap.ui.model.json.JSONModel({
                 understaffedDays: 0,
@@ -49,9 +54,12 @@ sap.ui.define([
                 consecutiveCount: 0,
                 personaleSenzaMinimoRiposoCount: 0,
                 showConsecutiveHighlight: false,
-                showUnderstaffingHighlight: false
+                showUnderstaffingHighlight: false,
+                ///warningIconSymbol: "\ue011"
             });
             this.getView().setModel(oKpiModel, "kpi");
+
+
 
             var oData = {
                 "RuoliCollezione": [
@@ -104,7 +112,7 @@ sap.ui.define([
             // -------------------------------------------------------
         },
 
-
+        
         //////// per mancanza personale, deve controllare tutti i giorni per vedere se ci sono abbasanta personale. 
         onPressMancanzaPersonale: function(oEvent){
             //////const sHeader = oEvent.getSource().getHeader();
@@ -161,7 +169,7 @@ sap.ui.define([
             const staffCountByDate = {};
             aStaff.forEach(person => {
                 person.shifts?.forEach(appointment => {
-                    if (appointment.type && appointment.type !== "riposo") { 
+                    if (appointment.type && appointment.type !== "RIPOSO") { 
                         const sDate = new Date(appointment.startDate).toDateString();
                         staffCountByDate[sDate] = (staffCountByDate[sDate] || 0) + 1;
                     }
@@ -200,83 +208,104 @@ sap.ui.define([
         ////////// per tile Rischio salute:::
         /////// non più di 6 giorni consecutivi.
 
-        onPressRischioSalute: function(oEvent){
-            // recuperiamo il modello:::
-            const oModel = this.getView().getModel(); 
+
+        onPressRischioSalute: function(oEvent) {
             const oKpiModel = this.getView().getModel("kpi");
 
-            ////////
-            const bActive = oKpiModel?.getProperty("/showConsecutiveHighlight") || false;
-            oKpiModel?.setProperty("/showConsecutiveHighlight", !bActive);
-            oModel?.refresh(true);
+            const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
+            const bNewActive = !bCurrentlyActive;
+            
+            oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
 
 
-            ///// segue la logica simile.:::
-            if (!bActive){
-                this.countConsecutive(true);
+            this.countConsecutive(bNewActive);
+
+            if (bNewActive) {
+                sap.m.MessageToast.show('Evidenziazione rischio salute attiva');
             } else {
-                MessageToast.show('Rischio salute rimossa')
+                sap.m.MessageToast.show('Evidenziazione rimossa');
             }
-
         },
 
-        ////// da chiamare al interno di onPressRischioSalute --> per contare i giorni consicutivi 
 
-        countConsecutive: function(){
+        countConsecutive: function(bShouldHighlight) {
+
+            ////// recuperare i modelli::::::
             const oModel = this.getView().getModel(); 
             const oKpiModel = this.getView().getModel("kpi");
             const oCalendar = this.byId("planningCalendar");
 
-            if(!oCalendar){
-                return;
-            }
+            const limitDays = 3; 
+            const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
+            
 
-            const limitDat = 6; //// massimo 6 giorni consecutivi.
+            /// tot count
+            let iTotalViolatingPeople = 0; 
 
-            const {iYear,iMonth,iDaysInMonth} = this.GGMMAA();
-             
-            let consecutCount = 0; //// per default
+            const aStaff = oModel.getProperty("/dipendenti") || [];
+            const aRows = oCalendar ? oCalendar.getRows() : [];
 
-            ////// array degli staff
-            const aStaff = oModel.getProperty("/Staff") || [];
+            aStaff.forEach((person, index) => {
+                let iConsecutiveCounter = 0; 
+                let bPersonViolates = false;
+                const oRow = aRows[index];
 
 
-            aStaff.forEach(person => {
-                let singleConsCount = 0;
+                if (oRow) {
+                    oRow.destroySpecialDates();
+                }
 
                 const personalShifts = {};
                 if (person.shifts) {
                     person.shifts.forEach(shift => {
-                        if (shift.type && shift.type !== "riposo") { /////// 'OFF' --> riposp
-                            const sDate = new Date(shift.start).toDateString();
+                        if (shift.type && shift.type !== "RIPOSO") {
+                            const sDate = new Date(shift.startDate).toDateString();
                             personalShifts[sDate] = true;
                         }
                     });
                 }
 
+
+                ///// prendere tutti i giorni del mese
                 for (let d = 1; d <= iDaysInMonth; d++) {
-                    const tempDate = new Date(iYear, iMonth, d).toDateString();
+                    const oCurrentDate = new Date(iYear, iMonth, d);
+                    const tempDate = oCurrentDate.toDateString();
 
+                    //// se si (per almeno una volta)
                     if (personalShifts[tempDate]) {
-
-                        singleConsCount++;
+                        iConsecutiveCounter++;
                     } else {
-                        singleConsCount = 0;
+                        iConsecutiveCounter = 0; 
                     }
 
+                    if (iConsecutiveCounter > limitDays) {
+                        bPersonViolates = true;
+                        
 
-                    if (singleConsCount > limitDat) {
-                        consecutCount++;
+                        if (bShouldHighlight && oRow) {
+                            oRow.addSpecialDate(new sap.ui.unified.DateTypeRange({
+                                startDate: new Date(oCurrentDate),
+                                type: "Type01"
+                            }));
+                        }
                     }
                 }
+                
+                //!!!!!! per evidenziare la persona
+                person.highlight = bShouldHighlight && bPersonViolates;
+
+                if (bPersonViolates) {
+                    iTotalViolatingPeople++;
+                }
             });
-            
 
-            oKpiModel.setProperty("/consecutiveCount", consecutCount);
-            oKpiModel.setProperty("/consecutiveStatus", consecutCount > 0 ? "Warning" : "Success");
-            oKpiModel.setProperty("/consecutiveMsg", consecutCount > 0 ? consecutCount + " Turni a Rischio" : "Riposo Garantito");
 
+            oModel.refresh(true);
+
+            oKpiModel.setProperty("/consecutiveCount", iTotalViolatingPeople);
+            oKpiModel.setProperty("/consecutiveStatus", iTotalViolatingPeople > 0 ? "Warning" : "Success");
         },
+
 
 
 /////////////// minimo una casella di riposo per ogni settimana!!!! 
@@ -284,58 +313,97 @@ sap.ui.define([
 
 ////// va nell  kpi/personaleSenzaMinimoRiposoCount ---> per default 0;
 
-        onPressMancazaRiposso: function(oEvent){ //// dovrebbe evidenziare i dipendenti che non soddisfa la condizione:
-            ///Recuperiamo i modelli:
-            const oModel = this.getView().getModel(); 
+        onPressMancazaRiposso: function(oEvent) {
             const oKpiModel = this.getView().getModel("kpi");
-            const aStaff = oModel.getProperty("/Staff") || [];
 
-            let totCountPersone = 0;
+            const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
+            const bNewActive = !bCurrentlyActive;
+            
+            oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
+            
+            const TotPersonale = this.countNonroposoSettimanale(bNewActive);
 
-            const {iYear,iMonth,iDaysInMonth} = this.GGMMAA();
+            
+            //const sStatus = TotPersonale > 0 ? "Error" : "Success";
+            //oKpiModel.setProperty("/restStatus", sStatus); 
 
-            //// prende ogni settimana --> controlla se soddisfa la condizione
-            aStaff.forEach(person => {
-                    let bHasRestThisWeek = false; /////
-                    let bIsPersonViolating = false; 
-
-                    const personalShifts = {};
-                    if (person.shifts) {
-                        person.shifts.forEach(shift => {
-                            const sDate = new Date(shift.startDate).toDateString();
-                            personalShifts[sDate] = shift.type; 
-                        });
-                    }
-
-                    console.log(personalShifts);
-
-
-                    for (let d = 1; d <= iDaysInMonth; d++) {
-                        const oDate = new Date(iYear, iMonth, d);
-                        const sDateStr = oDate.toDateString();
-
-                        if (!personalShifts[sDateStr] || personalShifts[sDateStr] === "riposo") {
-                            bHasRestThisWeek = true;
-                        }
-
-                        if (oDate.getDay() === 0 || d === iDaysInMonth) {
-                            if (!bHasRestThisWeek) {
-                                bIsPersonViolating = true;
-                            }
-                            bHasRestThisWeek = false;
-                        }
-                    }
-
-                    if (bIsPersonViolating) { ///// se esiste al meno una settimana che non ha preso riposo, ++
-                        totCountPersone++;
-                    }
-                });
-
-                oKpiModel.setProperty("/personaleSenzaMinimoRiposoCount", totCountPersone);               
-                MessageToast.show("Rilevate " + totCountPersone + " persone senza riposo settimanale");
-
+            if (TotPersonale > 0) {
+                MessageToast.show("Attenzione: " + TotPersonale + " dipendenti senza riposo settimanale.");
+            } else {
+                MessageToast.show("Tutto in regola: ogni dipendente ha almeno un riposo a settimana.");
+            }
         },
 
+       
+
+
+        ////// la funzione da chiamare al interno di onPressMancanzaRiposo
+
+
+        countNonroposoSettimanale: function(bShouldHighlight) {
+            const oModel = this.getView().getModel();
+            const oKpiModel = this.getView().getModel("kpi");
+            const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
+
+            let iTotViolazioni = 0;
+            const aStaff = oModel.getProperty("/dipendenti") || [];
+
+            aStaff.forEach(person => {
+                let bMancaRiposo = false;
+                
+                // Estrazione dei giorni di riposo
+                const restDays = {};
+                if (person.shifts) {
+                    person.shifts.forEach(shift => {
+                        if (shift.type === "EMERGENZA" && shift.startDate) { ///// emergenza --> per test
+                            restDays[new Date(shift.startDate).toDateString()] = true;
+                        }
+                    });
+                }
+
+                // Trova il primo lunedì del mese per iniziare il conteggio delle settimane
+                let iStartDay = 1;
+                while (iStartDay <= iDaysInMonth) {
+                    let oTempDate = new Date(iYear, iMonth, iStartDay);
+                    if (oTempDate.getDay() === 1) break;
+                    iStartDay++;
+                }
+
+                //////// Ciclo per ogni settimana intera del mese
+                for (let weekStart = iStartDay; weekStart + 6 <= iDaysInMonth; weekStart += 7) {
+                    let bHaRiposatoInSettimana = false;
+
+                    //////// Controlla i 7 giorni della settimana corrente
+                    for (let d = 0; d < 7; d++) {
+                        let currentCheckDate = new Date(iYear, iMonth, weekStart + d);
+                        if (restDays[currentCheckDate.toDateString()]) {
+                            bHaRiposatoInSettimana = true;
+                            break; 
+                        }
+                    }
+
+                    /////// persona no valida ---> almeno una settimana.
+                    if (!bHaRiposatoInSettimana) {
+                        bMancaRiposo = true;
+                        break; 
+                    }
+                }
+
+                //!!!!!!!Imposta highlight a true se richiesto e se c'è violazione
+                person.highlight = bShouldHighlight && bMancaRiposo;
+
+                if (bMancaRiposo) {
+                    iTotViolazioni++;
+                }
+            });
+
+            oKpiModel.setProperty("/personaleSenzaMinimoRiposoCount", iTotViolazioni);
+            
+
+            oModel.refresh(true);
+            
+            return iTotViolazioni;
+        }
 
 
     });
