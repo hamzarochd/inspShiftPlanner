@@ -132,7 +132,8 @@
                                 text="{role}"
                                 appointments="{path: 'shifts', templateShareable: false}"
                                 enableAppointmentsDragAndDrop="true"
-                                enableAppointmentsResize="false">
+                                enableAppointmentsResize="false"
+                                appointmentDrop="handleAppointmentDrop">
                                 <appointments>
                                     <unified:CalendarAppointment
                                         startDate="{startDate}"

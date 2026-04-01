@@ -9,6 +9,7 @@ sap.ui.define([
 
     return Controller.extend("inpsshiftplanner.controller.viewPianificazoineTurni", {
         onInit() {
+
             // Converte stringhe ISO in UI5Date usando componenti locali
             // per evitare problemi di timezone (es. data spostata di un giorno)
             function toUI5Date(sISO) {
@@ -19,7 +20,47 @@ sap.ui.define([
                 );
             }
 
-            // Carica staffs con appointments espansi dall'OData backend
+            // ============================================================
+            // [MOCKDATA] - Caricamento dati da file locale
+            // Quando passi al DB: commenta questo blocco e decommenta il blocco [DB]
+            // ============================================================
+            const oModel = new JSONModel();
+            oModel.loadData("model/mockdata.json").then(() => {
+                const oData = oModel.getData();
+
+                oData.startDate = toUI5Date(oData.startDate);
+                oData.dipendenti.forEach((oMembro) => {
+                    oMembro.shifts.forEach((oTurno) => {
+                        oTurno.startDate = toUI5Date(oTurno.startDate);
+                        oTurno.endDate   = toUI5Date(oTurno.endDate);
+                    });
+                });
+
+                oModel.setData(oData);
+                this.getView().setModel(oModel);
+
+                // KPI vanno calcolati dopo che il modello è pronto
+                this.updateUnderstaffing();
+                this.countConsecutive(false);
+                this.countNonroposoSettimanale(false);
+            });
+            // ============================================================
+            // [/MOCKDATA]
+            // ============================================================
+
+            // ============================================================
+            // [DB] - Caricamento dati da OData backend
+            // Quando passi al DB:
+            //   1. Commenta il blocco [MOCKDATA] sopra
+            //   2. Decommenta questo blocco
+            //   3. In manifest.json → "models" → aggiungi:
+            //      "": {
+            //        "dataSource": "mainService",
+            //        "preload": true,
+            //        "settings": { "operationMode": "Server", "autoExpandSelect": true, "earlyRequests": true }
+            //      }
+            // ============================================================
+            /*
             fetch("/odata/v4/catalog/staffs?$expand=Appointments")
                 .then(res => res.json())
                 .then(function(oResponse) {
@@ -51,110 +92,78 @@ sap.ui.define([
                     const oModel = new JSONModel(oData);
                     this.getView().setModel(oModel);
 
-                    // KPI vanno calcolati dopo che il modello è pronto
-                    this.countConsecutive(false);
                     this.updateUnderstaffing();
+                    this.countConsecutive(false);
                     this.countNonroposoSettimanale(false);
                 }.bind(this))
                 .catch(function(oErr) {
-                    sap.m.MessageToast.show("Errore caricamento dati: " + oErr.message);
+                    MessageToast.show("Errore caricamento dati: " + oErr.message);
                 });
+            */
+            // ============================================================
+            // [/DB]
+            // ============================================================
 
 
-
-            const oKpiModel = new sap.ui.model.json.JSONModel({
+            const oKpiModel = new JSONModel({
                 understaffedDays: 0,
                 criticalStatus: "Neutral",
-                //coverageMsg: "Caricamento dati...",
                 todayCount: 0,
                 consecutiveCount: 0,
                 personaleSenzaMinimoRiposoCount: 0,
                 showConsecutiveHighlight: false,
-                showUnderstaffingHighlight: false,
-                ///warningIconSymbol: "\ue011"
+                showUnderstaffingHighlight: false
             });
             this.getView().setModel(oKpiModel, "kpi");
 
 
-
-            var oData = {
+            var oRuoliData = {
                 "RuoliCollezione": [
                     { "key": "COORD", "text": "Coordinatore infermieristico" },
-                    { "key": "INF", "text": "Infermiere" },
-                    { "key": "INF_TI", "text": "Infermiere Terapia Intensiva" },
-                    { "key": "OSS", "text": "Operatore Socio Sanitario (OSS)" },
-                    { "key": "AUS", "text": "Ausiliario/Barelliere" },
-                    { "key": "MED", "text": "Medico" },
-                    { "key": "CHIR", "text": "Chirurgo" },
-                    { "key": "ANES", "text": "Anestesista" },
-                    { "key": "SPEC", "text": "Specializzando" },
+                    { "key": "INF",   "text": "Infermiere" },
+                    { "key": "INF_TI","text": "Infermiere Terapia Intensiva" },
+                    { "key": "OSS",   "text": "Operatore Socio Sanitario (OSS)" },
+                    { "key": "AUS",   "text": "Ausiliario/Barelliere" },
+                    { "key": "MED",   "text": "Medico" },
+                    { "key": "CHIR",  "text": "Chirurgo" },
+                    { "key": "ANES",  "text": "Anestesista" },
+                    { "key": "SPEC",  "text": "Specializzando" },
                     { "key": "STRUM", "text": "Strumentista" },
-                    { "key": "TEC", "text": "Tecnico sanitario" },
-                    { "key": "FISI", "text": "Fisioterapista" },
-                    { "key": "LOGO", "text": "Logopedista" },
-                    { "key": "SUP", "text": "Supporto esterno" }
+                    { "key": "TEC",   "text": "Tecnico sanitario" },
+                    { "key": "FISI",  "text": "Fisioterapista" },
+                    { "key": "LOGO",  "text": "Logopedista" },
+                    { "key": "SUP",   "text": "Supporto esterno" }
                 ],
                 "Reparti": [
-                    { "key": "PS", "text": "Pronto Soccorso" },
-                    { "key": "TI", "text": "Terapia Intensiva" },
-                    { "key": "MED", "text": "Medicina Generale" },
-                    { "key": "CHIR", "text": "Chirurgia" },
-                    { "key": "SO", "text": "Sala Operatoria" },
-                    { "key": "RAD", "text": "Radiologia" },
-                    { "key": "LAB", "text": "Laboratorio Analisi" },
-                    { "key": "RIAB", "text": "Riabilitazione" },
-                    { "key": "AMB", "text": "Ambulatorio" },
-                    { "key": "DIR", "text": "Direzione Sanitaria" },
-                    { "key": "CARD", "text": "Cardiologia" },
-                    { "key": "ORT", "text": "Ortopedia" },
-                    { "key": "PED", "text": "Pediatria" },
-                    { "key": "GINE", "text": "Ginecologia" },
+                    { "key": "PS",    "text": "Pronto Soccorso" },
+                    { "key": "TI",    "text": "Terapia Intensiva" },
+                    { "key": "MED",   "text": "Medicina Generale" },
+                    { "key": "CHIR",  "text": "Chirurgia" },
+                    { "key": "SO",    "text": "Sala Operatoria" },
+                    { "key": "RAD",   "text": "Radiologia" },
+                    { "key": "LAB",   "text": "Laboratorio Analisi" },
+                    { "key": "RIAB",  "text": "Riabilitazione" },
+                    { "key": "AMB",   "text": "Ambulatorio" },
+                    { "key": "DIR",   "text": "Direzione Sanitaria" },
+                    { "key": "CARD",  "text": "Cardiologia" },
+                    { "key": "ORT",   "text": "Ortopedia" },
+                    { "key": "PED",   "text": "Pediatria" },
+                    { "key": "GINE",  "text": "Ginecologia" },
                     { "key": "NEURO", "text": "Neurologia" },
-                    { "key": "ONCO", "text": "Oncologia" },
-                    { "key": "URO", "text": "Urologia" },
-                    { "key": "PSI", "text": "Psichiatria" },
-                    { "key": "DERM", "text": "Dermatologia" }
+                    { "key": "ONCO",  "text": "Oncologia" },
+                    { "key": "URO",   "text": "Urologia" },
+                    { "key": "PSI",   "text": "Psichiatria" },
+                    { "key": "DERM",  "text": "Dermatologia" }
                 ]
             };
 
-            // -------------------------------------------------------
-            // Creiamo un modello JSON separato per ruoli e reparti,
-            // usando l'oggetto oData definito sopra.
-            // NOTA: oModel è già usato per mockdata, quindi ne creiamo uno nuovo.
-            var oRuoliModel = new JSONModel(oData);
-
-            // Assegniamo il modello ruoli/reparti alla vista
+            var oRuoliModel = new JSONModel(oRuoliData);
             this.getView().setModel(oRuoliModel, "ruoliModel");
-            // -------------------------------------------------------
         },
 
-        
-        //////// per mancanza personale, deve controllare tutti i giorni per vedere se ci sono abbasanta personale. 
-        onPressMancanzaPersonale: function(oEvent){
-            //////const sHeader = oEvent.getSource().getHeader();
-            const oKpiModel = this.getView().getModel("kpi");
-            const oModel = this.getView().getModel("mockdata");
-            
-            const bActive = oKpiModel?.getProperty("/showUnderstaffingHighlight") || false;
-            oKpiModel?.setProperty("/showUnderstaffingHighlight", !bActive);
-            oModel?.refresh(true);
 
-            ///// prendere il calendario.
-
-            const calendar = this.byId("planningCalendar")
-
-            if (!bActive){
-                this.updateUnderstaffing(true); 
-            } else {
-                calendar?.removeAllSpecialDates();
-                MessageToast.show("Evidenziazione rimossa");
-                }
-            },
-
-
-//// definisco una funzione che recupera l'anno, il mese ed quanti giorni in quel mese:::.
-
-        GGMMAA: function(){
+        // Recupera anno, mese e numero di giorni del mese visualizzato nel calendario
+        GGMMAA: function() {
             const oCalendar = this.byId("planningCalendar");
             const oStartDate = oCalendar?.getStartDate() || new Date();
 
@@ -162,30 +171,115 @@ sap.ui.define([
             const iMonth = oStartDate.getMonth();
             const iDaysInMonth = new Date(iYear, iMonth + 1, 0).getDate();
 
-            return {iYear,iMonth,iDaysInMonth};
+            return { iYear, iMonth, iDaysInMonth };
         },
 
-        /////// funzione da chiamare all'interno di kpiCountDay-
+
+        // ----------------------------------------------------------------
+        // FilterBar handlers
+        // ----------------------------------------------------------------
+
+        onSearch: function(oEvent) {
+            // TODO: implementare filtro per ruolo/reparto sul PlanningCalendar
+        },
+
+        onResetFilters: function(oEvent) {
+            this.byId("roleFilterCombo")?.setSelectedKey("");
+            this.byId("repartoFilterCombo")?.setSelectedKey("");
+        },
 
 
-        updateUnderstaffing: function(bUpdateCalendar) { //// true oppure false
-            const oModel = this.getView().getModel(); // modello default (no nome)
+        switchAppointments: function(appointemnt1, appointment2) {
+            // to do
+        },
+
+        overrideAppointments: function(appointemnt1, appointment2) {
+            // to do
+        },
+
+        handleAppointmentDrop: function(oEvent) {
+            const newAppointment = oEvent.getParameter("appointment");
+            const newStartDate = oEvent.getParameter("startDate");
+            const newEndDate = oEvent.getParameter("endDate");
+            const newRow = oEvent.getParameter("calendarRow");
+
+            const rowPath = newRow.getBindingContext().getPath();
+
+            const shifts = this.getView().getModel().getProperty(rowPath + "/shifts");
+
+            const appPath = newAppointment.getBindingContext().getPath();
+
+            const otherShifts = shifts.filter((shift, index) => {
+                const currentPath = rowPath + "/shifts/" + index;
+                return currentPath !== appPath;
+            });
+
+            const overlap = otherShifts.some(shift => {
+                const shiftStart = new Date(shift.startDate);
+                const shiftEnd = new Date(shift.endDate);
+                return (newStartDate < shiftEnd) && (newEndDate > shiftStart);
+            });
+
+
+            if (overlap) {
+                MessageToast.show("Spostamento non consentito: si sovrappone ad un altro turno.");
+                oEvent.preventDefault();
+                return;
+            };
+
+
+            const appointmentPath = newAppointment.getBindingContext().getPath();
+            const oModel = this.getView().getModel();
+
+            // console.log("Path dell'appuntamento spostato:", appointmentPath);
+            // console.log("Nuova data inizio:", newStartDate.toISOString());
+            // console.log("Nuova data fine:", newEndDate.toISOString());
+
+            oModel.setProperty(appointmentPath + "/startDate", newStartDate);
+            oModel.setProperty(appointmentPath + "/endDate", newEndDate);
+            oModel.refresh(true);
+
+            
+        },
+
+        // ----------------------------------------------------------------
+        // KPI 1 - Mancanza personale
+        // ----------------------------------------------------------------
+
+        onPressMancanzaPersonale: function(oEvent) {
+            const oKpiModel = this.getView().getModel("kpi");
+            const oModel = this.getView().getModel();
+
+            const bActive = oKpiModel?.getProperty("/showUnderstaffingHighlight") || false;
+            oKpiModel?.setProperty("/showUnderstaffingHighlight", !bActive);
+            oModel?.refresh(true);
+
+            const calendar = this.byId("planningCalendar");
+
+            if (!bActive) {
+                this.updateUnderstaffing(true);
+            } else {
+                calendar?.removeAllSpecialDates();
+                MessageToast.show("Evidenziazione rimossa");
+            }
+        },
+
+        updateUnderstaffing: function(bUpdateCalendar) {
+            const oModel = this.getView().getModel();
             const oKpiModel = this.getView().getModel("kpi");
             const oCalendar = this.byId("planningCalendar");
 
             const aStaff = oModel?.getProperty("/dipendenti") || [];
+            const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
 
-            /*const oStartDate = oCalendar?.getStartDate() || new Date();
-            const iYear = oStartDate.getFullYear();
-            const iMonth = oStartDate.getMonth();
-            const iDaysInMonth = new Date(iYear, iMonth + 1, 0).getDate();*/
-
-            const {iYear,iMonth,iDaysInMonth} = this.GGMMAA();
-
+            // ============================================================
+            // [MOCKDATA] shift.type viene da mockdata.json (es. "RIPOSO")
+            // [DB]       adatta il valore stringa al campo corrispondente nel tuo backend
+            // ============================================================
             const staffCountByDate = {};
             aStaff.forEach(person => {
                 person.shifts?.forEach(appointment => {
-                    if (appointment.type && appointment.type !== "RIPOSO") { 
+                    if (appointment.type && appointment.type !== "RIPOSO") {
                         const sDate = new Date(appointment.startDate).toDateString();
                         staffCountByDate[sDate] = (staffCountByDate[sDate] || 0) + 1;
                     }
@@ -198,12 +292,12 @@ sap.ui.define([
             for (let d = 1; d <= iDaysInMonth; d++) {
                 const oDate = new Date(iYear, iMonth, d);
                 const isWeekend = (oDate.getDay() === 0 || oDate.getDay() === 6);
-                const threshold = isWeekend ? 2 : 1; //////// min 2 per il weekend, min 1 durante i giorni lavorativi.
+                const threshold = isWeekend ? 2 : 1;
                 const count = staffCountByDate[oDate.toDateString()] || 0;
 
                 if (count < threshold) {
                     iCriticalDays++;
-                    if (bUpdateCalendar) { ///// perché adesso il showUnderstaffingHighlight risulta true.
+                    if (bUpdateCalendar) {
                         oCalendar?.addSpecialDate(new DateTypeRange({
                             startDate: oDate
                         }));
@@ -214,63 +308,55 @@ sap.ui.define([
             oKpiModel?.setProperty("/understaffedDays", iCriticalDays);
             oKpiModel?.setProperty("/criticalStatus", iCriticalDays > 0 ? "Critical" : "Success");
 
-            
-            
             if (bUpdateCalendar && iCriticalDays > 0) {
                 MessageToast.show("Trovati " + iCriticalDays + " giorni sottorganico");
             }
         },
 
-        ////////// per tile Rischio salute:::
-        /////// non più di 6 giorni consecutivi.
 
+        // ----------------------------------------------------------------
+        // KPI 2 - Rischio salute (giorni consecutivi)
+        // ----------------------------------------------------------------
 
         onPressRischioSalute: function(oEvent) {
             const oKpiModel = this.getView().getModel("kpi");
 
             const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
             const bNewActive = !bCurrentlyActive;
-            
+
             oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
-
-
             this.countConsecutive(bNewActive);
 
             if (bNewActive) {
-                sap.m.MessageToast.show('Evidenziazione rischio salute attiva');
+                MessageToast.show("Evidenziazione rischio salute attiva");
             } else {
-                sap.m.MessageToast.show('Evidenziazione rimossa');
+                MessageToast.show("Evidenziazione rimossa");
             }
         },
 
-
         countConsecutive: function(bShouldHighlight) {
-
-            ////// recuperare i modelli::::::
-            const oModel = this.getView().getModel(); 
+            const oModel = this.getView().getModel();
             const oKpiModel = this.getView().getModel("kpi");
             const oCalendar = this.byId("planningCalendar");
 
-            const limitDays = 3; 
+            const limitDays = 3;
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
-            
 
-            /// tot count
-            let iTotalViolatingPeople = 0; 
-
+            let iTotalViolatingPeople = 0;
             const aStaff = oModel.getProperty("/dipendenti") || [];
             const aRows = oCalendar ? oCalendar.getRows() : [];
 
             aStaff.forEach((person, index) => {
-                let iConsecutiveCounter = 0; 
+                let iConsecutiveCounter = 0;
                 let bPersonViolates = false;
                 const oRow = aRows[index];
 
+                if (oRow) oRow.destroySpecialDates();
 
-                if (oRow) {
-                    oRow.destroySpecialDates();
-                }
-
+                // ============================================================
+                // [MOCKDATA] shift.type e shift.startDate vengono da mockdata.json
+                // [DB]       adatta i nomi dei campi al tuo schema OData
+                // ============================================================
                 const personalShifts = {};
                 if (person.shifts) {
                     person.shifts.forEach(shift => {
@@ -281,67 +367,52 @@ sap.ui.define([
                     });
                 }
 
-
-                ///// prendere tutti i giorni del mese
                 for (let d = 1; d <= iDaysInMonth; d++) {
                     const oCurrentDate = new Date(iYear, iMonth, d);
                     const tempDate = oCurrentDate.toDateString();
 
-                    //// se si (per almeno una volta)
                     if (personalShifts[tempDate]) {
                         iConsecutiveCounter++;
                     } else {
-                        iConsecutiveCounter = 0; 
+                        iConsecutiveCounter = 0;
                     }
 
                     if (iConsecutiveCounter > limitDays) {
                         bPersonViolates = true;
-                        
 
                         if (bShouldHighlight && oRow) {
-                            oRow.addSpecialDate(new sap.ui.unified.DateTypeRange({
+                            oRow.addSpecialDate(new DateTypeRange({
                                 startDate: new Date(oCurrentDate),
                                 type: "Type01"
                             }));
                         }
                     }
                 }
-                
-                //!!!!!! per evidenziare la persona
+
                 person.highlight = bShouldHighlight && bPersonViolates;
 
-                if (bPersonViolates) {
-                    iTotalViolatingPeople++;
-                }
+                if (bPersonViolates) iTotalViolatingPeople++;
             });
 
-
             oModel.refresh(true);
-
             oKpiModel.setProperty("/consecutiveCount", iTotalViolatingPeople);
             oKpiModel.setProperty("/consecutiveStatus", iTotalViolatingPeople > 0 ? "Warning" : "Success");
         },
 
 
-
-/////////////// minimo una casella di riposo per ogni settimana!!!! 
-//////---> verrà fuori il numero di personale che non soddisfa la condizone.
-
-////// va nell  kpi/personaleSenzaMinimoRiposoCount ---> per default 0;
+        // ----------------------------------------------------------------
+        // KPI 3 - Mancanza riposo settimanale
+        // ----------------------------------------------------------------
 
         onPressMancazaRiposso: function(oEvent) {
             const oKpiModel = this.getView().getModel("kpi");
 
             const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
             const bNewActive = !bCurrentlyActive;
-            
-            oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
-            
-            const TotPersonale = this.countNonroposoSettimanale(bNewActive);
 
-            
-            //const sStatus = TotPersonale > 0 ? "Error" : "Success";
-            //oKpiModel.setProperty("/restStatus", sStatus); 
+            oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
+
+            const TotPersonale = this.countNonroposoSettimanale(bNewActive);
 
             if (TotPersonale > 0) {
                 MessageToast.show("Attenzione: " + TotPersonale + " dipendenti senza riposo settimanale.");
@@ -349,12 +420,6 @@ sap.ui.define([
                 MessageToast.show("Tutto in regola: ogni dipendente ha almeno un riposo a settimana.");
             }
         },
-
-       
-
-
-        ////// la funzione da chiamare al interno di onPressMancanzaRiposo
-
 
         countNonroposoSettimanale: function(bShouldHighlight) {
             const oModel = this.getView().getModel();
@@ -366,18 +431,21 @@ sap.ui.define([
 
             aStaff.forEach(person => {
                 let bMancaRiposo = false;
-                
-                // Estrazione dei giorni di riposo
+
+                // ============================================================
+                // [MOCKDATA] controlla shift.type === "RIPOSO" (valore in mockdata.json)
+                // [DB]       sostituisci "RIPOSO" con il valore corrispondente nel tuo backend
+                // ============================================================
                 const restDays = {};
                 if (person.shifts) {
                     person.shifts.forEach(shift => {
-                        if (shift.type === "EMERGENZA" && shift.startDate) { ///// emergenza --> per test
+                        if (shift.type === "RIPOSO" && shift.startDate) {
                             restDays[new Date(shift.startDate).toDateString()] = true;
                         }
                     });
                 }
 
-                // Trova il primo lunedì del mese per iniziare il conteggio delle settimane
+                // Trova il primo lunedì del mese per iniziare il conteggio settimane
                 let iStartDay = 1;
                 while (iStartDay <= iDaysInMonth) {
                     let oTempDate = new Date(iYear, iMonth, iStartDay);
@@ -385,42 +453,34 @@ sap.ui.define([
                     iStartDay++;
                 }
 
-                //////// Ciclo per ogni settimana intera del mese
+                // Ciclo per ogni settimana intera del mese
                 for (let weekStart = iStartDay; weekStart + 6 <= iDaysInMonth; weekStart += 7) {
                     let bHaRiposatoInSettimana = false;
 
-                    //////// Controlla i 7 giorni della settimana corrente
                     for (let d = 0; d < 7; d++) {
                         let currentCheckDate = new Date(iYear, iMonth, weekStart + d);
                         if (restDays[currentCheckDate.toDateString()]) {
                             bHaRiposatoInSettimana = true;
-                            break; 
+                            break;
                         }
                     }
 
-                    /////// persona no valida ---> almeno una settimana.
                     if (!bHaRiposatoInSettimana) {
                         bMancaRiposo = true;
-                        break; 
+                        break;
                     }
                 }
 
-                //!!!!!!!Imposta highlight a true se richiesto e se c'è violazione
                 person.highlight = bShouldHighlight && bMancaRiposo;
 
-                if (bMancaRiposo) {
-                    iTotViolazioni++;
-                }
+                if (bMancaRiposo) iTotViolazioni++;
             });
 
             oKpiModel.setProperty("/personaleSenzaMinimoRiposoCount", iTotViolazioni);
-            
-
             oModel.refresh(true);
-            
+
             return iTotViolazioni;
         }
-
 
     });
 });
