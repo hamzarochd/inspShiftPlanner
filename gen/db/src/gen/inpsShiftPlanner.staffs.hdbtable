@@ -1,4 +1,4 @@
-COLUMN TABLE my_staffs (
+COLUMN TABLE inpsShiftPlanner_staffs (
   ID NVARCHAR(36) NOT NULL,
   Name NVARCHAR(5000),
   Surname NVARCHAR(5000),

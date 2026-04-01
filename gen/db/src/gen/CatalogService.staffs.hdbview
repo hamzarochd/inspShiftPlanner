@@ -4,4 +4,4 @@ VIEW CatalogService_staffs AS SELECT
   staffs_0.Surname,
   staffs_0.Role,
   staffs_0.icon
-FROM my_staffs AS staffs_0
+FROM inpsShiftPlanner_staffs AS staffs_0

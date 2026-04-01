@@ -1,4 +1,4 @@
-COLUMN TABLE my_appointments (
+COLUMN TABLE inpsShiftPlanner_appointments (
   ID NVARCHAR(36) NOT NULL,
   ID_Utente NVARCHAR(36),
   title NVARCHAR(5000),
