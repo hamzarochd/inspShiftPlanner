@@ -77,7 +77,7 @@ sap.ui.define([
 
 
 
-            var oData = {
+            var setRuoli = {
                 "RuoliCollezione": [
                     { "key": "COORD", "text": "Coordinatore infermieristico" },
                     { "key": "INF", "text": "Infermiere" },
@@ -121,7 +121,7 @@ sap.ui.define([
             // Creiamo un modello JSON separato per ruoli e reparti,
             // usando l'oggetto oData definito sopra.
             // NOTA: oModel è già usato per mockdata, quindi ne creiamo uno nuovo.
-            var oRuoliModel = new JSONModel(oData);
+            var oRuoliModel = new JSONModel(setRuoli);
 
             // Assegniamo il modello ruoli/reparti alla vista
             this.getView().setModel(oRuoliModel, "ruoliModel");
@@ -198,7 +198,7 @@ sap.ui.define([
             for (let d = 1; d <= iDaysInMonth; d++) {
                 const oDate = new Date(iYear, iMonth, d);
                 const isWeekend = (oDate.getDay() === 0 || oDate.getDay() === 6);
-                const threshold = isWeekend ? 2 : 1; //////// per test: min 2 per il weekend, min 1 durante i giorni lavorativi.
+                const threshold = isWeekend ? 3 : 5; //////// per test: min 2 per il weekend, min 3 durante i giorni lavorativi.
                 const count = staffCountByDate[oDate.toDateString()] || 0;
 
                 if (count < threshold) {
@@ -294,18 +294,28 @@ sap.ui.define([
                         iConsecutiveCounter = 0; 
                     }
 
-                    if (iConsecutiveCounter > limitDays) {
-                        bPersonViolates = true;
-                        
+                if (iConsecutiveCounter > limitDays) {
+                                bPersonViolates = true;
 
-                        if (bShouldHighlight && oRow) {
-                            oRow.addSpecialDate(new sap.ui.unified.DateTypeRange({
-                                startDate: new Date(oCurrentDate),
-                                type: "Type01"
-                            }));
+                                if (bShouldHighlight && oRow) {
+                                    if (iConsecutiveCounter === limitDays + 1) {
+                                        for (let back = 0; back < limitDays; back++) {
+                                            const oBackDate = new Date(iYear, iMonth, d - (limitDays - back));
+                                            oRow.addSpecialDate(new sap.ui.unified.DateTypeRange({
+                                                startDate: oBackDate,
+                                                type: "NonWorking" 
+                                            }));
+                                        }
+                                    }
+
+
+                                    oRow.addSpecialDate(new sap.ui.unified.DateTypeRange({
+                                        startDate: new Date(oCurrentDate),
+                                        type: "NonWorking" 
+                                    }));
+                                }
+                            }
                         }
-                    }
-                }
                 
                 //!!!!!! per evidenziare la persona
                 person.highlight = bShouldHighlight && bPersonViolates;
@@ -315,13 +325,13 @@ sap.ui.define([
                 }
             });
 
+            
 
             oModel.refresh(true);
 
             oKpiModel.setProperty("/consecutiveCount", iTotalViolatingPeople);
             oKpiModel.setProperty("/consecutiveStatus", iTotalViolatingPeople > 0 ? "Warning" : "Success");
         },
-
 
 
 /////////////// minimo una casella di riposo per ogni settimana!!!! 
@@ -401,7 +411,7 @@ sap.ui.define([
                     /////// persona no valida ---> almeno una settimana.
                     if (!bHaRiposatoInSettimana) {
                         bMancaRiposo = true;
-                        break; 
+                        break;         
                     }
                 }
 
