@@ -9,60 +9,60 @@ sap.ui.define([
 
     return Controller.extend("inpsshiftplanner.controller.viewPianificazoineTurni", {
         onInit() {
-            // Converte stringhe ISO in UI5Date usando componenti locali
-            // per evitare problemi di timezone (es. data spostata di un giorno)
-            function toUI5Date(sISO) {
-                const d = new Date(sISO);
-                return UI5Date.getInstance(
-                    d.getFullYear(), d.getMonth(), d.getDate(),
-                    d.getHours(), d.getMinutes()
-                );
-            }
 
-            // Carica staffs con appointments espansi dall'OData backend
-            fetch("/odata/v4/catalog/staffs?$expand=Appointments")
-                .then(res => res.json())
-                .then(function(oResponse) {
-                    const aStaffs = oResponse.value || [];
+            const oModel = this.getOwnerComponent().getModel();              
+            const oListBinding = oModel.bindList("/staffs", null, null, null, {
+                "$expand": "Appointments"  ///// segue la struttura della tabella staffs
+            });
 
-                    const now = new Date();
-                    const oData = {
-                        startDate: UI5Date.getInstance(now.getFullYear(), now.getMonth(), 1),
-                        dipendenti: aStaffs.map(function(oStaff) {
-                            return {
-                                name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
-                                role: oStaff.Role || "",
-                                icon: oStaff.icon || "",
-                                highlight: false,
-                                shifts: (oStaff.Appointments || []).map(function(oAppt) {
-                                    return {
-                                        startDate: toUI5Date(oAppt.startDate),
-                                        endDate:   toUI5Date(oAppt.endDate),
-                                        title:     oAppt.title || "",
-                                        type:      oAppt.type  || "",
-                                        shiftIcon: oAppt.shiftIcon || "",
-                                        color:     oAppt.color || ""
-                                    };
-                                })
-                            };
-                        })
-                    };
+            
+            oListBinding.requestContexts().then(function (aContexts) {
+                
+                const aStaffData = aContexts.map(oCtx => oCtx.getObject());
 
-                    const oModel = new JSONModel(oData);
-                    this.getView().setModel(oModel);
+                const now = new Date();
+                const oData = {
 
-                    // KPI vanno calcolati dopo che il modello è pronto
-                    this.countConsecutive(false);
-                    this.updateUnderstaffing();
-                    this.countNonroposoSettimanale(false);
-                }.bind(this))
-                .catch(function(oErr) {
-                    sap.m.MessageToast.show("Errore caricamento dati: " + oErr.message);
-                });
+                    startDate: new Date(now.getFullYear(), now.getMonth(), 1),
+                    
+                    staffs: aStaffData.map(function (oStaff) {
+                        return {///// sistemare i dati da stampare...
+                            name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
+                            role: oStaff.Role || "",
+                            icon: oStaff.icon || "",
+                            highlight: false,
+                            //// appuntamenti.:::
+                            shifts: (oStaff.Appointments || []).map(function (oAppt) {
+                                return {
+                                    startDate: new Date(oAppt.startDate),
+                                    endDate:   new Date(oAppt.endDate),
+                                    title:     oAppt.title || "",
+                                    type:      oAppt.type  || "",
+                                    shiftIcon: oAppt.shiftIcon || "",
+                                    color:     oAppt.color || ""
+                                };
+                            })
+                        };
+                    })
+                };
 
 
+                const oViewModel = new JSONModel(oData);
+                this.getView().setModel(oViewModel);
 
-            const oKpiModel = new sap.ui.model.json.JSONModel({
+                ////// i valori di KPI vanno calcolati dopo che il modello è pronto
+                this.countConsecutive(false);
+                this.updateUnderstaffing();
+                this.countNonroposoSettimanale(false);
+                
+            }.bind(this))
+            .catch(function(oErr) {
+                MessageToast.show("Errore caricamento dati: " + oErr.message);
+            });
+
+
+
+            const oKpiModel = new JSONModel({
                 understaffedDays: 0,
                 criticalStatus: "Neutral",
                 //coverageMsg: "Caricamento dati...",
@@ -130,7 +130,7 @@ sap.ui.define([
 
         
         //////// per mancanza personale, deve controllare tutti i giorni per vedere se ci sono abbasanta personale. 
-        onPressMancanzaPersonale: function(oEvent){
+        onPressMancanzaPersonale: function(){
             //////const sHeader = oEvent.getSource().getHeader();
             const oKpiModel = this.getView().getModel("kpi");
             const oModel = this.getView().getModel("mockdata");
@@ -173,7 +173,7 @@ sap.ui.define([
             const oKpiModel = this.getView().getModel("kpi");
             const oCalendar = this.byId("planningCalendar");
 
-            const aStaff = oModel?.getProperty("/dipendenti") || [];
+            const aStaff = oModel?.getProperty("/staffs") || [];
 
             /*const oStartDate = oCalendar?.getStartDate() || new Date();
             const iYear = oStartDate.getFullYear();
@@ -198,7 +198,7 @@ sap.ui.define([
             for (let d = 1; d <= iDaysInMonth; d++) {
                 const oDate = new Date(iYear, iMonth, d);
                 const isWeekend = (oDate.getDay() === 0 || oDate.getDay() === 6);
-                const threshold = isWeekend ? 2 : 1; //////// min 2 per il weekend, min 1 durante i giorni lavorativi.
+                const threshold = isWeekend ? 2 : 1; //////// per test: min 2 per il weekend, min 1 durante i giorni lavorativi.
                 const count = staffCountByDate[oDate.toDateString()] || 0;
 
                 if (count < threshold) {
@@ -225,7 +225,7 @@ sap.ui.define([
         /////// non più di 6 giorni consecutivi.
 
 
-        onPressRischioSalute: function(oEvent) {
+        onPressRischioSalute: function() {
             const oKpiModel = this.getView().getModel("kpi");
 
             const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
@@ -258,7 +258,7 @@ sap.ui.define([
             /// tot count
             let iTotalViolatingPeople = 0; 
 
-            const aStaff = oModel.getProperty("/dipendenti") || [];
+            const aStaff = oModel.getProperty("/staffs") || [];
             const aRows = oCalendar ? oCalendar.getRows() : [];
 
             aStaff.forEach((person, index) => {
@@ -329,7 +329,7 @@ sap.ui.define([
 
 ////// va nell  kpi/personaleSenzaMinimoRiposoCount ---> per default 0;
 
-        onPressMancazaRiposso: function(oEvent) {
+        onPressMancazaRiposso: function() {
             const oKpiModel = this.getView().getModel("kpi");
 
             const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
@@ -344,7 +344,7 @@ sap.ui.define([
             //oKpiModel.setProperty("/restStatus", sStatus); 
 
             if (TotPersonale > 0) {
-                MessageToast.show("Attenzione: " + TotPersonale + " dipendenti senza riposo settimanale.");
+                MessageToast.show("Attenzione: " + TotPersonale + " staffs senza riposo settimanale.");
             } else {
                 MessageToast.show("Tutto in regola: ogni dipendente ha almeno un riposo a settimana.");
             }
@@ -362,7 +362,7 @@ sap.ui.define([
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
 
             let iTotViolazioni = 0;
-            const aStaff = oModel.getProperty("/dipendenti") || [];
+            const aStaff = oModel.getProperty("/staffs") || [];
 
             aStaff.forEach(person => {
                 let bMancaRiposo = false;
@@ -371,7 +371,7 @@ sap.ui.define([
                 const restDays = {};
                 if (person.shifts) {
                     person.shifts.forEach(shift => {
-                        if (shift.type === "EMERGENZA" && shift.startDate) { ///// emergenza --> per test
+                        if (shift.type === "RIPOSO" && shift.startDate) { ///// emergenza --> per test
                             restDays[new Date(shift.startDate).toDateString()] = true;
                         }
                     });

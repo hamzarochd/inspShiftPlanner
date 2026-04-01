@@ -115,3 +115,10 @@
 .kpiIcon {
     margin-right: 8px;
 }
+
+
+/* per kpi --> evidenziare le righe. */
+[data-myHighlight="true"] {
+    background-color: #fef3f3 !important;
+    box-shadow: inset 8px 0 0 0 #e20000 !important; 
+}
