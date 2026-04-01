@@ -11,7 +11,7 @@
 .sapUiCalendarApp {
     box-sizing: border-box !important;
     border-radius: 4px !important;
-    /* border: 2px solid rgba(230, 15, 15, 1) !important; */
+    /* border: 2px solid rgba(230, 15, 15, 1) !important;       evidenzia appointment*/
 }
 
 .cardProfile {
@@ -63,4 +63,62 @@
 
 .kpiIcon {
     margin-right: 8px;
+}
+
+.cardProfile {
+    border-radius: 16px;
+    padding: 1.5rem;
+    background: #f9fafb;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.infoItem {
+    width: 45%;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.label {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.value {
+    font-weight: 600;
+}
+
+.icon {
+    font-size: 1.5rem;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.blue   { background: #e0edff; color: #2563eb; }
+.green  { background: #dcfce7; color: #16a34a; }
+.purple { background: #f3e8ff; color: #9333ea; }
+.orange { background: #fff7ed; color: #ea580c; }
+.violet { background: #ede9fe; color: #7c3aed; }
+
+.kpiCard {
+    flex: 1;
+    min-width: 280px;
+    max-width: 350px;
+    padding: 1rem;
+    border-radius: 14px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin: 2rem;
+}
+
+.kpiIcon {
+    margin-right: 8px;
+}
+
+
+/* per kpi --> evidenziare le righe. */
+[data-myHighlight="true"] {
+    background-color: #fef3f3 !important;
+    box-shadow: inset 8px 0 0 0 #e20000 !important; 
 }
