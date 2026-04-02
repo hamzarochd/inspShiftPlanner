@@ -36,9 +36,9 @@
                                           class="sapUiBottomMargin"
                                           showClearOnFB="true"
                                           showFilterConfiguration="false">
-                            <fb:filterGroupItems>
 
-                                <!--Dipartimenti-->
+                            <fb:filterGroupItems>
+                                 <!--Dipartimenti-->
                                  <fb:FilterGroupItem  
                                      groupName="cd" 
                                      name="Dipartimenti" 
@@ -49,15 +49,14 @@
                                      id="Dipartimenti" 
                                      width="100%" 
                                      items="{ruoliModel>/Dipartimenti}" 
-                                     placeholder="Seleziona reparto" 
+                                     placeholder="Seleziona dipartimenti" 
                                      showClearIcon="true">
                                      <core:Item key="{ruoliModel>Dipartimeto}" text="{ruoliModel>Dipartimento}" />
                                    </ComboBox>
                                    </fb:control>
                                 </fb:FilterGroupItem>
 
-                               
-                                <!--Reparti-->
+                                 <!--Reparti-->
                                 <fb:FilterGroupItem  
                                      groupName="cd" 
                                      name="Reparti" 
@@ -92,10 +91,9 @@
                                    </ComboBox>
                                    </fb:control>
                                 </fb:FilterGroupItem>
-
-                               
                             </fb:filterGroupItems>
                         </fb:FilterBar>
+
                             <HBox class = "sapUiSmallMarginEnd sapUiSmallMarginTop sapUiSmallMarginBottom">
                                 <!-- Chenyu KPIS -->
                                 <GenericTile class="" header="Mancanza personale"
