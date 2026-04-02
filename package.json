@@ -20,7 +20,8 @@
     "watch-inps_shiftplanner": "cds watch --open inpsshiftplanner/index.html?sap-ui-xx-viewCache=false --livereload false",
     "undeploy": "cf undeploy inps_shiftplanner --delete-services --delete-service-keys --delete-service-brokers",
     "build": "rimraf resources mta_archives && mbt build --mtar archive",
-    "deploy": "cf deploy mta_archives/archive.mtar --retries 1"
+    "deploy": "cf deploy mta_archives/archive.mtar --retries 1",
+    "hybrid": "cds watch --profile hybrid"
   },
   "private": true,
   "cds": {

@@ -1,0 +1,5 @@
+VIEW CatalogService_teams AS SELECT
+  teams_0.ID,
+  teams_0.Name,
+  teams_0.Leader_ID
+FROM inpsShiftPlanner_teams AS teams_0
