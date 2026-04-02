@@ -10,6 +10,16 @@ sap.ui.define([
     return Controller.extend("inpsshiftplanner.controller.viewPianificazoineTurni", {
         onInit() {
 
+            // Converte stringhe ISO in UI5Date usando componenti locali
+            // per evitare problemi di timezone (es. data spostata di un giorno)
+            function toUI5Date(sISO) {
+                const d = new Date(sISO);
+                return UI5Date.getInstance(
+                    d.getFullYear(), d.getMonth(), d.getDate(),
+                    d.getHours(), d.getMinutes()
+                );
+            }
+
             const oModel = this.getOwnerComponent().getModel();              
             const oListBinding = oModel.bindList("/staffs", null, null, null, {
                 "$expand": "Appointments"  ///// segue la struttura della tabella staffs
