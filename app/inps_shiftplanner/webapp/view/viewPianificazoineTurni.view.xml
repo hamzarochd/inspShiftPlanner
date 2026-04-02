@@ -100,13 +100,13 @@
                                     </TileContent>
                                 </GenericTile>
 
-
+<!--
                                 <GenericTile class="sapUiTinyMarginBegin" header="Composizione Staff"
                                             frameType = "OneByHalf" press="">
                                     <TileContent>
                                         <NumericContent scale="M" value="" valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
-                                </GenericTile>
+                                </GenericTile>-->
 
                             </HBox>
                         </VBox>
@@ -118,8 +118,8 @@
                 <VBox>
                     <PlanningCalendar
                         id="planningCalendar"
-                        rows="{path: '/dipendenti'}"
-                        startDate="{path: '/startDate'}"
+                        rows="{path: '/staffs'}"
+                        startDate="{/startDate}"
                         viewKey="One Month"
                         appointmentsVisualization="Standard"
                         showEmptyIntervalHeaders="false"
@@ -127,13 +127,20 @@
 
                         <rows>
                             <PlanningCalendarRow
-                                icon="{= ${highlight} === true ? 'sap-icon://message-warning' : ${icon} }"                               
-                                title="{= ${highlight} === true ? '🔴 ' + ${name} : ${name} }"
+                                icon="{= ${highlight} ? 'sap-icon://message-warning' : ${icon} }"                              
+                                title="{name}"
                                 text="{role}"
+                                nonWorkingDays=""
                                 appointments="{path: 'shifts', templateShareable: false}"
                                 enableAppointmentsDragAndDrop="true"
                                 enableAppointmentsResize="false"
                                 appointmentDrop="handleAppointmentDrop">
+                                <customData>
+                                    <core:CustomData 
+                                        key="myHighlight" 
+                                        value="{= ${highlight} ? 'true' : 'false' }" 
+                                        writeToDom="true" />
+                                </customData>
                                 <appointments>
                                     <unified:CalendarAppointment
                                         startDate="{startDate}"
