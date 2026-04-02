@@ -1,10 +1,9 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
-    "sap/ui/core/date/UI5Date",
     "sap/m/MessageToast",
     "sap/ui/unified/DateTypeRange",
-], (Controller, JSONModel, UI5Date, MessageToast, DateTypeRange) => {
+], (Controller, JSONModel, MessageToast, DateTypeRange) => {
     "use strict";
 
     return Controller.extend("inpsshiftplanner.controller.viewPianificazoineTurni", {
