@@ -1,19 +1,17 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
+    "sap/ui/core/date/UI5Date",
     "sap/m/MessageToast",
     "sap/ui/unified/DateTypeRange",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator"
-], (Controller, JSONModel, MessageToast, DateTypeRange, Filter, FilterOperator) => {
+], (Controller, JSONModel, UI5Date, MessageToast, DateTypeRange, Filter, FilterOperator) => {
     "use strict";
 
     return Controller.extend("inpsshiftplanner.controller.viewPianificazoineTurni", {
-        
+
         onInit() {
-            const oModel = this.getOwnerComponent().getModel();
-            const oListBinding = oModel.bindList("/staffs", null, null, null, {
-                "$expand": "Appointments,MemberOf"  ///// segue la struttura della tabella staffs
 
             // Converte stringhe ISO in UI5Date usando componenti locali
             // per evitare problemi di timezone (es. data spostata di un giorno)
@@ -36,221 +34,82 @@ sap.ui.define([
 
             const oODataModel = this.getOwnerComponent().getModel("odata");
             const oListBinding = oODataModel.bindList("/staffs", null, null, null, {
-                "$expand": "Appointments"
+                "$expand": "Appointments,MemberOf"
             });
 
-            oListBinding.requestContexts().then(function (aContexts) {
-
-            oListBinding.requestContexts(0, 9999).then(function (aContexts) {
+            oListBinding.requestContexts(0, 9999).then(function(aContexts) {
                 const aStaffData = aContexts.map(oCtx => oCtx.getObject());
-                const now = new Date();
-                
-                const oData = {
-                    startDate: new Date(now.getFullYear(), now.getMonth(), 1),
-                    staffs: aStaffData.map(function (oStaff) {
-                        return {
-                            name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
-                            role: oStaff.Role || "",
-                            // Aggiungiamo i campi per i filtri (mappali con i nomi corretti del tuo DB)
-                            department: oStaff.Department || "", 
-                            repartoKey: oStaff.RepartoKey || "",
-                            icon: oStaff.icon || "",
-                            highlight: false,
-                            teamName: oStaff.MemberOf ? oStaff.MemberOf.Name : "no team",
-                            teamID: oStaff.MemberOf ? oStaff.MemberOf.ID : null,
 
-                            //// appuntamenti.:::
-                            shifts: (oStaff.Appointments || []).map(function (oAppt) {
-                                return {
-                                    startDate: new Date(oAppt.startDate),
-                                    endDate: new Date(oAppt.endDate),
-                                    title: oAppt.title || "",
-                                    type: oAppt.type || "",
-                                    shiftIcon: oAppt.shiftIcon || "",
-                                    color: oAppt.color || ""
-                                };
-                            })
-                        };
-                    })
-                };
-
-                const aDipendenti = aStaffData.map(function (oStaff) {
+                const aDipendenti = aStaffData.map(function(oStaff) {
                     return {
-                        name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
-                        role: oStaff.Role || "",
-                        icon: oStaff.icon || "",
-                        highlight: false,
-                        shifts: (oStaff.Appointments || []).map(function (oAppt) {
+                        name:       (oStaff.Name || "") + " " + (oStaff.Surname || ""),
+                        role:       oStaff.Role       || "",
+                        department: oStaff.Department || "",
+                        repartoKey: oStaff.RepartoKey || "",
+                        icon:       oStaff.icon       || "",
+                        highlight:  false,
+                        teamName:   oStaff.MemberOf ? oStaff.MemberOf.Name : "no team",
+                        teamID:     oStaff.MemberOf ? oStaff.MemberOf.ID   : null,
+                        shifts: (oStaff.Appointments || []).map(function(oAppt) {
                             return {
                                 id:        oAppt.ID,
                                 startDate: toUI5Date(oAppt.startDate),
                                 endDate:   toUI5Date(oAppt.endDate),
-                                title:     oAppt.title || "",
-                                type:      oAppt.type  || "",
+                                title:     oAppt.title    || "",
+                                type:      oAppt.type     || "",
                                 shiftIcon: oAppt.shiftIcon || "",
-                                color:     oAppt.color || ""
+                                color:     oAppt.color    || ""
                             };
                         })
                     };
                 });
 
                 oViewModel.setData({
-                    startDate: UI5Date.getInstance(now.getFullYear(), now.getMonth(), 1),
+                    startDate:  UI5Date.getInstance(now.getFullYear(), now.getMonth(), 1),
                     dipendenti: aDipendenti
                 });
                 oViewModel.refresh(true);
 
-                console.log("Dipendenti nel modello:", oViewModel.getProperty("/dipendenti").length);
-                console.log("Primo dipendente:", JSON.stringify(oViewModel.getProperty("/dipendenti/0")));
-
-                // Calcolo KPI iniziali
                 this.countConsecutive(false);
                 this.updateUnderstaffing();
                 this.countNonroposoSettimanale(false);
-
-            }.bind(this)).catch(function (oErr) {
 
             }.bind(this))
             .catch(function(oErr) {
                 MessageToast.show("Errore caricamento dati: " + oErr.message);
             });
 
+
             // Modello KPI
             const oKpiModel = new JSONModel({
-                understaffedDays: 0,
-                criticalStatus: "Neutral",
-                todayCount: 0,
-                consecutiveCount: 0,
+                understaffedDays:              0,
+                criticalStatus:                "Neutral",
+                todayCount:                    0,
+                consecutiveCount:              0,
                 personaleSenzaMinimoRiposoCount: 0,
-                showConsecutiveHighlight: false,
-                showUnderstaffingHighlight: false
-                showUnderstaffingHighlight: false
+                showConsecutiveHighlight:      false,
+                showUnderstaffingHighlight:    false
             });
             this.getView().setModel(oKpiModel, "kpi");
 
-            // Modello Dipartimenti e Ruoli
-            var setRuoli = {
+            // Modello Ruoli e Dipartimenti
+            const oRuoliData = {
                 "RuoliCollezione": [
-                    { "key": "COORD", "text": "Coordinatore infermieristico" },
-                    { "key": "INF",   "text": "Infermiere" },
-                    { "key": "INF_TI","text": "Infermiere Terapia Intensiva" },
-                    { "key": "OSS",   "text": "Operatore Socio Sanitario (OSS)" },
-                    { "key": "AUS",   "text": "Ausiliario/Barelliere" },
-                    { "key": "MED",   "text": "Medico" },
-                    { "key": "CHIR",  "text": "Chirurgo" },
-                    { "key": "ANES",  "text": "Anestesista" },
-                    { "key": "SPEC",  "text": "Specializzando" },
-                    { "key": "STRUM", "text": "Strumentista" },
-                    { "key": "TEC",   "text": "Tecnico sanitario" },
-                    { "key": "FISI",  "text": "Fisioterapista" },
-                    { "key": "LOGO",  "text": "Logopedista" },
-                    { "key": "SUP",   "text": "Supporto esterno" }
+                    { "key": "COORD",  "text": "Coordinatore infermieristico" },
+                    { "key": "INF",    "text": "Infermiere" },
+                    { "key": "INF_TI", "text": "Infermiere Terapia Intensiva" },
+                    { "key": "OSS",    "text": "Operatore Socio Sanitario (OSS)" },
+                    { "key": "AUS",    "text": "Ausiliario/Barelliere" },
+                    { "key": "MED",    "text": "Medico" },
+                    { "key": "CHIR",   "text": "Chirurgo" },
+                    { "key": "ANES",   "text": "Anestesista" },
+                    { "key": "SPEC",   "text": "Specializzando" },
+                    { "key": "STRUM",  "text": "Strumentista" },
+                    { "key": "TEC",    "text": "Tecnico sanitario" },
+                    { "key": "FISI",   "text": "Fisioterapista" },
+                    { "key": "LOGO",   "text": "Logopedista" },
+                    { "key": "SUP",    "text": "Supporto esterno" }
                 ],
-                "Dipartimenti": [
-                    {
-                        "Dipartimento": "Emergenza-Urgenza e Area Critica",
-                        "reparti": [
-                            { "key": "PS", "text": "Pronto Soccorso e OBI" },
-                            { "key": "TI", "text": "Terapia Intensiva e Rianimazione" },
-                            { "key": "118", "text": "Centrale Operativa 118" }
-                        ]
-                    },
-                    {
-                        "Dipartimento": "Dipartimento di Chirurgia",
-                        "reparti": [
-                            { "key": "CHIR", "text": "Chirurgia Generale" },
-                            { "key": "SO", "text": "Blocco Operatorio" },
-                            { "key": "URO", "text": "Urologia" },
-                            { "key": "ORT", "text": "Ortopedia e Traumatologia" }
-                        ]
-                    },
-                    {
-                        "Dipartimento": "Dipartimento di Medicina Specialistica",
-                        "reparti": [
-                            { "key": "MED", "text": "Medicina Interna" },
-                            { "key": "CARD", "text": "Cardiologia e UTIC" },
-                            { "key": "NEURO", "text": "Neurologia" },
-                            { "key": "ONCO", "text": "Oncologia Medica" },
-                            { "key": "DERM", "text": "Dermatologia" }
-                        ]
-                    },
-                    {
-                        "Dipartimento": "Dipartimento Materno-Infantile",
-                        "reparti": [
-                            { "key": "PED", "text": "Pediatria e Neonatologia" },
-                            { "key": "GINE", "text": "Ostetricia e Ginecologia" }
-                        ]
-                    },
-                    {
-                        "Dipartimento": "Servizi Diagnostici e Riabilitazione",
-                        "reparti": [
-                            { "key": "RAD", "text": "Radiologia e Imaging" },
-                            { "key": "LAB", "text": "Laboratorio Analisi" },
-                            { "key": "RIAB", "text": "Medicina Riabilitativa" },
-                            { "key": "AMB", "text": "Poliambulatorio" }
-                        ]
-                    },
-                    {
-                        "Dipartimento": "Salute Mentale e Direzione",
-                        "reparti": [
-                            { "key": "PSI", "text": "Psichiatria (SPDC)" },
-                            { "key": "DIR", "text": "Direzione Sanitaria" }
-                        ]
-                    }
-                ]
-            };
-
-            this.getView().setModel(new JSONModel(setRuoli), "ruoliModel");
-        },
-        //Funzione per cercare
-        onSearch: function () {
-            const RuoloChiave = this.byId("roleFilterCombo").getSelectedKey();
-            const GruppoChiave = this.byId("groupFilterCombo").getSelectedKey();
-            const RepartoChiave = this.byId("repartoFilterCombo").getSelectedKey();
-
-            const oCalendar = this.byId("planningCalendar");
-            const oBinding = oCalendar.getBinding("rows");
-            const aFiltri = [];
-
-            if (RuoloChiave) {
-                aFiltri.push(new Filter("role", FilterOperator.EQ, RuoloChiave));
-            }
-            if (GruppoChiave) {
-                aFiltri.push(new Filter("department", FilterOperator.EQ, GruppoChiave));
-            }
-            if (RepartoChiave) {
-                aFiltri.push(new Filter("repartoKey", FilterOperator.EQ, RepartoChiave));
-            }
-
-            if (oBinding) {
-                oBinding.filter(aFiltri);
-                MessageToast.show("Risultati aggiornati");
-            }
-        },
-        //filtro reset
-        onResetFilters: function () {
-            this.byId("roleFilterCombo").setSelectedKey("");
-            this.byId("groupFilterCombo").setSelectedKey("");
-            this.byId("repartoFilterCombo").setSelectedKey("");
-
-            const oBinding = this.byId("planningCalendar").getBinding("rows");
-            if (oBinding) {
-                oBinding.filter([]);
-            }
-            MessageToast.show("Filtri resettati");
-        },
-
-        GGMMAA: function () {
-            const oCalendar = this.byId("planningCalendar");
-            const oStartDate = oCalendar?.getStartDate() || new Date();
-            const iYear = oStartDate.getFullYear();
-            const iMonth = oStartDate.getMonth();
-            const iDaysInMonth = new Date(iYear, iMonth + 1, 0).getDate();
-            return { iYear, iMonth, iDaysInMonth };
-        },
-
-        updateUnderstaffing: function (bUpdateCalendar) {
-            const oModel = this.getView().getModel();
                 "Reparti": [
                     { "key": "PS",    "text": "Pronto Soccorso" },
                     { "key": "TI",    "text": "Terapia Intensiva" },
@@ -271,21 +130,102 @@ sap.ui.define([
                     { "key": "URO",   "text": "Urologia" },
                     { "key": "PSI",   "text": "Psichiatria" },
                     { "key": "DERM",  "text": "Dermatologia" }
+                ],
+                "Dipartimenti": [
+                    {
+                        "Dipartimento": "Emergenza-Urgenza e Area Critica",
+                        "reparti": [
+                            { "key": "PS",  "text": "Pronto Soccorso e OBI" },
+                            { "key": "TI",  "text": "Terapia Intensiva e Rianimazione" },
+                            { "key": "118", "text": "Centrale Operativa 118" }
+                        ]
+                    },
+                    {
+                        "Dipartimento": "Dipartimento di Chirurgia",
+                        "reparti": [
+                            { "key": "CHIR", "text": "Chirurgia Generale" },
+                            { "key": "SO",   "text": "Blocco Operatorio" },
+                            { "key": "URO",  "text": "Urologia" },
+                            { "key": "ORT",  "text": "Ortopedia e Traumatologia" }
+                        ]
+                    },
+                    {
+                        "Dipartimento": "Dipartimento di Medicina Specialistica",
+                        "reparti": [
+                            { "key": "MED",   "text": "Medicina Interna" },
+                            { "key": "CARD",  "text": "Cardiologia e UTIC" },
+                            { "key": "NEURO", "text": "Neurologia" },
+                            { "key": "ONCO",  "text": "Oncologia Medica" },
+                            { "key": "DERM",  "text": "Dermatologia" }
+                        ]
+                    },
+                    {
+                        "Dipartimento": "Dipartimento Materno-Infantile",
+                        "reparti": [
+                            { "key": "PED",  "text": "Pediatria e Neonatologia" },
+                            { "key": "GINE", "text": "Ostetricia e Ginecologia" }
+                        ]
+                    },
+                    {
+                        "Dipartimento": "Servizi Diagnostici e Riabilitazione",
+                        "reparti": [
+                            { "key": "RAD",  "text": "Radiologia e Imaging" },
+                            { "key": "LAB",  "text": "Laboratorio Analisi" },
+                            { "key": "RIAB", "text": "Medicina Riabilitativa" },
+                            { "key": "AMB",  "text": "Poliambulatorio" }
+                        ]
+                    },
+                    {
+                        "Dipartimento": "Salute Mentale e Direzione",
+                        "reparti": [
+                            { "key": "PSI", "text": "Psichiatria (SPDC)" },
+                            { "key": "DIR", "text": "Direzione Sanitaria" }
+                        ]
+                    }
                 ]
             };
 
-            // -------------------------------------------------------
-            // Creiamo un modello JSON separato per ruoli e reparti,
-            // usando l'oggetto oData definito sopra.
-            // NOTA: oModel è già usato per mockdata, quindi ne creiamo uno nuovo.
-            var oRuoliModel = new JSONModel(setRuoli);
-
-            // Assegniamo il modello ruoli/reparti alla vista
-            this.getView().setModel(oRuoliModel, "ruoliModel");
-            // -------------------------------------------------------
+            this.getView().setModel(new JSONModel(oRuoliData), "ruoliModel");
         },
 
-        
+
+        // ----------------------------------------------------------------
+        // FilterBar handlers
+        // ----------------------------------------------------------------
+
+        onSearch: function() {
+            const sRuoloKey   = this.byId("roleFilterCombo")?.getSelectedKey();
+            const sRepartoKey = this.byId("repartoFilterCombo")?.getSelectedKey();
+
+            const oCalendar = this.byId("planningCalendar");
+            const oBinding  = oCalendar.getBinding("rows");
+            const aFiltri   = [];
+
+            if (sRuoloKey) {
+                aFiltri.push(new Filter("role", FilterOperator.EQ, sRuoloKey));
+            }
+            if (sRepartoKey) {
+                aFiltri.push(new Filter("repartoKey", FilterOperator.EQ, sRepartoKey));
+            }
+
+            if (oBinding) {
+                oBinding.filter(aFiltri);
+                MessageToast.show("Risultati aggiornati");
+            }
+        },
+
+        onResetFilters: function() {
+            this.byId("roleFilterCombo")?.setSelectedKey("");
+            this.byId("repartoFilterCombo")?.setSelectedKey("");
+
+            const oBinding = this.byId("planningCalendar").getBinding("rows");
+            if (oBinding) {
+                oBinding.filter([]);
+            }
+            MessageToast.show("Filtri resettati");
+        },
+
+
         // ----------------------------------------------------------------
         // Drag & Drop appointment
         // ----------------------------------------------------------------
@@ -345,24 +285,30 @@ sap.ui.define([
             });
         },
 
+
         // ----------------------------------------------------------------
         // Recupera anno, mese e numero di giorni del mese visualizzato nel calendario
+        // ----------------------------------------------------------------
+
         GGMMAA: function() {
-            const oCalendar = this.byId("planningCalendar");
+            const oCalendar  = this.byId("planningCalendar");
             const oStartDate = oCalendar?.getStartDate() || new Date();
 
-            const iYear = oStartDate.getFullYear();
-            const iMonth = oStartDate.getMonth();
+            const iYear       = oStartDate.getFullYear();
+            const iMonth      = oStartDate.getMonth();
             const iDaysInMonth = new Date(iYear, iMonth + 1, 0).getDate();
 
             return { iYear, iMonth, iDaysInMonth };
         },
 
-        //////// per mancanza personale, deve controllare tutti i giorni per vedere se ci sono abbasanta personale.
-        onPressMancanzaPersonale: function(){
-            //////const sHeader = oEvent.getSource().getHeader();
+
+        // ----------------------------------------------------------------
+        // KPI 1 - Mancanza personale
+        // ----------------------------------------------------------------
+
+        onPressMancanzaPersonale: function() {
             const oKpiModel = this.getView().getModel("kpi");
-            const oModel = this.getView().getModel();
+            const oModel    = this.getView().getModel();
 
             const bActive = oKpiModel?.getProperty("/showUnderstaffingHighlight") || false;
             oKpiModel?.setProperty("/showUnderstaffingHighlight", !bActive);
@@ -379,16 +325,16 @@ sap.ui.define([
         },
 
         updateUnderstaffing: function(bUpdateCalendar) {
-            const oModel = this.getView().getModel();
+            const oModel    = this.getView().getModel();
             const oKpiModel = this.getView().getModel("kpi");
             const oCalendar = this.byId("planningCalendar");
+
             const aStaff = oModel?.getProperty("/dipendenti") || [];
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
 
             const staffCountByDate = {};
             aStaff.forEach(person => {
                 person.shifts?.forEach(appointment => {
-                    if (appointment.type && appointment.type !== "RIPOSO") {
                     if (appointment.type && appointment.type !== "RIPOSO") {
                         const sDate = new Date(appointment.startDate).toDateString();
                         staffCountByDate[sDate] = (staffCountByDate[sDate] || 0) + 1;
@@ -400,14 +346,13 @@ sap.ui.define([
             if (bUpdateCalendar) oCalendar?.removeAllSpecialDates();
 
             for (let d = 1; d <= iDaysInMonth; d++) {
-                const oDate = new Date(iYear, iMonth, d);
+                const oDate    = new Date(iYear, iMonth, d);
                 const isWeekend = (oDate.getDay() === 0 || oDate.getDay() === 6);
                 const threshold = isWeekend ? 3 : 5;
-                const count = staffCountByDate[oDate.toDateString()] || 0;
+                const count    = staffCountByDate[oDate.toDateString()] || 0;
 
                 if (count < threshold) {
                     iCriticalDays++;
-                    if (bUpdateCalendar) {
                     if (bUpdateCalendar) {
                         oCalendar?.addSpecialDate(new DateTypeRange({
                             startDate: oDate
@@ -418,9 +363,6 @@ sap.ui.define([
 
             oKpiModel?.setProperty("/understaffedDays", iCriticalDays);
             oKpiModel?.setProperty("/criticalStatus", iCriticalDays > 0 ? "Critical" : "Success");
-        },
-
-        onPressMancanzaPersonale: function () {
 
             if (bUpdateCalendar && iCriticalDays > 0) {
                 MessageToast.show("Trovati " + iCriticalDays + " giorni sottorganico");
@@ -434,12 +376,6 @@ sap.ui.define([
 
         onPressRischioSalute: function() {
             const oKpiModel = this.getView().getModel("kpi");
-            const bActive = oKpiModel.getProperty("/showUnderstaffingHighlight");
-            oKpiModel.setProperty("/showUnderstaffingHighlight", !bActive);
-
-            const calendar = this.byId("planningCalendar");
-            if (!bActive) {
-                this.updateUnderstaffing(true);
 
             const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
             const bNewActive = !bCurrentlyActive;
@@ -450,50 +386,29 @@ sap.ui.define([
             if (bNewActive) {
                 MessageToast.show("Evidenziazione rischio salute attiva");
             } else {
-                calendar?.removeAllSpecialDates();
-                MessageToast.show("Evidenziazione rimossa");
                 MessageToast.show("Evidenziazione rimossa");
             }
         },
 
-        onPressRischioSalute: function () {
-            const oKpiModel = this.getView().getModel("kpi");
-            const bActive = !oKpiModel.getProperty("/showConsecutiveHighlight");
-            oKpiModel.setProperty("/showConsecutiveHighlight", bActive);
-            this.countConsecutive(bActive);
-            MessageToast.show(bActive ? 'Rischio salute attivo' : 'Evidenziazione rimossa');
-        },
-
-        countConsecutive: function (bShouldHighlight) {
-            const oModel = this.getView().getModel();
-
         countConsecutive: function(bShouldHighlight) {
-            const oModel = this.getView().getModel();
+            const oModel    = this.getView().getModel();
             const oKpiModel = this.getView().getModel("kpi");
             const oCalendar = this.byId("planningCalendar");
-            const limitDays = 3;
 
             const limitDays = 3;
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
 
             let iTotalViolatingPeople = 0;
             const aStaff = oModel.getProperty("/dipendenti") || [];
-            const aRows = oCalendar ? oCalendar.getRows() : [];
+            const aRows  = oCalendar ? oCalendar.getRows() : [];
 
             aStaff.forEach((person, index) => {
                 let iConsecutiveCounter = 0;
-                let iConsecutiveCounter = 0;
-                let bPersonViolates = false;
+                let bPersonViolates     = false;
                 const oRow = aRows[index];
 
                 if (oRow) oRow.destroySpecialDates();
 
-                if (oRow) oRow.destroySpecialDates();
-
-                // ============================================================
-                // [MOCKDATA] shift.type e shift.startDate vengono da mockdata.json
-                // [DB]       adatta i nomi dei campi al tuo schema OData
-                // ============================================================
                 const personalShifts = {};
                 if (person.shifts) {
                     person.shifts.forEach(shift => {
@@ -505,13 +420,10 @@ sap.ui.define([
 
                 for (let d = 1; d <= iDaysInMonth; d++) {
                     const oCurrentDate = new Date(iYear, iMonth, d);
-                    if (personalShifts[oCurrentDate.toDateString()]) {
-                    const tempDate = oCurrentDate.toDateString();
 
-                    if (personalShifts[tempDate]) {
+                    if (personalShifts[oCurrentDate.toDateString()]) {
                         iConsecutiveCounter++;
                     } else {
-                        iConsecutiveCounter = 0;
                         iConsecutiveCounter = 0;
                     }
 
@@ -525,61 +437,55 @@ sap.ui.define([
                         }
                     }
                 }
-                person.highlight = bShouldHighlight && bPersonViolates;
-                if (bPersonViolates) iTotalViolatingPeople++;
 
+                person.highlight = bShouldHighlight && bPersonViolates;
                 if (bPersonViolates) iTotalViolatingPeople++;
             });
 
             oModel.refresh(true);
             oKpiModel.setProperty("/consecutiveCount", iTotalViolatingPeople);
+            oKpiModel.setProperty("/consecutiveStatus", iTotalViolatingPeople > 0 ? "Warning" : "Success");
         },
 
-        onPressMancazaRiposso: function () {
+
+        // ----------------------------------------------------------------
+        // KPI 3 - Mancanza riposo settimanale
+        // ----------------------------------------------------------------
+
+        onPressMancazaRiposso: function() {
             const oKpiModel = this.getView().getModel("kpi");
-            const bActive = !oKpiModel.getProperty("/showConsecutiveHighlight");
-            oKpiModel.setProperty("/showConsecutiveHighlight", bActive);
-            const count = this.countNonroposoSettimanale(bActive);
-            MessageToast.show(count > 0 ? "Staff senza riposo: " + count : "Tutto in regola");
 
             const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
             const bNewActive = !bCurrentlyActive;
 
             oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
 
-            const TotPersonale = this.countNonroposoSettimanale(bNewActive);
+            const iTotPersonale = this.countNonroposoSettimanale(bNewActive);
 
-            if (TotPersonale > 0) {
-                MessageToast.show("Attenzione: " + TotPersonale + " staffs senza riposo settimanale.");
+            if (iTotPersonale > 0) {
+                MessageToast.show("Attenzione: " + iTotPersonale + " dipendenti senza riposo settimanale.");
             } else {
                 MessageToast.show("Tutto in regola: ogni dipendente ha almeno un riposo a settimana.");
             }
         },
 
-       
-
-
-        ////// la funzione da chiamare al interno di onPressMancanzaRiposo
-
-
-        countNonroposoSettimanale: function (bShouldHighlight) {
-            const oModel = this.getView().getModel();
+        countNonroposoSettimanale: function(bShouldHighlight) {
+            const oModel    = this.getView().getModel();
             const oKpiModel = this.getView().getModel("kpi");
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
+
             let iTotViolazioni = 0;
             const aStaff = oModel.getProperty("/dipendenti") || [];
 
             aStaff.forEach(person => {
                 let bMancaRiposo = false;
 
-                // ============================================================
-                // [MOCKDATA] controlla shift.type === "RIPOSO" (valore in mockdata.json)
-                // [DB]       sostituisci "RIPOSO" con il valore corrispondente nel tuo backend
-                // ============================================================
                 const restDays = {};
                 if (person.shifts) {
                     person.shifts.forEach(s => {
-                        if (s.type === "RIPOSO") restDays[new Date(s.startDate).toDateString()] = true;
+                        if (s.type === "RIPOSO" && s.startDate) {
+                            restDays[new Date(s.startDate).toDateString()] = true;
+                        }
                     });
                 }
 
@@ -592,30 +498,23 @@ sap.ui.define([
 
                 // Ciclo per ogni settimana intera del mese
                 for (let weekStart = iStartDay; weekStart + 6 <= iDaysInMonth; weekStart += 7) {
-                    let bHaRiposato = false;
                     let bHaRiposatoInSettimana = false;
 
                     for (let d = 0; d < 7; d++) {
-                        if (restDays[new Date(iYear, iMonth, weekStart + d).toDateString()]) {
-                            bHaRiposato = true;
-                            break;
-                        let currentCheckDate = new Date(iYear, iMonth, weekStart + d);
-                        if (restDays[currentCheckDate.toDateString()]) {
+                        const oCheckDate = new Date(iYear, iMonth, weekStart + d);
+                        if (restDays[oCheckDate.toDateString()]) {
                             bHaRiposatoInSettimana = true;
                             break;
                         }
                     }
-                    if (!bHaRiposato) { bMancaRiposo = true; break; }
 
                     if (!bHaRiposatoInSettimana) {
                         bMancaRiposo = true;
-                        break;         
+                        break;
                     }
                 }
 
                 person.highlight = bShouldHighlight && bMancaRiposo;
-                if (bMancaRiposo) iTotViolazioni++;
-
                 if (bMancaRiposo) iTotViolazioni++;
             });
 
