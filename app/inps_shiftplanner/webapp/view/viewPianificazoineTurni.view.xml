@@ -81,13 +81,13 @@
                                      label="Dipartimenti" 
                                      visibleInFilterBar="true">
                                    <fb:control>
-                                   <ComboBox  
-                                     id="Dipartimenti" 
-                                     width="100%" 
-                                     items="{>/Dipartimenti}" 
-                                     placeholder="Seleziona reparto" 
+                                   <ComboBox
+                                     id="Dipartimenti"
+                                     width="100%"
+                                     items="{ruoliModel>/Dipartimenti}"
+                                     placeholder="Seleziona dipartimento"
                                      showClearIcon="true">
-                                     <core:Item key="{ruoliModel>Dipartimeto}" text="{ruoliModel>Dipartimento}" />
+                                     <core:Item key="{ruoliModel>Dipartimento}" text="{ruoliModel>Dipartimento}" />
                                    </ComboBox>
                                    </fb:control>
                                 </fb:FilterGroupItem>
