@@ -4,5 +4,6 @@ COLUMN TABLE inpsShiftPlanner_staffs (
   Surname NVARCHAR(5000),
   Role NVARCHAR(5000),
   icon NVARCHAR(5000),
+  MemberOf_ID NVARCHAR(36),
   PRIMARY KEY(ID)
 )

@@ -3,5 +3,6 @@ VIEW CatalogService_staffs AS SELECT
   staffs_0.Name,
   staffs_0.Surname,
   staffs_0.Role,
-  staffs_0.icon
+  staffs_0.icon,
+  staffs_0.MemberOf_ID
 FROM inpsShiftPlanner_staffs AS staffs_0
