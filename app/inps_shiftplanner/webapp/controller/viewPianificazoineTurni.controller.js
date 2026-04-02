@@ -288,12 +288,21 @@ sap.ui.define([
                      + "  " + d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
             };
 
+            // Estrae gli indici dal path del binding context
+            // Il path ha formato: /dipendenti/2/shifts/0
+            const aParts    = oCtx.getPath().split("/");
+            const iDipIndex = parseInt(aParts[2]);
+            const iShiftIdx = parseInt(aParts[4]);
+
             // Popola il modello appt e apre il popover
             this.getView().getModel("appt").setData({
                 name:      sName,
                 type:      oShift.type      || "-",
                 startDate: fmtDate(oShift.startDate),
-                endDate:   fmtDate(oShift.endDate)
+                endDate:   fmtDate(oShift.endDate),
+                id:        oShift.id,
+                dipIndex:  iDipIndex,
+                shiftIdx:  iShiftIdx
             });
 
             this.byId("appointmentPopover").openBy(oAppointment);
@@ -301,6 +310,32 @@ sap.ui.define([
 
         onClosePopover: function() {
             this.byId("appointmentPopover").close();
+        },
+
+        onDeleteAppointment: function() {
+            const oApptModel = this.getView().getModel("appt");
+            const sId        = oApptModel.getProperty("/id");
+            const iDipIndex  = oApptModel.getProperty("/dipIndex");
+            const iShiftIdx  = oApptModel.getProperty("/shiftIdx");
+
+            // DELETE sul DB
+            fetch("/odata/V4/catalog/appointments(" + sId + ")", {
+                method: "DELETE"
+            }).then(function(oRes) {
+                if (!oRes.ok) throw new Error("DELETE fallito: " + oRes.status);
+
+                // Rimuove il turno dal modello locale
+                const oModel  = this.getView().getModel();
+                const aShifts = oModel.getProperty("/dipendenti/" + iDipIndex + "/shifts");
+                aShifts.splice(iShiftIdx, 1);
+                oModel.setProperty("/dipendenti/" + iDipIndex + "/shifts", aShifts);
+                oModel.refresh(true);
+
+                this.byId("appointmentPopover").close();
+                MessageToast.show("Turno eliminato");
+            }.bind(this)).catch(function(oErr) {
+                MessageToast.show("Errore eliminazione: " + oErr.message);
+            });
         },
 
         onSearch: function() {

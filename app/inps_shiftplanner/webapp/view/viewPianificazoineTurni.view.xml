@@ -27,6 +27,7 @@
                 </content>
                 <footer>
                     <Toolbar>
+                        <Button text="Elimina" type="Reject" press="onDeleteAppointment"/>
                         <ToolbarSpacer/>
                         <Button text="Chiudi" press="onClosePopover"/>
                     </Toolbar>
