@@ -11,7 +11,7 @@ sap.ui.define([
 
             const oModel = this.getOwnerComponent().getModel();              
             const oListBinding = oModel.bindList("/staffs", null, null, null, {
-                "$expand": "Appointments"  ///// segue la struttura della tabella staffs
+                "$expand": "Appointments,MemberOf"  ///// segue la struttura della tabella staffs
             });
 
             
@@ -30,6 +30,9 @@ sap.ui.define([
                             role: oStaff.Role || "",
                             icon: oStaff.icon || "",
                             highlight: false,
+                            teamName: oStaff.MemberOf ? oStaff.MemberOf.Name : "no team",
+                            teamID: oStaff.MemberOf ? oStaff.MemberOf.ID : null,
+
                             //// appuntamenti.:::
                             shifts: (oStaff.Appointments || []).map(function (oAppt) {
                                 return {

@@ -84,7 +84,7 @@
                                    <ComboBox  
                                      id="Dipartimenti" 
                                      width="100%" 
-                                     items="{ruoliModel>/Dipartimenti}" 
+                                     items="{>/Dipartimenti}" 
                                      placeholder="Seleziona reparto" 
                                      showClearIcon="true">
                                      <core:Item key="{ruoliModel>Dipartimeto}" text="{ruoliModel>Dipartimento}" />
@@ -138,7 +138,7 @@
 
                         <rows>
                             <PlanningCalendarRow
-                                icon="{= ${highlight} ? 'sap-icon://message-warning' : 'sap-icon://employee' }"                              
+                                icon="{= ${highlight} ? 'sap-icon://message-warning' : ${icon} }"                              
                                 title="{name}"
                                 text="{role}"
                                 nonWorkingDays=""
