@@ -20,53 +20,48 @@ sap.ui.define([
                 );
             }
 
-            const oModel = this.getOwnerComponent().getModel();              
-            const oListBinding = oModel.bindList("/staffs", null, null, null, {
-                "$expand": "Appointments"  ///// segue la struttura della tabella staffs
+            // Setto subito il JSONModel vuoto sulla view — così il PlanningCalendar
+            // si lega ad esso immediatamente e si aggiorna quando arrivano i dati
+            const now = new Date();
+            const oViewModel = new JSONModel({
+                startDate: UI5Date.getInstance(now.getFullYear(), now.getMonth(), 1),
+                dipendenti: []
+            });
+            this.getView().setModel(oViewModel);
+
+            const oODataModel = this.getOwnerComponent().getModel();
+            const oListBinding = oODataModel.bindList("/staffs", null, null, null, {
+                "$expand": "Appointments"
             });
 
-            
-            oListBinding.requestContexts(0, Infinity).then(function (aContexts) {
-
-                console.log("Contesti ricevuti:", aContexts.length);
+            oListBinding.requestContexts(0, 9999).then(function (aContexts) {
                 const aStaffData = aContexts.map(oCtx => oCtx.getObject());
-                console.log("Staff data:", JSON.stringify(aStaffData));
 
-                const now = new Date();
-                const oData = {
+                const aDipendenti = aStaffData.map(function (oStaff) {
+                    return {
+                        name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
+                        role: oStaff.Role || "",
+                        icon: oStaff.icon || "",
+                        highlight: false,
+                        shifts: (oStaff.Appointments || []).map(function (oAppt) {
+                            return {
+                                startDate: toUI5Date(oAppt.startDate),
+                                endDate:   toUI5Date(oAppt.endDate),
+                                title:     oAppt.title || "",
+                                type:      oAppt.type  || "",
+                                shiftIcon: oAppt.shiftIcon || "",
+                                color:     oAppt.color || ""
+                            };
+                        })
+                    };
+                });
 
-                    startDate: UI5Date.getInstance(now.getFullYear(), now.getMonth(), 1),
-                    
-                    dipendenti: aStaffData.map(function (oStaff) {
-                        return {///// sistemare i dati da stampare...
-                            name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
-                            role: oStaff.Role || "",
-                            icon: oStaff.icon || "",
-                            highlight: false,
-                            //// appuntamenti.:::
-                            shifts: (oStaff.Appointments || []).map(function (oAppt) {
-                                return {
-                                    startDate: toUI5Date(oAppt.startDate),
-                                    endDate:   toUI5Date(oAppt.endDate),
-                                    title:     oAppt.title || "",
-                                    type:      oAppt.type  || "",
-                                    shiftIcon: oAppt.shiftIcon || "",
-                                    color:     oAppt.color || ""
-                                };
-                            })
-                        };
-                    })
-                };
+                oViewModel.setProperty("/dipendenti", aDipendenti);
 
-
-                const oViewModel = new JSONModel(oData);
-                this.getView().setModel(oViewModel);
-
-                ////// i valori di KPI vanno calcolati dopo che il modello è pronto
                 this.countConsecutive(false);
                 this.updateUnderstaffing();
                 this.countNonroposoSettimanale(false);
-                
+
             }.bind(this))
             .catch(function(oErr) {
                 MessageToast.show("Errore caricamento dati: " + oErr.message);
