@@ -40,18 +40,18 @@
                             <fb:filterGroupItems>
                                  <!--Dipartimenti-->
                                  <fb:FilterGroupItem  
-                                     groupName="cd" 
+                                     groupName="Main" 
                                      name="Dipartimenti" 
-                                     label="Dipartimenti" 
+                                     label="Area Dipartimenti" 
                                      visibleInFilterBar="true">
                                    <fb:control>
                                    <ComboBox  
-                                     id="Dipartimenti" 
+                                     id="groupFilter" 
                                      width="100%" 
                                      items="{ruoliModel>/Dipartimenti}" 
-                                     placeholder="Seleziona dipartimenti" 
+                                     placeholder="Seleziona dipartimento" 
                                      showClearIcon="true">
-                                     <core:Item key="{ruoliModel>Dipartimeto}" text="{ruoliModel>Dipartimento}" />
+                                     <core:Item key="{ruoliModel>Dipartimeto}" text="{ruoliModel>Dipartimento}"/>
                                    </ComboBox>
                                    </fb:control>
                                 </fb:FilterGroupItem>
