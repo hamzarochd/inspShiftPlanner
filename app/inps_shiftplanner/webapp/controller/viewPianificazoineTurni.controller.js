@@ -34,7 +34,7 @@ sap.ui.define([
 
             const oODataModel = this.getOwnerComponent().getModel("odata");
             const oListBinding = oODataModel.bindList("/staffs", null, null, null, {
-                "$expand": "Appointments,MemberOf"
+                "$expand": "Appointments"
             });
 
             oListBinding.requestContexts(0, 9999).then(function(aContexts) {
