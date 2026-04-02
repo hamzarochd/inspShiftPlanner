@@ -14,12 +14,12 @@ sap.ui.define([
 
         onInit() {
 
-            // Traccia il tasto Option (altKey) su Mac per il drag & copy
-            this._bOptionKeyPressed = false;
-            this._fnKeyDown = function(e) { if (e.altKey) this._bOptionKeyPressed = true;  }.bind(this);
-            this._fnKeyUp   = function(e) { if (!e.altKey) this._bOptionKeyPressed = false; }.bind(this);
-            document.addEventListener("keydown", this._fnKeyDown);
-            document.addEventListener("keyup",   this._fnKeyUp);
+            // Cattura altKey al momento esatto del drop nativo (fase capture, prima di UI5)
+            this._bCopyOnDrop = false;
+            this._fnNativeDrop = function(e) {
+                this._bCopyOnDrop = e.altKey;
+            }.bind(this);
+            document.addEventListener("drop", this._fnNativeDrop, true);
 
             // Converte stringhe ISO in UI5Date usando componenti locali
             // per evitare problemi di timezone (es. data spostata di un giorno)
@@ -205,8 +205,7 @@ sap.ui.define([
         },
 
         onExit: function() {
-            document.removeEventListener("keydown", this._fnKeyDown);
-            document.removeEventListener("keyup",   this._fnKeyUp);
+            document.removeEventListener("drop", this._fnNativeDrop, true);
         },
 
         // Drag & drop: controlla sovrapposizioni e applica o chiede cosa fare
@@ -214,7 +213,7 @@ sap.ui.define([
             const oAppointment = oEvent.getParameter("appointment");
             const oStartDate   = oEvent.getParameter("startDate");
             const oCalendarRow = oEvent.getParameter("calendarRow");
-            const bCopy        = this._bOptionKeyPressed; // true se Option è tenuto premuto su Mac
+            const bCopy        = this._bCopyOnDrop; // true se Option era premuto al momento del drop
 
             const oModel      = this.getView().getModel();
             const aDipendenti = oModel.getProperty("/dipendenti");
