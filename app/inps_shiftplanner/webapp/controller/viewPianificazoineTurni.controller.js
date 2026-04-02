@@ -24,6 +24,7 @@ sap.ui.define([
             // [MOCKDATA] - Caricamento dati da file locale
             // Quando passi al DB: commenta questo blocco e decommenta il blocco [DB]
             // ============================================================
+            /*
             const oModel = new JSONModel();
             oModel.loadData("model/mockdata.json").then(() => {
                 const oData = oModel.getData();
@@ -39,29 +40,22 @@ sap.ui.define([
                 oModel.setData(oData);
                 this.getView().setModel(oModel);
 
-                // KPI vanno calcolati dopo che il modello è pronto
                 this.updateUnderstaffing();
                 this.countConsecutive(false);
                 this.countNonroposoSettimanale(false);
             });
+            */
             // ============================================================
             // [/MOCKDATA]
             // ============================================================
 
             // ============================================================
             // [DB] - Caricamento dati da OData backend
-            // Quando passi al DB:
-            //   1. Commenta il blocco [MOCKDATA] sopra
-            //   2. Decommenta questo blocco
-            //   3. In manifest.json → "models" → aggiungi:
-            //      "": {
-            //        "dataSource": "mainService",
-            //        "preload": true,
-            //        "settings": { "operationMode": "Server", "autoExpandSelect": true, "earlyRequests": true }
-            //      }
+            // Quando torni a mockdata:
+            //   1. Commenta questo blocco
+            //   2. Decommenta il blocco [MOCKDATA] sopra
             // ============================================================
-            /*
-            fetch("/odata/v4/catalog/staffs?$expand=Appointments")
+            fetch("/odata/V4/catalog/staffs?$expand=Appointments")
                 .then(res => res.json())
                 .then(function(oResponse) {
                     const aStaffs = oResponse.value || [];
@@ -77,6 +71,7 @@ sap.ui.define([
                                 highlight: false,
                                 shifts: (oStaff.Appointments || []).map(function(oAppt) {
                                     return {
+                                        id:        oAppt.ID,
                                         startDate: toUI5Date(oAppt.startDate),
                                         endDate:   toUI5Date(oAppt.endDate),
                                         title:     oAppt.title || "",
@@ -99,7 +94,6 @@ sap.ui.define([
                 .catch(function(oErr) {
                     MessageToast.show("Errore caricamento dati: " + oErr.message);
                 });
-            */
             // ============================================================
             // [/DB]
             // ============================================================
@@ -198,48 +192,38 @@ sap.ui.define([
         },
 
         handleAppointmentDrop: function(oEvent) {
-            const newAppointment = oEvent.getParameter("appointment");
-            const newStartDate = oEvent.getParameter("startDate");
-            const newEndDate = oEvent.getParameter("endDate");
-            const newRow = oEvent.getParameter("calendarRow");
+            const oAppointment  = oEvent.getParameter("appointment");
+            const oNewStartDate = oEvent.getParameter("startDate");
+            const oNewEndDate   = oEvent.getParameter("endDate");
+            const oNewRow       = oEvent.getParameter("calendarRow");
 
-            const rowPath = newRow.getBindingContext().getPath();
+            const sRowPath = oNewRow.getBindingContext().getPath();
 
-            const shifts = this.getView().getModel().getProperty(rowPath + "/shifts");
+            const aShifts = this.getView().getModel().getProperty(sRowPath + "/shifts");
 
-            const appPath = newAppointment.getBindingContext().getPath();
+            const sAppPath = oAppointment.getBindingContext().getPath();
 
-            const otherShifts = shifts.filter((shift, index) => {
-                const currentPath = rowPath + "/shifts/" + index;
-                return currentPath !== appPath;
+            const aOtherShifts = aShifts.filter((oShift, iIndex) => {
+                const sCurrentPath = sRowPath + "/shifts/" + iIndex;
+                return sCurrentPath !== sAppPath;
             });
 
-            const overlap = otherShifts.some(shift => {
-                const shiftStart = new Date(shift.startDate);
-                const shiftEnd = new Date(shift.endDate);
-                return (newStartDate < shiftEnd) && (newEndDate > shiftStart);
+            const bOverlap = aOtherShifts.some((oShift) => {
+                const oShiftStart = new Date(oShift.startDate);
+                const oShiftEnd   = new Date(oShift.endDate);
+                return (oNewStartDate < oShiftEnd) && (oNewEndDate > oShiftStart);
             });
 
-
-            if (overlap) {
+            if (bOverlap) {
                 MessageToast.show("Spostamento non consentito: si sovrappone ad un altro turno.");
                 oEvent.preventDefault();
                 return;
-            };
+            }
 
-
-            const appointmentPath = newAppointment.getBindingContext().getPath();
             const oModel = this.getView().getModel();
-
-            // console.log("Path dell'appuntamento spostato:", appointmentPath);
-            // console.log("Nuova data inizio:", newStartDate.toISOString());
-            // console.log("Nuova data fine:", newEndDate.toISOString());
-
-            oModel.setProperty(appointmentPath + "/startDate", newStartDate);
-            oModel.setProperty(appointmentPath + "/endDate", newEndDate);
+            oModel.setProperty(sAppPath + "/startDate", oNewStartDate);
+            oModel.setProperty(sAppPath + "/endDate", oNewEndDate);
             oModel.refresh(true);
-
-            
         },
 
         // ----------------------------------------------------------------
