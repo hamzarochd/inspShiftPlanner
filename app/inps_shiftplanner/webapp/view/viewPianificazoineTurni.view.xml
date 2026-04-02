@@ -132,7 +132,7 @@
                 <VBox>
                     <PlanningCalendar
                         id="planningCalendar"
-                        rows="{path: '/staffs'}"
+                        rows="{path: '/dipendenti'}"
                         startDate="{/startDate}"
                         viewKey="One Month"
                         appointmentsVisualization="Standard"
@@ -141,13 +141,14 @@
 
                         <rows>
                             <PlanningCalendarRow
-                                icon="{= ${highlight} ? 'sap-icon://message-warning' : 'sap-icon://employee' }"                              
+                                icon="{= ${highlight} ? 'sap-icon://message-warning' : ${icon} }"                              
                                 title="{name}"
                                 text="{role}"
                                 nonWorkingDays=""
                                 appointments="{path: 'shifts', templateShareable: false}"
                                 enableAppointmentsDragAndDrop="true"
-                                enableAppointmentsResize="false">
+                                enableAppointmentsResize="false"
+                                appointmentDrop="handleAppointmentDrop">
                                 <customData>
                                     <core:CustomData 
                                         key="myHighlight" 
