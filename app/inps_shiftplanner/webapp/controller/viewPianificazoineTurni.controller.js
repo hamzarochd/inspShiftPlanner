@@ -56,7 +56,14 @@ sap.ui.define([
                     };
                 });
 
-                oViewModel.setProperty("/dipendenti", aDipendenti);
+                oViewModel.setData({
+                    startDate: UI5Date.getInstance(now.getFullYear(), now.getMonth(), 1),
+                    dipendenti: aDipendenti
+                });
+                oViewModel.refresh(true);
+
+                console.log("Dipendenti nel modello:", oViewModel.getProperty("/dipendenti").length);
+                console.log("Primo dipendente:", JSON.stringify(oViewModel.getProperty("/dipendenti/0")));
 
                 this.countConsecutive(false);
                 this.updateUnderstaffing();
