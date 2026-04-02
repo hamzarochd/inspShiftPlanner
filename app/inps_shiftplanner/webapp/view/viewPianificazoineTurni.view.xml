@@ -118,7 +118,7 @@
                 <VBox>
                     <PlanningCalendar
                         id="planningCalendar"
-                        rows="{path: '/staffs'}"
+                        rows="{path: '/dipendenti'}"
                         startDate="{/startDate}"
                         viewKey="One Month"
                         appointmentsVisualization="Standard"
