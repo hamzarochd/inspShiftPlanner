@@ -45,6 +45,7 @@ sap.ui.define([
                         highlight: false,
                         shifts: (oStaff.Appointments || []).map(function (oAppt) {
                             return {
+                                id:        oAppt.ID,
                                 startDate: toUI5Date(oAppt.startDate),
                                 endDate:   toUI5Date(oAppt.endDate),
                                 title:     oAppt.title || "",
@@ -178,6 +179,26 @@ sap.ui.define([
             oModel.setProperty(sAppPath + "/startDate", oNewStartDate);
             oModel.setProperty(sAppPath + "/endDate", oNewEndDate);
             oModel.refresh(true);
+
+            // Salva la modifica nel DB tramite PATCH
+            const sAppId = oModel.getProperty(sAppPath + "/id");
+
+            fetch("/odata/V4/catalog/appointments(" + sAppId + ")", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    startDate: oNewStartDate.toISOString(),
+                    endDate:   oNewEndDate.toISOString()
+                })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    MessageToast.show("Errore salvataggio turno.");
+                }
+            })
+            .catch(() => {
+                MessageToast.show("Errore di rete durante il salvataggio.");
+            });
         },
 
         // ----------------------------------------------------------------
