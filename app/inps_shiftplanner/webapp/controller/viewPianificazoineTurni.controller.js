@@ -25,7 +25,7 @@ sap.ui.define([
 
                     startDate: new Date(now.getFullYear(), now.getMonth(), 1),
                     
-                    staffs: aStaffData.map(function (oStaff) {
+                    dipendenti: aStaffData.map(function (oStaff) {
                         return {///// sistemare i dati da stampare...
                             name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
                             role: oStaff.Role || "",
