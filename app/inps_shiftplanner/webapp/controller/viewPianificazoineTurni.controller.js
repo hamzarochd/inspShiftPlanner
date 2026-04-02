@@ -141,6 +141,46 @@ sap.ui.define([
         },
 
         
+        // ----------------------------------------------------------------
+        // Drag & Drop appointment
+        // ----------------------------------------------------------------
+
+        handleAppointmentDrop: function(oEvent) {
+            const oAppointment  = oEvent.getParameter("appointment");
+            const oNewStartDate = oEvent.getParameter("startDate");
+            const oNewEndDate   = oEvent.getParameter("endDate");
+            const oNewRow       = oEvent.getParameter("calendarRow");
+
+            const oModel   = this.getView().getModel();
+            const sRowPath = oNewRow.getBindingContext().getPath();
+            const sAppPath = oAppointment.getBindingContext().getPath();
+            const aShifts  = oModel.getProperty(sRowPath + "/shifts");
+
+            // Escludo lo shift che sto spostando per non confrontarlo con se stesso
+            const aOtherShifts = aShifts.filter((oShift, iIndex) => {
+                const sCurrentPath = sRowPath + "/shifts/" + iIndex;
+                return sCurrentPath !== sAppPath;
+            });
+
+            // Controllo sovrapposizione
+            const bOverlap = aOtherShifts.some((oShift) => {
+                const oShiftStart = new Date(oShift.startDate);
+                const oShiftEnd   = new Date(oShift.endDate);
+                return (oNewStartDate < oShiftEnd) && (oNewEndDate > oShiftStart);
+            });
+
+            if (bOverlap) {
+                MessageToast.show("Spostamento non consentito: si sovrappone ad un altro turno.");
+                oEvent.preventDefault();
+                return;
+            }
+
+            oModel.setProperty(sAppPath + "/startDate", oNewStartDate);
+            oModel.setProperty(sAppPath + "/endDate", oNewEndDate);
+            oModel.refresh(true);
+        },
+
+        // ----------------------------------------------------------------
         // Recupera anno, mese e numero di giorni del mese visualizzato nel calendario
         GGMMAA: function() {
             const oCalendar = this.byId("planningCalendar");
