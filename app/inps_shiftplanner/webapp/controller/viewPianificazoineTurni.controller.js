@@ -127,7 +127,19 @@ sap.ui.define([
         },
 
         
-        //////// per mancanza personale, deve controllare tutti i giorni per vedere se ci sono abbasanta personale. 
+        // Recupera anno, mese e numero di giorni del mese visualizzato nel calendario
+        GGMMAA: function() {
+            const oCalendar = this.byId("planningCalendar");
+            const oStartDate = oCalendar?.getStartDate() || new Date();
+
+            const iYear = oStartDate.getFullYear();
+            const iMonth = oStartDate.getMonth();
+            const iDaysInMonth = new Date(iYear, iMonth + 1, 0).getDate();
+
+            return { iYear, iMonth, iDaysInMonth };
+        },
+
+        //////// per mancanza personale, deve controllare tutti i giorni per vedere se ci sono abbasanta personale.
         onPressMancanzaPersonale: function(){
             //////const sHeader = oEvent.getSource().getHeader();
             const oKpiModel = this.getView().getModel("kpi");
@@ -152,7 +164,7 @@ sap.ui.define([
             const oKpiModel = this.getView().getModel("kpi");
             const oCalendar = this.byId("planningCalendar");
 
-            const aStaff = oModel?.getProperty("/staffs") || [];
+            const aStaff = oModel?.getProperty("/dipendenti") || [];
 
             /*const oStartDate = oCalendar?.getStartDate() || new Date();
             const iYear = oStartDate.getFullYear();
@@ -231,7 +243,7 @@ sap.ui.define([
             /// tot count
             let iTotalViolatingPeople = 0; 
 
-            const aStaff = oModel.getProperty("/staffs") || [];
+            const aStaff = oModel.getProperty("/dipendenti") || [];
             const aRows = oCalendar ? oCalendar.getRows() : [];
 
             aStaff.forEach((person, index) => {
@@ -330,7 +342,7 @@ sap.ui.define([
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
 
             let iTotViolazioni = 0;
-            const aStaff = oModel.getProperty("/staffs") || [];
+            const aStaff = oModel.getProperty("/dipendenti") || [];
 
             aStaff.forEach(person => {
                 let bMancaRiposo = false;
