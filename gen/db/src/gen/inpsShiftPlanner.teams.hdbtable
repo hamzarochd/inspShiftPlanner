@@ -1,0 +1,6 @@
+COLUMN TABLE inpsShiftPlanner_teams (
+  ID NVARCHAR(36) NOT NULL,
+  Name NVARCHAR(5000),
+  Leader_ID NVARCHAR(36),
+  PRIMARY KEY(ID)
+)

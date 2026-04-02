@@ -295,34 +295,34 @@ sap.ui.define([
                     }
 
                 if (iConsecutiveCounter > limitDays) {
-                                bPersonViolates = true;
+                    bPersonViolates = true;
 
-                                if (bShouldHighlight && oRow) {
-                                    if (iConsecutiveCounter === limitDays + 1) {
-                                        for (let back = 0; back < limitDays; back++) {
-                                            const oBackDate = new Date(iYear, iMonth, d - (limitDays - back));
-                                            oRow.addSpecialDate(new sap.ui.unified.DateTypeRange({
-                                                startDate: oBackDate,
-                                                type: "NonWorking" 
-                                            }));
-                                        }
-                                    }
-
-
-                                    oRow.addSpecialDate(new sap.ui.unified.DateTypeRange({
-                                        startDate: new Date(oCurrentDate),
-                                        type: "NonWorking" 
-                                    }));
-                                }
+                    if (bShouldHighlight && oRow) {
+                        if (iConsecutiveCounter === limitDays + 1) {
+                            for (let back = 0; back < limitDays; back++) {
+                                const oBackDate = new Date(iYear, iMonth, d - (limitDays - back));
+                                oRow.addSpecialDate(new DateTypeRange({
+                                    startDate: oBackDate,
+                                    type: "NonWorking" 
+                                }));
                             }
                         }
+
+
+                        oRow.addSpecialDate(new DateTypeRange({
+                            startDate: new Date(oCurrentDate),
+                            type: "NonWorking" 
+                        }));
+                    }
+                }
+            }
                 
                 //!!!!!! per evidenziare la persona
-                person.highlight = bShouldHighlight && bPersonViolates;
+            person.highlight = bShouldHighlight && bPersonViolates;
 
-                if (bPersonViolates) {
-                    iTotalViolatingPeople++;
-                }
+            if (bPersonViolates) {
+                iTotalViolatingPeople++;
+            }
             });
 
             

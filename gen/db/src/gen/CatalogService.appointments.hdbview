@@ -9,4 +9,4 @@ VIEW CatalogService_appointments AS SELECT
   appointments_0.notes,
   appointments_0.shiftIcon,
   appointments_0.color
-FROM my_appointments AS appointments_0
+FROM inpsShiftPlanner_appointments AS appointments_0
