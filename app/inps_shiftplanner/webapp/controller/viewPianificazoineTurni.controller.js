@@ -301,26 +301,19 @@ sap.ui.define([
             MessageToast.show("Filtri resettati");
         },
 
-        onPressMancanzaPersonale: function(){
-            //////const sHeader = oEvent.getSource().getHeader();
+        onPressMancanzaPersonale: function() {
             const oKpiModel = this.getView().getModel("kpi");
-            const oModel = this.getView().getModel("mockdata");
-            
-            const bActive = oKpiModel?.getProperty("/showUnderstaffingHighlight") || false;
-            oKpiModel?.setProperty("/showUnderstaffingHighlight", !bActive);
-            oModel?.refresh(true);
+            const bActive   = oKpiModel.getProperty("/showUnderstaffingHighlight");
+            oKpiModel.setProperty("/showUnderstaffingHighlight", !bActive);
 
-            ///// prendere il calendario.
-
-            const calendar = this.byId("planningCalendar")
-
-            if (!bActive){
-                this.updateUnderstaffing(true); 
+            const oCalendar = this.byId("planningCalendar");
+            if (!bActive) {
+                this.updateUnderstaffing(true);
             } else {
-                calendar?.removeAllSpecialDates();
+                oCalendar?.removeAllSpecialDates();
                 MessageToast.show("Evidenziazione rimossa");
-                }
-            },
+            }
+        },
 
 
 //// definisco una funzione che recupera l'anno, il mese ed quanti giorni in quel mese:::.
@@ -344,7 +337,7 @@ sap.ui.define([
             const oKpiModel = this.getView().getModel("kpi");
             const oCalendar = this.byId("planningCalendar");
 
-            const aStaff = oModel?.getProperty("/staffs") || [];
+            const aStaff = oModel?.getProperty("/dipendenti") || [];
 
             /*const oStartDate = oCalendar?.getStartDate() || new Date();
             const iYear = oStartDate.getFullYear();
@@ -408,9 +401,9 @@ sap.ui.define([
             this.countConsecutive(bNewActive);
 
             if (bNewActive) {
-                sap.m.MessageToast.show('Evidenziazione rischio salute attiva');
+                MessageToast.show('Evidenziazione rischio salute attiva');
             } else {
-                sap.m.MessageToast.show('Evidenziazione rimossa');
+                MessageToast.show('Evidenziazione rimossa');
             }
         },
 
@@ -429,7 +422,7 @@ sap.ui.define([
             /// tot count
             let iTotalViolatingPeople = 0; 
 
-            const aStaff = oModel.getProperty("/staffs") || [];
+            const aStaff = oModel.getProperty("/dipendenti") || [];
             const aRows = oCalendar ? oCalendar.getRows() : [];
 
             aStaff.forEach((person, index) => {
@@ -543,7 +536,7 @@ sap.ui.define([
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
 
             let iTotViolazioni = 0;
-            const aStaff = oModel.getProperty("/staffs") || [];
+            const aStaff = oModel.getProperty("/dipendenti") || [];
 
             aStaff.forEach(person => {
                 let bMancaRiposo = false;
