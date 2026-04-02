@@ -137,6 +137,9 @@ sap.ui.define([
             };
             this.getView().setModel(new JSONModel(setRuoli), "ruoliModel");
 
+            // Modello per il popover appointment — inizialmente vuoto
+            this.getView().setModel(new JSONModel({}), "appt");
+
             const oODataModel = this.getOwnerComponent().getModel("odata");
             const oListBinding = oODataModel.bindList("/staffs", null, null, null, {
                 "$expand": "Appointments"
@@ -262,6 +265,42 @@ sap.ui.define([
             } else {
                 MessageToast.show("Turno spostato (solo in locale)");
             }
+        },
+
+        // Apre il popover con i dettagli dell'appointment cliccato
+        onAppointmentSelect: function(oEvent) {
+            const oAppointment = oEvent.getParameter("appointment");
+            if (!oAppointment) return;
+
+            // Dati del turno dal binding context dell'appointment
+            const oCtx   = oAppointment.getBindingContext();
+            const oShift = oCtx.getObject();
+
+            // Nome dipendente dal binding context della riga padre
+            const oRow     = oAppointment.getParent();
+            const oRowCtx  = oRow ? oRow.getBindingContext() : null;
+            const sName    = oRowCtx ? oRowCtx.getProperty("name") : "Turno";
+
+            // Formattazione date leggibile in italiano
+            const fmtDate = function(d) {
+                if (!d) return "-";
+                return d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric" })
+                     + "  " + d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+            };
+
+            // Popola il modello appt e apre il popover
+            this.getView().getModel("appt").setData({
+                name:      sName,
+                type:      oShift.type      || "-",
+                startDate: fmtDate(oShift.startDate),
+                endDate:   fmtDate(oShift.endDate)
+            });
+
+            this.byId("appointmentPopover").openBy(oAppointment);
+        },
+
+        onClosePopover: function() {
+            this.byId("appointmentPopover").close();
         },
 
         onSearch: function() {

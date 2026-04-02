@@ -10,6 +10,30 @@
 
     <Page id="page">
 
+        <dependents>
+            <ResponsivePopover
+                id="appointmentPopover"
+                title="{appt>/name}"
+                placement="Auto">
+                <content>
+                    <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
+                        <Label text="Tipo turno" design="Bold"/>
+                        <Text text="{appt>/type}" class="sapUiTinyMarginBottom"/>
+                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop"/>
+                        <Text text="{appt>/startDate}" class="sapUiTinyMarginBottom"/>
+                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop"/>
+                        <Text text="{appt>/endDate}" />
+                    </VBox>
+                </content>
+                <footer>
+                    <Toolbar>
+                        <ToolbarSpacer/>
+                        <Button text="Chiudi" press="onClosePopover"/>
+                    </Toolbar>
+                </footer>
+            </ResponsivePopover>
+        </dependents>
+
         <f:DynamicPage id="turniDynamicPage" headerExpanded="true" toggleHeaderOnTitleClick="true">
             <f:title>
                 <f:DynamicPageTitle>
@@ -134,7 +158,8 @@
                         viewKey="One Month"
                         appointmentsVisualization="Standard"
                         showEmptyIntervalHeaders="false"
-                        appointmentHeight="Regular">
+                        appointmentHeight="Regular"
+                        appointmentSelect="onAppointmentSelect">
 
                         <rows>
                             <PlanningCalendarRow
