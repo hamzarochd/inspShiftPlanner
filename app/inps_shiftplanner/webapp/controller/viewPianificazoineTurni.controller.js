@@ -23,7 +23,7 @@ sap.ui.define([
                 const now = new Date();
                 const oData = {
 
-                    startDate: new Date(now.getFullYear(), now.getMonth(), 1),
+                    startDate: UI5Date.getInstance(now.getFullYear(), now.getMonth(), 1),
                     
                     dipendenti: aStaffData.map(function (oStaff) {
                         return {///// sistemare i dati da stampare...
@@ -34,8 +34,8 @@ sap.ui.define([
                             //// appuntamenti.:::
                             shifts: (oStaff.Appointments || []).map(function (oAppt) {
                                 return {
-                                    startDate: new Date(oAppt.startDate),
-                                    endDate:   new Date(oAppt.endDate),
+                                    startDate: toUI5Date(oAppt.startDate),
+                                    endDate:   toUI5Date(oAppt.endDate),
                                     title:     oAppt.title || "",
                                     type:      oAppt.type  || "",
                                     shiftIcon: oAppt.shiftIcon || "",
