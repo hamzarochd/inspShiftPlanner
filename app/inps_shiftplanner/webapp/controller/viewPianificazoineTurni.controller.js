@@ -76,7 +76,7 @@ sap.ui.define([
             this.getView().setModel(oKpiModel, "kpi");
 
 
-
+                //Ruoli//
             var setRuoli = {
                 "RuoliCollezione": [
                     { "key": "COORD", "text": "Coordinatore infermieristico" },
@@ -114,6 +114,58 @@ sap.ui.define([
                     { "key": "URO", "text": "Urologia" },
                     { "key": "PSI", "text": "Psichiatria" },
                     { "key": "DERM", "text": "Dermatologia" }
+                ],
+                "Dipartimenti":[
+                    {
+                     "Dipartimento": "Emergenza-Urgenza e Area Critica",
+                     "reparti": [
+                                    { "key": "PS", "text": "Pronto Soccorso e OBI" },
+                                    { "key": "TI", "text": "Terapia Intensiva e Rianimazione" },
+                                    { "key": "118", "text": "Centrale Operativa 118" }
+                                ]
+                    },
+                    {
+                     "Dipartimento": "Dipartimento di Chirurgia",
+                     "reparti": [
+                                    { "key": "CHIR", "text": "Chirurgia Generale" },
+                                    { "key": "SO", "text": "Blocco Operatorio" },
+                                    { "key": "URO", "text": "Urologia" },
+                                    { "key": "ORT", "text": "Ortopedia e Traumatologia" }
+                                ]
+                    },
+                    {
+                     "Dipartimento": "Dipartimento di Medicina Specialistica",
+                     "reparti": [
+                                    { "key": "MED", "text": "Medicina Interna" },
+                                    { "key": "CARD", "text": "Cardiologia e UTIC" },
+                                    { "key": "NEURO", "text": "Neurologia" },
+                                    { "key": "ONCO", "text": "Oncologia Medica" },
+                                    { "key": "DERM", "text": "Dermatologia" }
+                                ]
+                    },
+                    {
+                     "Dipartimento": "Dipartimento Materno-Infantile",
+                     "reparti": [
+                                    { "key": "PED", "text": "Pediatria e Neonatologia" },
+                                    { "key": "GINE", "text": "Ostetricia e Ginecologia" }
+                                ]
+                    },
+                    {
+                     "Dipartimento": "Servizi Diagnostici e Riabilitazione",
+                     "reparti": [
+                                    { "key": "RAD", "text": "Radiologia e Imaging" },
+                                    { "key": "LAB", "text": "Laboratorio Analisi" },
+                                    { "key": "RIAB", "text": "Medicina Riabilitativa" },
+                                    { "key": "AMB", "text": "Poliambulatorio" }
+                                ]
+                    },
+                    {
+                     "Dipartimento": "Salute Mentale e Direzione",
+                     "reparti": [
+                                    { "key": "PSI", "text": "Psichiatria (SPDC)" },
+                                    { "key": "DIR", "text": "Direzione Sanitaria" }
+                                ]
+                    }
                 ]
             };
 
