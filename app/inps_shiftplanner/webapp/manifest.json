@@ -72,7 +72,7 @@
       "cozy": true
     },
     "models": {
-      "": {
+      "odata": {
         "type": "sap.ui.model.odata.v4.ODataModel",
         "dataSource": "mainService",
         "settings": {

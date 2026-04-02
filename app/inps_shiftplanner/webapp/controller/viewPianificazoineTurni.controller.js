@@ -29,7 +29,7 @@ sap.ui.define([
             });
             this.getView().setModel(oViewModel);
 
-            const oODataModel = this.getOwnerComponent().getModel();
+            const oODataModel = this.getOwnerComponent().getModel("odata");
             const oListBinding = oODataModel.bindList("/staffs", null, null, null, {
                 "$expand": "Appointments"
             });
