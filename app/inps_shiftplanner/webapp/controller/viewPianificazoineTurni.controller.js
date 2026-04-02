@@ -27,8 +27,10 @@ sap.ui.define([
 
             
             oListBinding.requestContexts(0, Infinity).then(function (aContexts) {
-                
+
+                console.log("Contesti ricevuti:", aContexts.length);
                 const aStaffData = aContexts.map(oCtx => oCtx.getObject());
+                console.log("Staff data:", JSON.stringify(aStaffData));
 
                 const now = new Date();
                 const oData = {
