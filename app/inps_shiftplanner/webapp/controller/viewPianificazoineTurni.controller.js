@@ -19,8 +19,8 @@ sap.ui.define([
             function toUI5Date(sISO) {
                 const d = new Date(sISO);
                 return UI5Date.getInstance(
-                    d.getFullYear(), d.getMonth(), d.getDate(),
-                    d.getHours(), d.getMinutes()
+                    d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
+                    d.getUTCHours(), d.getUTCMinutes()
                 );
             }
 
