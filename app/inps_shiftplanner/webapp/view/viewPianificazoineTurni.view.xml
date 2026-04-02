@@ -38,24 +38,25 @@
                                           showFilterConfiguration="false">
                             <fb:filterGroupItems>
 
-                                <!--Ruolo-->
-                                <fb:FilterGroupItem 
-                                     groupName="Main" 
-                                     name="Ruolo" 
-                                     label="Ruoli" 
+                                <!--Dipartimenti-->
+                                 <fb:FilterGroupItem  
+                                     groupName="cd" 
+                                     name="Dipartimenti" 
+                                     label="Dipartimenti" 
                                      visibleInFilterBar="true">
                                    <fb:control>
                                    <ComboBox  
-                                     id="roleFilterCombo" 
+                                     id="Dipartimenti" 
                                      width="100%" 
-                                     items="{ruoliModel>/RuoliCollezione}" 
-                                     placeholder="Seleziona ruolo" 
+                                     items="{ruoliModel>/Dipartimenti}" 
+                                     placeholder="Seleziona reparto" 
                                      showClearIcon="true">
-                                      <core:Item key="{ruoliModel>key}"  text="{ruoliModel>text}" />
+                                     <core:Item key="{ruoliModel>Dipartimeto}" text="{ruoliModel>Dipartimento}" />
                                    </ComboBox>
                                    </fb:control>
                                 </fb:FilterGroupItem>
 
+                               
                                 <!--Reparti-->
                                 <fb:FilterGroupItem  
                                      groupName="cd" 
@@ -74,23 +75,25 @@
                                    </fb:control>
                                 </fb:FilterGroupItem>
                                 
-                                <!--Dipartimenti-->
-                                <fb:FilterGroupItem  
-                                     groupName="cd" 
-                                     name="Dipartimenti" 
-                                     label="Dipartimenti" 
+                                 <!--Ruolo-->
+                                <fb:FilterGroupItem 
+                                     groupName="Main" 
+                                     name="Ruolo" 
+                                     label="Qualifica professionale" 
                                      visibleInFilterBar="true">
                                    <fb:control>
                                    <ComboBox  
-                                     id="Dipartimenti" 
+                                     id="roleFilterCombo" 
                                      width="100%" 
-                                     items="{ruoliModel>/Dipartimenti}" 
-                                     placeholder="Seleziona reparto" 
+                                     items="{ruoliModel>/RuoliCollezione}" 
+                                     placeholder="Seleziona qualifica" 
                                      showClearIcon="true">
-                                     <core:Item key="{ruoliModel>Dipartimeto}" text="{ruoliModel>Dipartimento}" />
+                                      <core:Item key="{ruoliModel>key}"  text="{ruoliModel>text}" />
                                    </ComboBox>
                                    </fb:control>
                                 </fb:FilterGroupItem>
+
+                               
                             </fb:filterGroupItems>
                         </fb:FilterBar>
                             <HBox class = "sapUiSmallMarginEnd sapUiSmallMarginTop sapUiSmallMarginBottom">
