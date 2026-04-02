@@ -26,7 +26,7 @@ sap.ui.define([
             });
 
             
-            oListBinding.requestContexts().then(function (aContexts) {
+            oListBinding.requestContexts(0, Infinity).then(function (aContexts) {
                 
                 const aStaffData = aContexts.map(oCtx => oCtx.getObject());
 
