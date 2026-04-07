@@ -167,6 +167,11 @@ sap.ui.define([
 
             oListBinding.requestContexts(0, 9999).then(function(aContexts) {
 
+                // Mappa tipo → { shiftIcon, color, title } per derivare icone/colori mancanti
+                const aTipi = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+                const oTipoMap = {};
+                aTipi.forEach(function(t) { oTipoMap[t.key] = t; });
+
                 const aStaffData = aContexts.map(oCtx => oCtx.getObject());
                 // DEBUG — rimuovi dopo aver trovato il problema
                 console.log("Staff ricevuti:", aStaffData.length);
@@ -188,14 +193,15 @@ sap.ui.define([
                         teamName: oStaff.MemberOf ? oStaff.MemberOf.Name : "no team",
                         teamID: oStaff.MemberOf ? oStaff.MemberOf.ID : null,
                         shifts: (oStaff.Appointments || []).map(function(oAppt) {
+                            const oTipo = oTipoMap[oAppt.type] || {};
                             return {
-                                id: oAppt.ID,
+                                id:        oAppt.ID,
                                 startDate: toUI5Date(oAppt.startDate),
-                                endDate: toUI5Date(oAppt.endDate),
-                                title: oAppt.title || "",
-                                type: oAppt.type || "",
-                                shiftIcon: oAppt.shiftIcon || "",
-                                color: oAppt.color || ""
+                                endDate:   toUI5Date(oAppt.endDate),
+                                type:      oAppt.type      || "",
+                                title:     oAppt.title     || oTipo.title     || "",
+                                shiftIcon: oAppt.shiftIcon || oTipo.shiftIcon || "",
+                                color:     oAppt.color     || oTipo.color     || ""
                             };
                         })
                     };
@@ -512,9 +518,13 @@ sap.ui.define([
             const oEditModel = this.getView().getModel("editAppt");
             const sId        = oEditModel.getProperty("/id");
             const sType      = oEditModel.getProperty("/type");
-            const sColor     = oEditModel.getProperty("/color");
-            const sShiftIcon = oEditModel.getProperty("/shiftIcon");
-            const sTitle     = oEditModel.getProperty("/title");
+
+            // Ricava sempre icona/colore/titolo dalla mappa TipiTurno (fonte di verità)
+            const aTipiEdit  = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+            const oTipoEdit  = aTipiEdit.find(function(t) { return t.key === sType; }) || {};
+            const sColor     = oTipoEdit.color     || oEditModel.getProperty("/color")     || "";
+            const sShiftIcon = oTipoEdit.shiftIcon || oEditModel.getProperty("/shiftIcon") || "";
+            const sTitle     = oTipoEdit.title     || oEditModel.getProperty("/title")     || "";
             const iDipIdx    = oEditModel.getProperty("/dipIndex");
             const iShiftIdx  = oEditModel.getProperty("/shiftIdx");
 
@@ -632,11 +642,15 @@ sap.ui.define([
         onSaveNewAppointment: function() {
             const oNewModel  = this.getView().getModel("newAppt");
             const sType      = oNewModel.getProperty("/type");
-            const sColor     = oNewModel.getProperty("/color");
-            const sShiftIcon = oNewModel.getProperty("/shiftIcon");
-            const sTitle     = oNewModel.getProperty("/title");
             const iDipIdx    = oNewModel.getProperty("/dipIndex");
             const sStaffId   = oNewModel.getProperty("/staffId");
+
+            // Ricava sempre icona/colore/titolo dalla mappa TipiTurno (fonte di verità)
+            const aTipi     = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+            const oTipo     = aTipi.find(function(t) { return t.key === sType; }) || {};
+            const sColor     = oTipo.color     || oNewModel.getProperty("/color")     || "";
+            const sShiftIcon = oTipo.shiftIcon || oNewModel.getProperty("/shiftIcon") || "";
+            const sTitle     = oTipo.title     || oNewModel.getProperty("/title")     || "";
 
             const oStart = this.byId("newStartPicker").getDateValue();
             const oEnd   = this.byId("newEndPicker").getDateValue();
