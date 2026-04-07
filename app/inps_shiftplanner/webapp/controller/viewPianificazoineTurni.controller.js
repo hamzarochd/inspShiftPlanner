@@ -157,6 +157,8 @@ sap.ui.define([
             this.getView().setModel(new JSONModel({}), "appt");
             // Modello per il dialog di modifica
             this.getView().setModel(new JSONModel({}), "editAppt");
+            // Modello per il dialog di creazione
+            this.getView().setModel(new JSONModel({}), "newAppt");
 
             const oODataModel = this.getOwnerComponent().getModel("odata");
             const oListBinding = oODataModel.bindList("/staffs", null, null, null, {
@@ -176,6 +178,7 @@ sap.ui.define([
 
                 const aDipendenti = aStaffData.map(function(oStaff) {
                     return {
+                        staffId: oStaff.ID,
                         name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
                         role: oStaff.Role || "",
                         department: oStaff.Department || "",
@@ -586,6 +589,106 @@ sap.ui.define([
             });
 
             this.onAfterModifyData();
+        },
+
+        // Apre il dialog di creazione quando si clicca su un intervallo vuoto
+        onIntervalSelect: function(oEvent) {
+            const oStartDate   = oEvent.getParameter("startDate");
+            const oEndDate     = oEvent.getParameter("endDate");
+            const oCalendarRow = oEvent.getParameter("row");
+
+            const aRows      = this.byId("planningCalendar").getRows();
+            const iTargetIdx = aRows.indexOf(oCalendarRow);
+            if (iTargetIdx === -1) return;
+
+            const oDip = this.getView().getModel().getProperty("/dipendenti/" + iTargetIdx);
+            this.getView().getModel("newAppt").setData({
+                type:      "",
+                color:     "",
+                shiftIcon: "",
+                title:     "",
+                startDate: oStartDate,
+                endDate:   oEndDate,
+                dipIndex:  iTargetIdx,
+                staffId:   oDip.staffId
+            });
+
+            this.byId("createAppointmentDialog").open();
+        },
+
+        // Quando si cambia tipo nel Select del dialog di creazione
+        onNewTypeChange: function(oEvent) {
+            const sKey  = oEvent.getSource().getSelectedKey();
+            const aTipi = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+            const oTipo = aTipi.find(function(t) { return t.key === sKey; });
+            if (!oTipo) return;
+
+            const oNewModel = this.getView().getModel("newAppt");
+            oNewModel.setProperty("/color",     oTipo.color);
+            oNewModel.setProperty("/shiftIcon", oTipo.shiftIcon);
+            oNewModel.setProperty("/title",     oTipo.title);
+        },
+
+        onSaveNewAppointment: function() {
+            const oNewModel  = this.getView().getModel("newAppt");
+            const sType      = oNewModel.getProperty("/type");
+            const sColor     = oNewModel.getProperty("/color");
+            const sShiftIcon = oNewModel.getProperty("/shiftIcon");
+            const sTitle     = oNewModel.getProperty("/title");
+            const iDipIdx    = oNewModel.getProperty("/dipIndex");
+            const sStaffId   = oNewModel.getProperty("/staffId");
+
+            const oStart = this.byId("newStartPicker").getDateValue();
+            const oEnd   = this.byId("newEndPicker").getDateValue();
+
+            if (!sType) {
+                MessageToast.show("Seleziona un tipo di turno");
+                return;
+            }
+            if (!oStart || !oEnd) {
+                MessageToast.show("Inserisci date valide");
+                return;
+            }
+
+            fetch("/odata/V4/catalog/appointments", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ID_Utente: sStaffId,
+                    type:      sType,
+                    title:     sTitle,
+                    color:     sColor,
+                    shiftIcon: sShiftIcon,
+                    startDate: this._toLocalISO(oStart),
+                    endDate:   this._toLocalISO(oEnd)
+                })
+            }).then(function(oRes) {
+                if (!oRes.ok) throw new Error("POST fallito: " + oRes.status);
+                return oRes.json();
+            }).then(function(oData) {
+                const oModel  = this.getView().getModel();
+                const aShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts");
+                aShifts.push({
+                    id:        oData.ID,
+                    startDate: oStart,
+                    endDate:   oEnd,
+                    title:     sTitle,
+                    type:      sType,
+                    shiftIcon: sShiftIcon,
+                    color:     sColor
+                });
+                oModel.setProperty("/dipendenti/" + iDipIdx + "/shifts", aShifts);
+                oModel.refresh(true);
+                MessageToast.show("Turno creato");
+            }.bind(this)).catch(function(oErr) {
+                MessageToast.show("Errore creazione: " + oErr.message);
+            });
+
+            this.byId("createAppointmentDialog").close();
+        },
+
+        onCancelNewAppointment: function() {
+            this.byId("createAppointmentDialog").close();
         },
 
         onSearch: function() {
