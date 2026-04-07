@@ -92,11 +92,12 @@ sap.ui.define([
                     { "key": "DERM",  "text": "Dermatologia" }
                 ],
                 "TipiTurno": [
-                    { "key": "AFFIANCAMENTO", "text": "Affiancamento", "color": "#0070F2", "title": "Affiancamento", "shiftIcon": "" },
-                    { "key": "DIAGNOSTICA",   "text": "Diagnostica",   "color": "#E76500", "title": "Diagnostica",   "shiftIcon": "" },
-                    { "key": "EMERGENZA",     "text": "Emergenza",     "color": "#D20000", "title": "Emergenza",     "shiftIcon": "" },
-                    { "key": "REPERIBILITA",  "text": "Reperibilità",  "color": "#0A6ED1", "title": "Reperibilità",  "shiftIcon": "" },
-                    { "key": "RIPOSO",        "text": "Riposo",        "color": "#8B8B8B", "title": "Riposo",        "shiftIcon": "" }
+                    { "key": "AFFIANCAMENTO", "text": "Affiancamento", "color": "#0070F2", "title": "Turno Affiancamento", "shiftIcon": "sap-icon://collaborate" },
+                    { "key": "DIAGNOSTICA",   "text": "Diagnostica",   "color": "#E76500", "title": "Turno Diagnostica",   "shiftIcon": "sap-icon://stethoscope"  },
+                    { "key": "EMERGENZA",     "text": "Emergenza",     "color": "#D20000", "title": "Turno Emergenza",     "shiftIcon": "sap-icon://alert"        },
+                    { "key": "REPERIBILITA",  "text": "Reperibilità",  "color": "#0A6ED1", "title": "Reperibilità",        "shiftIcon": "sap-icon://phone"        },
+                    { "key": "RIPOSO",        "text": "Riposo",        "color": "#8B8B8B", "title": "Riposo",              "shiftIcon": "sap-icon://bed"          },
+                    { "key": "COORDINAMENTO", "text": "Coordinamento", "color": "#107E3E", "title": "Turno Coordinamento", "shiftIcon": "sap-icon://manager"      }
                 ],
                 "Dipartimenti": [
                     {
