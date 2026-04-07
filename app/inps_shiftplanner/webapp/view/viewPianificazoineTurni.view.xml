@@ -17,19 +17,19 @@
                 placement="Auto">
                 <content>
                     <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
-                        <Label text="Tipo turno" design="Bold"/>
-                        <Text text="{appt>/type}" class="sapUiTinyMarginBottom"/>
-                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop"/>
-                        <Text text="{appt>/startDate}" class="sapUiTinyMarginBottom"/>
-                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop"/>
+                        <Label text="Tipo turno" design="Bold" />
+                        <Text text="{appt>/type}" class="sapUiTinyMarginBottom" />
+                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop" />
+                        <Text text="{appt>/startDate}" class="sapUiTinyMarginBottom" />
+                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop" />
                         <Text text="{appt>/endDate}" />
                     </VBox>
                 </content>
                 <footer>
                     <Toolbar>
-                        <Button text="Elimina" type="Reject" press="onDeleteAppointment"/>
-                        <ToolbarSpacer/>
-                        <Button text="Chiudi" press="onClosePopover"/>
+                        <Button text="Elimina" type="Reject" press="onDeleteAppointment" />
+                        <ToolbarSpacer />
+                        <Button text="Chiudi" press="onClosePopover" />
                     </Toolbar>
                 </footer>
             </ResponsivePopover>
@@ -48,90 +48,103 @@
             </f:title>
 
 
-        <f:header>
-            <f:DynamicPageHeader pinnable="false">
-                <f:content>
-                    <VBox >
-                        <fb:FilterBar id="shiftFilterBar"
-                                          reset="onResetFilters"
-                                          clear="onResetFilters"
-                                          search="onSearch"
-                                          useToolbar="false"
-                                          showGoOnFB="true"
-                                          class="sapUiBottomMargin"
-                                          showClearOnFB="true"
-                                          showFilterConfiguration="false">
+            <f:header>
+                <f:DynamicPageHeader pinnable="false">
+                    <f:content>
+                        <VBox>
+                            <fb:FilterBar id="shiftFilterBar"
+                                reset="onResetFilters"
+                                clear="onResetFilters"
+                                search="onSearch"
+                                useToolbar="false"
+                                showGoOnFB="true"
+                                class="sapUiBottomMargin"
+                                showClearOnFB="true"
+                                showFilterConfiguration="false">
 
-                           <fb:filterGroupItems>
-    <fb:FilterGroupItem groupName="Main" name="Dipartimenti" label="Area Dipartimentale" visibleInFilterBar="true">
-        <fb:control>
-            <ComboBox id="groupFilter" 
-                      width="100%" 
-                      items="{ruoliModel>/Dipartimenti}" 
-                      placeholder="Seleziona dipartimento" 
-                      showClearIcon="true">
-                <core:Item key="{ruoliModel>Dipartimento}" text="{ruoliModel>Dipartimento}"/>
-            </ComboBox>
-        </fb:control>
-    </fb:FilterGroupItem>
+                                <fb:filterGroupItems>
+                                    <fb:FilterGroupItem groupName="Main" name="Dipartimenti"
+                                        label="Area Dipartimentale" visibleInFilterBar="true">
+                                        <fb:control>
+                                            <ComboBox id="groupFilter"
+                                                width="100%"
+                                                items="{ruoliModel>/Dipartimenti}"
+                                                placeholder="Seleziona dipartimento"
+                                                showClearIcon="true">
+                                                <core:Item key="{ruoliModel>Dipartimento}"
+                                                    text="{ruoliModel>Dipartimento}" />
+                                            </ComboBox>
+                                        </fb:control>
+                                    </fb:FilterGroupItem>
 
-    <fb:FilterGroupItem groupName="cd" name="Reparti" label="Reparto" visibleInFilterBar="true">
-        <fb:control>
-            <ComboBox id="repartoFilterCombo" 
-                      width="100%" 
-                      items="{ruoliModel>/Reparti}" 
-                      placeholder="Seleziona reparto" 
-                      showClearIcon="true">
-                <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
-            </ComboBox>
-        </fb:control>
-    </fb:FilterGroupItem>
-    
-    <fb:FilterGroupItem groupName="Main" name="Ruolo" label="Qualifica professionale" visibleInFilterBar="true">
-        <fb:control>
-            <ComboBox id="roleFilterCombo" 
-                      width="100%" 
-                      items="{ruoliModel>/RuoliCollezione}" 
-                      placeholder="Seleziona qualifica" 
-                      showClearIcon="true">
-                <core:Item key="{ruoliModel>text}" text="{ruoliModel>text}" />
-            </ComboBox>
-        </fb:control>
-    </fb:FilterGroupItem>
-</fb:filterGroupItems> 
-                        </fb:FilterBar>
+                                    <fb:FilterGroupItem groupName="cd" name="Reparti"
+                                        label="Reparto" visibleInFilterBar="true">
+                                        <fb:control>
+                                            <ComboBox id="repartoFilterCombo"
+                                                width="100%"
+                                                items="{ruoliModel>/Reparti}"
+                                                placeholder="Seleziona reparto"
+                                                showClearIcon="true">
+                                                <core:Item key="{ruoliModel>key}"
+                                                    text="{ruoliModel>text}" />
+                                            </ComboBox>
+                                        </fb:control>
+                                    </fb:FilterGroupItem>
 
-                            <HBox class = "sapUiSmallMarginEnd sapUiSmallMarginTop sapUiSmallMarginBottom">
+                                    <fb:FilterGroupItem groupName="Main" name="Ruolo"
+                                        label="Qualifica professionale" visibleInFilterBar="true">
+                                        <fb:control>
+                                            <ComboBox id="roleFilterCombo"
+                                                width="100%"
+                                                items="{ruoliModel>/RuoliCollezione}"
+                                                placeholder="Seleziona qualifica"
+                                                showClearIcon="true">
+                                                <core:Item key="{ruoliModel>text}"
+                                                    text="{ruoliModel>text}" />
+                                            </ComboBox>
+                                        </fb:control>
+                                    </fb:FilterGroupItem>
+                                </fb:filterGroupItems>
+                            </fb:FilterBar>
+
+                            <HBox
+                                class="sapUiSmallMarginEnd sapUiSmallMarginTop sapUiSmallMarginBottom">
                                 <!-- Chenyu KPIS -->
                                 <GenericTile class="" header="Mancanza personale"
-                                            frameType = "OneByHalf" press="onPressMancanzaPersonale" wrappingType="Hyphenated">
+                                    frameType="OneByHalf" press="onPressMancanzaPersonale"
+                                    wrappingType="Hyphenated">
                                     <TileContent>
-                                        <NumericContent scale="G" value="{kpi>/understaffedDays}" valueColor="Error" indicator="Up" withMargin="false" />
+                                        <NumericContent scale="G" value="{kpi>/understaffedDays}"
+                                            valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
                                 </GenericTile>
 
                                 <GenericTile class="sapUiTinyMarginBegin" header="Rischio salute"
-                                            frameType = "OneByHalf" press="onPressRischioSalute">
+                                    frameType="OneByHalf" press="onPressRischioSalute">
                                     <TileContent>
-                                        <NumericContent scale="P" value="{kpi>/consecutiveCount}" valueColor="Error" indicator="Up" withMargin="false" />
+                                        <NumericContent scale="P" value="{kpi>/consecutiveCount}"
+                                            valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
                                 </GenericTile>
 
                                 <!-- card: avere almeno un giorno di riposto alla settimana-->
 
                                 <GenericTile class="sapUiTinyMarginBegin" header="Mancanza riposo"
-                                            frameType = "OneByHalf" press="onPressMancazaRiposso" wrappingType="Hyphenated">
+                                    frameType="OneByHalf" press="onPressMancazaRiposso"
+                                    wrappingType="Hyphenated">
                                     <TileContent>
-                                        <NumericContent scale="P" value="{kpi>/personaleSenzaMinimoRiposoCount}" valueColor="Error" indicator="Up" withMargin="false" />
+                                        <NumericContent scale="P"
+                                            value="{kpi>/personaleSenzaMinimoRiposoCount}"
+                                            valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
                                 </GenericTile>
 
 
                             </HBox>
-                    </VBox>
-                </f:content>
-            </f:DynamicPageHeader>
-        </f:header>
+                        </VBox>
+                    </f:content>
+                </f:DynamicPageHeader>
+            </f:header>
 
             <f:content>
                 <VBox>
@@ -147,7 +160,7 @@
 
                         <rows>
                             <PlanningCalendarRow
-                                icon="{= ${highlight} ? 'sap-icon://message-warning' : ${icon} }"                              
+                                icon="{= ${highlight} ? 'sap-icon://message-warning' : ${icon} }"
                                 title="{name}"
                                 text="{role}"
                                 nonWorkingDays=""
@@ -156,9 +169,9 @@
                                 enableAppointmentsResize="false"
                                 appointmentDrop="handleAppointmentDrop">
                                 <customData>
-                                    <core:CustomData 
-                                        key="myHighlight" 
-                                        value="{= ${highlight} ? 'true' : 'false' }" 
+                                    <core:CustomData
+                                        key="myHighlight"
+                                        value="{= ${highlight} ? 'true' : 'false' }"
                                         writeToDom="true" />
                                 </customData>
                                 <appointments>
