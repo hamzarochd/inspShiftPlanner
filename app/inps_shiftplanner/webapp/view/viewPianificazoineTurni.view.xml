@@ -239,8 +239,7 @@
                         showEmptyIntervalHeaders="false"
                         appointmentHeight="Regular"
                         appointmentSelect="onAppointmentSelect"
-                        intervalSelect="onIntervalSelect"
-                        selectionMode="None">
+                        intervalSelect="onIntervalSelect">
 
                         <rows>
                             <PlanningCalendarRow
