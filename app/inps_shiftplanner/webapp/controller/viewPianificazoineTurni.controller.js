@@ -210,6 +210,14 @@ sap.ui.define([
             });
         },
 
+        // Formatta una data come stringa ISO locale (senza conversione UTC)
+        // Es: "2024-03-01T00:00:00.000" — il DB salva esattamente quello che vedi
+        _toLocalISO: function(d) {
+            const p = function(n) { return String(n).padStart(2, "0"); };
+            return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) +
+                   "T" + p(d.getHours()) + ":" + p(d.getMinutes()) + ":00.000";
+        },
+
         // Drag & drop: controlla sovrapposizioni e applica o chiede cosa fare
         handleAppointmentDrop: function(oEvent) {
             const oAppointment = oEvent.getParameter("appointment");
@@ -280,7 +288,7 @@ sap.ui.define([
             fetch("/odata/V4/catalog/appointments(" + sApptId + ")", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ startDate: oNewStart.toISOString(), endDate: oNewEnd.toISOString() })
+                body: JSON.stringify({ startDate: this._toLocalISO(oNewStart), endDate: this._toLocalISO(oNewEnd) })
             }).then(function(oRes) {
                 if (!oRes.ok) throw new Error("PATCH fallito: " + oRes.status);
                 MessageToast.show("Turno aggiornato");
@@ -315,7 +323,7 @@ sap.ui.define([
                     fetch("/odata/V4/catalog/appointments(" + p.sApptId + ")", {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ startDate: p.oNewStart.toISOString(), endDate: p.oNewEnd.toISOString() })
+                        body: JSON.stringify({ startDate: this._toLocalISO(p.oNewStart), endDate: this._toLocalISO(p.oNewEnd) })
                     }),
                     fetch("/odata/V4/catalog/appointments(" + p.oOverlapShift.id + ")", { method: "DELETE" })
                 ]).then(function(aRes) {
@@ -343,12 +351,12 @@ sap.ui.define([
                         fetch("/odata/V4/catalog/appointments(" + p.sApptId + ")", {
                             method: "PATCH",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ startDate: p.oNewStart.toISOString(), endDate: p.oNewEnd.toISOString() })
+                            body: JSON.stringify({ startDate: this._toLocalISO(p.oNewStart), endDate: this._toLocalISO(p.oNewEnd) })
                         }),
                         fetch("/odata/V4/catalog/appointments(" + p.oOverlapShift.id + ")", {
                             method: "PATCH",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ startDate: p.oOrigStart.toISOString(), endDate: p.oOrigEnd.toISOString() })
+                            body: JSON.stringify({ startDate: this._toLocalISO(p.oOrigStart), endDate: this._toLocalISO(p.oOrigEnd) })
                         })
                     ]).then(function(aRes) {
                         if (aRes.some(function(r) { return !r.ok; })) throw new Error("PATCH fallito");
