@@ -17,10 +17,18 @@ sap.ui.define([
             // Converte stringhe ISO in UI5Date usando componenti locali
             // per evitare problemi di timezone (es. data spostata di un giorno)
             function toUI5Date(sISO) {
-                const d = new Date(sISO);
+                if (!sISO) return null;
+                // Legge i componenti direttamente dalla stringa ISO
+                // evitando qualsiasi conversione di fuso orario da parte di new Date()
+                // Funziona sia con "...T00:00:00Z" che senza Z
+                const m = sISO.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+                if (!m) return null;
                 return UI5Date.getInstance(
-                    d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
-                    d.getUTCHours(), d.getUTCMinutes()
+                    parseInt(m[1]),       // anno
+                    parseInt(m[2]) - 1,   // mese (0-based)
+                    parseInt(m[3]),       // giorno
+                    parseInt(m[4]),       // ore
+                    parseInt(m[5])        // minuti
                 );
             }
 
@@ -149,6 +157,12 @@ sap.ui.define([
             oListBinding.requestContexts(0, 9999).then(function(aContexts) {
 
                 const aStaffData = aContexts.map(oCtx => oCtx.getObject());
+                // DEBUG — rimuovi dopo aver trovato il problema
+                console.log("Staff ricevuti:", aStaffData.length);
+                if (aStaffData[0]) {
+                    console.log("Primo staff ID:", aStaffData[0].ID);
+                    console.log("Appointments del primo staff:", aStaffData[0].Appointments);
+                }
                 const nowInner = new Date();
 
                 const aDipendenti = aStaffData.map(function(oStaff) {
