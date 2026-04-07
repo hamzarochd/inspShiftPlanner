@@ -27,12 +27,80 @@
                 </content>
                 <footer>
                     <Toolbar>
-                        <Button text="Elimina" type="Reject" press="onDeleteAppointment" />
+                        <Button icon="sap-icon://delete" type="Reject" press="onDeleteAppointment" tooltip="Elimina" />
+                        <Button icon="sap-icon://edit" press="onEditAppointment" tooltip="Modifica" />
                         <ToolbarSpacer />
-                        <Button text="Chiudi" press="onClosePopover" />
+                        <Button icon="sap-icon://decline" press="onClosePopover" tooltip="Chiudi" />
                     </Toolbar>
                 </footer>
             </ResponsivePopover>
+
+            <Dialog id="editAppointmentDialog" title="Modifica Turno">
+                <content>
+                    <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
+                        <Label text="Tipo turno" design="Bold" />
+                        <Select
+                            selectedKey="{editAppt>/type}"
+                            change="onEditTypeChange"
+                            width="100%"
+                            class="sapUiTinyMarginBottom"
+                            items="{ruoliModel>/TipiTurno}">
+                            <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+                        </Select>
+                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="editStartPicker"
+                            dateValue="{editAppt>/startDate}"
+                            displayFormat="dd/MM/yyyy HH:mm"
+                            class="sapUiTinyMarginBottom" />
+                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="editEndPicker"
+                            dateValue="{editAppt>/endDate}"
+                            displayFormat="dd/MM/yyyy HH:mm" />
+                    </VBox>
+                </content>
+                <beginButton>
+                    <Button icon="sap-icon://save" text="Salva" type="Emphasized" press="onSaveEditAppointment" />
+                </beginButton>
+                <endButton>
+                    <Button icon="sap-icon://decline" text="Annulla" press="onCancelEditAppointment" />
+                </endButton>
+            </Dialog>
+            <Dialog id="createAppointmentDialog" title="Nuovo Turno">
+                <content>
+                    <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
+                        <Label text="Tipo turno" design="Bold" />
+                        <Select
+                            id="newTypeSelect"
+                            selectedKey="{newAppt>/type}"
+                            forceSelection="false"
+                            change="onNewTypeChange"
+                            width="100%"
+                            class="sapUiTinyMarginBottom"
+                            items="{ruoliModel>/TipiTurno}">
+                            <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+                        </Select>
+                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="newStartPicker"
+                            dateValue="{newAppt>/startDate}"
+                            displayFormat="dd/MM/yyyy HH:mm"
+                            class="sapUiTinyMarginBottom" />
+                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="newEndPicker"
+                            dateValue="{newAppt>/endDate}"
+                            displayFormat="dd/MM/yyyy HH:mm" />
+                    </VBox>
+                </content>
+                <beginButton>
+                    <Button icon="sap-icon://add" text="Crea" type="Emphasized" press="onSaveNewAppointment" />
+                </beginButton>
+                <endButton>
+                    <Button icon="sap-icon://decline" text="Annulla" press="onCancelNewAppointment" />
+                </endButton>
+            </Dialog>
         </dependents>
 
         <f:DynamicPage id="turniDynamicPage" headerExpanded="true" toggleHeaderOnTitleClick="true">
@@ -170,8 +238,8 @@
                         appointmentsVisualization="Standard"
                         showEmptyIntervalHeaders="false"
                         appointmentHeight="Regular"
-                        
-                        appointmentSelect="onAppointmentSelect">
+                        appointmentSelect="onAppointmentSelect"
+                        intervalSelect="onIntervalSelect">
 
                         <rows>
                             <PlanningCalendarRow
@@ -194,7 +262,12 @@
                                     <unified:CalendarAppointment
                                         startDate="{startDate}"
                                         endDate="{endDate}"
-                                        icon="{shiftIcon}"
+                                        icon="{= ${type} === 'AFFIANCAMENTO' ? 'sap-icon://collaborate'    :
+                                                  ${type} === 'DIAGNOSTICA'   ? 'sap-icon://stethoscope'   :
+                                                  ${type} === 'EMERGENZA'     ? 'sap-icon://alert'         :
+                                                  ${type} === 'REPERIBILITA'  ? 'sap-icon://phone'         :
+                                                  ${type} === 'RIPOSO'        ? 'sap-icon://bed'           :
+                                                  ${type} === 'COORDINAMENTO' ? 'sap-icon://manager'       : '' }"
                                         color="{color}"
                                         tooltip="{title}">
                                     </unified:CalendarAppointment>
