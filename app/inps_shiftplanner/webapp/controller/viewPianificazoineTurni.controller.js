@@ -678,12 +678,14 @@ sap.ui.define([
                 })
             }).then(function(oRes) {
                 if (!oRes.ok) throw new Error("POST fallito: " + oRes.status);
-                return oRes.json();
+                // CAP può rispondere 201 con body oppure 204 senza body
+                return oRes.status === 204 ? null : oRes.json();
             }).then(function(oData) {
+                const sNewId  = oData ? (oData.ID || "") : "";
                 const oModel  = this.getView().getModel();
                 const aShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts");
                 aShifts.push({
-                    id:        oData.ID,
+                    id:        sNewId,
                     startDate: oStart,
                     endDate:   oEnd,
                     title:     sTitle,

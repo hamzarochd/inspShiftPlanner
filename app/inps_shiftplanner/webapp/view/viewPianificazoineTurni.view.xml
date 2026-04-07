@@ -261,7 +261,6 @@
                                     <unified:CalendarAppointment
                                         startDate="{startDate}"
                                         endDate="{endDate}"
-                                        title="{title}"
                                         icon="{shiftIcon}"
                                         color="{color}"
                                         tooltip="{title}">
