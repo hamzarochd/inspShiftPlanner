@@ -74,6 +74,7 @@
                         <Select
                             id="newTypeSelect"
                             selectedKey="{newAppt>/type}"
+                            forceSelection="false"
                             change="onNewTypeChange"
                             width="100%"
                             class="sapUiTinyMarginBottom"
