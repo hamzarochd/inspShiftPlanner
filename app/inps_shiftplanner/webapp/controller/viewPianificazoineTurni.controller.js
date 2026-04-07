@@ -338,6 +338,12 @@ sap.ui.define([
             }).catch(function(oErr) {
                 MessageToast.show("Errore salvataggio: " + oErr.message);
             });
+
+            this.countConsecutive(false);
+            this.updateUnderstaffing();
+            this.countNonroposoSettimanale(false);
+            //this.onPressRischioSalute();
+
         },
 
         // Gestisce la scelta dell'utente nel dialog di sovrapposizione
@@ -580,6 +586,11 @@ sap.ui.define([
             }.bind(this)).catch(function(oErr) {
                 MessageToast.show("Errore eliminazione: " + oErr.message);
             });
+
+            this.countConsecutive(false);
+            this.updateUnderstaffing();
+            this.countNonroposoSettimanale(false);
+            //this.onPressRischioSalute();
         },
 
         onSearch: function() {
