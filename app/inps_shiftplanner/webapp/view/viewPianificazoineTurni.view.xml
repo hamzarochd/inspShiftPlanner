@@ -62,61 +62,43 @@
                                           showClearOnFB="true"
                                           showFilterConfiguration="false">
 
-                            <fb:filterGroupItems>
-                                 <!--Dipartimenti-->
-                                 <fb:FilterGroupItem  
-                                     groupName="Main" 
-                                     name="Dipartimenti" 
-                                     label="Area Dipartimenti" 
-                                     visibleInFilterBar="true">
-                                   <fb:control>
-                                   <ComboBox  
-                                     id="groupFilter" 
-                                     width="100%" 
-                                     items="{ruoliModel>/Dipartimenti}" 
-                                     placeholder="Seleziona dipartimento" 
-                                     showClearIcon="true">
-                                     <core:Item key="{ruoliModel>Dipartimeto}" text="{ruoliModel>Dipartimento}"/>
-                                   </ComboBox>
-                                   </fb:control>
-                                </fb:FilterGroupItem>
+                           <fb:filterGroupItems>
+    <fb:FilterGroupItem groupName="Main" name="Dipartimenti" label="Area Dipartimentale" visibleInFilterBar="true">
+        <fb:control>
+            <ComboBox id="groupFilter" 
+                      width="100%" 
+                      items="{ruoliModel>/Dipartimenti}" 
+                      placeholder="Seleziona dipartimento" 
+                      showClearIcon="true">
+                <core:Item key="{ruoliModel>Dipartimento}" text="{ruoliModel>Dipartimento}"/>
+            </ComboBox>
+        </fb:control>
+    </fb:FilterGroupItem>
 
-                                 <!--Reparti-->
-                                <fb:FilterGroupItem  
-                                     groupName="cd" 
-                                     name="Reparti" 
-                                     label="Reparti" 
-                                     visibleInFilterBar="true">
-                                   <fb:control>
-                                   <ComboBox  
-                                     id="repartoFilterCombo" 
-                                     width="100%" 
-                                     items="{ruoliModel>/Reparti}" 
-                                     placeholder="Seleziona reparto" 
-                                     showClearIcon="true">
-                                     <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
-                                   </ComboBox>
-                                   </fb:control>
-                                </fb:FilterGroupItem>
-                                
-                                 <!--Ruolo-->
-                                <fb:FilterGroupItem 
-                                     groupName="Main" 
-                                     name="Ruolo" 
-                                     label="Qualifica professionale" 
-                                     visibleInFilterBar="true">
-                                   <fb:control>
-                                   <ComboBox  
-                                     id="roleFilterCombo" 
-                                     width="100%" 
-                                     items="{ruoliModel>/RuoliCollezione}" 
-                                     placeholder="Seleziona qualifica" 
-                                     showClearIcon="true">
-                                      <core:Item key="{ruoliModel>key}"  text="{ruoliModel>text}" />
-                                   </ComboBox>
-                                   </fb:control>
-                                </fb:FilterGroupItem>
-                            </fb:filterGroupItems>
+    <fb:FilterGroupItem groupName="cd" name="Reparti" label="Reparto" visibleInFilterBar="true">
+        <fb:control>
+            <ComboBox id="repartoFilterCombo" 
+                      width="100%" 
+                      items="{ruoliModel>/Reparti}" 
+                      placeholder="Seleziona reparto" 
+                      showClearIcon="true">
+                <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+            </ComboBox>
+        </fb:control>
+    </fb:FilterGroupItem>
+    
+    <fb:FilterGroupItem groupName="Main" name="Ruolo" label="Qualifica professionale" visibleInFilterBar="true">
+        <fb:control>
+            <ComboBox id="roleFilterCombo" 
+                      width="100%" 
+                      items="{ruoliModel>/RuoliCollezione}" 
+                      placeholder="Seleziona qualifica" 
+                      showClearIcon="true">
+                <core:Item key="{ruoliModel>text}" text="{ruoliModel>text}" />
+            </ComboBox>
+        </fb:control>
+    </fb:FilterGroupItem>
+</fb:filterGroupItems> 
                         </fb:FilterBar>
 
                             <HBox class = "sapUiSmallMarginEnd sapUiSmallMarginTop sapUiSmallMarginBottom">

@@ -155,8 +155,8 @@ sap.ui.define([
                     return {
                         name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
                         role: oStaff.Role || "",
-                        department: oStaff.Department || "",
-                        repartoKey: oStaff.RepartoKey || "",
+                        department: oStaff.MemberOf ? oStaff.MemberOf.Name :"",
+                        repartoKey: oStaff.MemberOf ? oStaff.MemberOf.name :"",
                         icon: oStaff.icon || "",
                         highlight: false,
                         teamName: oStaff.MemberOf ? oStaff.MemberOf.Name : "no team",
@@ -473,42 +473,60 @@ sap.ui.define([
             });
         },
 
+        onAreaChange : function(oEvent){
+            const sSelectedArea = oEvent.getParamenter("selectedItem")?.getText();
+            const oRepartoCombo = this.byId("repartoFilterCombo");
+            const oBinding =  oRepartoCombo.getBinding("item");
+
+            if(!sSelectedArea){
+                
+            }
+
+        },
+
         onSearch: function() {
-            const sRuoloChiave    = this.byId("roleFilterCombo").getSelectedKey();
-            const sDipartimento   = this.byId("Dipartimenti").getSelectedKey();
-            const sRepartoChiave  = this.byId("repartoFilterCombo").getSelectedKey();
+    // 1. Recupero i valori corretti
+    const sRuolo = this.byId("roleFilterCombo").getSelectedKey();
+    const sDipartimento = this.byId("groupFilter").getSelectedKey(); // Nome area macro
+    const sReparto = this.byId("repartoFilterCombo").getSelectedKey(); // Chiave reparto (es. PS)
 
-            const oCalendar = this.byId("planningCalendar");
-            const oBinding  = oCalendar.getBinding("rows");
-            const aFiltri   = [];
+    const oCalendar = this.byId("planningCalendar");
+    const oBinding = oCalendar.getBinding("rows");
+    const aFiltri = [];
 
-            if (sRuoloChiave) {
-                aFiltri.push(new Filter("role", FilterOperator.EQ, sRuoloChiave));
-            }
-            if (sDipartimento) {
-                aFiltri.push(new Filter("department", FilterOperator.EQ, sDipartimento));
-            }
-            if (sRepartoChiave) {
-                aFiltri.push(new Filter("repartoKey", FilterOperator.EQ, sRepartoChiave));
-            }
+    // 2. Costruisco i filtri basandomi sulle proprietà del tuo modello 'dipendenti'
+    if (sRuolo && sRuolo !=="") {
+        // 'role' è come l'hai chiamato nel mapping del controller
+        aFiltri.push(new Filter("role", FilterOperator.EQ, sRuolo));
+    }
+    if (sDipartimento && sDipartimento !=="") {
+        // 'department' è la proprietà dove hai salvato MemberOf.Name
+        aFiltri.push(new Filter("department", FilterOperator.EQ, sDipartimento));
+    }
+    if (sReparto && sReparto !=="") {
+        // 'repartoKey' deve contenere la chiave specifica (es. PS, CHIR)
+        aFiltri.push(new Filter("repartoKey", FilterOperator.EQ, sReparto));
+    }
 
-            if (oBinding) {
-                oBinding.filter(aFiltri);
-                MessageToast.show("Risultati aggiornati");
-            }
-        },
+    if (oBinding) {
+        oBinding.filter(aFiltri);
+        MessageToast.show("Filtri applicati");
+    }
+},
 
-        onResetFilters: function() {
-            this.byId("roleFilterCombo").setSelectedKey("");
-            this.byId("Dipartimenti").setSelectedKey("");
-            this.byId("repartoFilterCombo").setSelectedKey("");
+onResetFilters: function() {
+    // 1. Pulizia fisica dei campi con ID corretti
+    this.byId("roleFilterCombo").setSelectedKey("");
+    this.byId("groupFilter").setSelectedKey("");
+    this.byId("repartoFilterCombo").setSelectedKey("");
 
-            const oBinding = this.byId("planningCalendar").getBinding("rows");
-            if (oBinding) {
-                oBinding.filter([]);
-            }
-            MessageToast.show("Filtri resettati");
-        },
+    // 2. Rilascio dei filtri sul calendario
+    const oBinding = this.byId("planningCalendar").getBinding("rows");
+    if (oBinding) {
+        oBinding.filter([]);
+    }
+    MessageToast.show("Filtri resettati");
+},
 
         onPressMancanzaPersonale: function() {
             const oKpiModel = this.getView().getModel("kpi");
