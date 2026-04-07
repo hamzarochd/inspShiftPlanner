@@ -923,19 +923,23 @@ sap.ui.define([
         },
 
 
+        //////// per aggiornare kpi in: drag & drop(ok), delete(not ok) ...
+
         onAfterModifyData: function() {
-
             const oLocalModel = this.getView().getModel();
-
 
             oLocalModel.refresh(true);
 
+
+            //// calcoli kpi
             this.countConsecutive(false);
             this.updateUnderstaffing();
             this.countNonroposoSettimanale(false);
 
-
+            //// evidenzia kpi::
             this.onPressRischioSalute(true);
+            this.onPressMancanzaPersonale(true);
+            this.onPressMancazaRiposso(true);
         },
 
 
