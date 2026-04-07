@@ -14,20 +14,21 @@ sap.ui.define([
 
         onInit() {
 
-            // Cattura altKey al momento esatto del drop nativo (fase capture, prima di UI5)
-            this._bCopyOnDrop = false;
-            this._fnNativeDrop = function(e) {
-                this._bCopyOnDrop = e.altKey;
-            }.bind(this);
-            document.addEventListener("drop", this._fnNativeDrop, true);
-
             // Converte stringhe ISO in UI5Date usando componenti locali
             // per evitare problemi di timezone (es. data spostata di un giorno)
             function toUI5Date(sISO) {
-                const d = new Date(sISO);
+                if (!sISO) return null;
+                // Legge i componenti direttamente dalla stringa ISO
+                // evitando qualsiasi conversione di fuso orario da parte di new Date()
+                // Funziona sia con "...T00:00:00Z" che senza Z
+                const m = sISO.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+                if (!m) return null;
                 return UI5Date.getInstance(
-                    d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
-                    d.getUTCHours(), d.getUTCMinutes()
+                    parseInt(m[1]),       // anno
+                    parseInt(m[2]) - 1,   // mese (0-based)
+                    parseInt(m[3]),       // giorno
+                    parseInt(m[4]),       // ore
+                    parseInt(m[5])        // minuti
                 );
             }
 
@@ -156,11 +157,16 @@ sap.ui.define([
             oListBinding.requestContexts(0, 9999).then(function(aContexts) {
 
                 const aStaffData = aContexts.map(oCtx => oCtx.getObject());
+                // DEBUG — rimuovi dopo aver trovato il problema
+                console.log("Staff ricevuti:", aStaffData.length);
+                if (aStaffData[0]) {
+                    console.log("Primo staff ID:", aStaffData[0].ID);
+                    console.log("Appointments del primo staff:", aStaffData[0].Appointments);
+                }
                 const nowInner = new Date();
 
                 const aDipendenti = aStaffData.map(function(oStaff) {
                     return {
-                        staffId: oStaff.ID,
                         name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
                         role: oStaff.Role || "",
                         department: oStaff.Department || "",
@@ -204,8 +210,12 @@ sap.ui.define([
             });
         },
 
-        onExit: function() {
-            document.removeEventListener("drop", this._fnNativeDrop, true);
+        // Formatta una data come stringa ISO locale (senza conversione UTC)
+        // Es: "2024-03-01T00:00:00.000" — il DB salva esattamente quello che vedi
+        _toLocalISO: function(d) {
+            const p = function(n) { return String(n).padStart(2, "0"); };
+            return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) +
+                   "T" + p(d.getHours()) + ":" + p(d.getMinutes()) + ":00.000";
         },
 
         // Drag & drop: controlla sovrapposizioni e applica o chiede cosa fare
@@ -213,7 +223,6 @@ sap.ui.define([
             const oAppointment = oEvent.getParameter("appointment");
             const oStartDate   = oEvent.getParameter("startDate");
             const oCalendarRow = oEvent.getParameter("calendarRow");
-            const bCopy        = this._bCopyOnDrop; // true se Option era premuto al momento del drop
 
             const oModel      = this.getView().getModel();
             const aDipendenti = oModel.getProperty("/dipendenti");
@@ -223,47 +232,35 @@ sap.ui.define([
             const iTargetIndex = aRows.indexOf(oCalendarRow);
             if (iTargetIndex === -1) return;
 
-            const oCtx       = oAppointment.getBindingContext();
-            const oOrigShift = oCtx.getObject(); // oggetto completo del turno originale
-            const sApptId    = oOrigShift.id;
-            const oOldStart  = oOrigShift.startDate;
-            const oOldEnd    = oOrigShift.endDate;
-            const iDuration  = oOldEnd.getTime() - oOldStart.getTime();
-            const oNewEnd    = new Date(oStartDate.getTime() + iDuration);
+            const oCtx      = oAppointment.getBindingContext();
+            const sApptId   = oCtx.getProperty("id");
+            const oOldStart = oCtx.getProperty("startDate");
+            const oOldEnd   = oCtx.getProperty("endDate");
+            const iDuration = oOldEnd.getTime() - oOldStart.getTime();
+            const oNewEnd   = new Date(oStartDate.getTime() + iDuration);
 
-            // Indice originale del dipendente (es. da path "/dipendenti/2/shifts/0")
-            const iOrigDipIdx = parseInt(oCtx.getPath().split("/")[2]);
-
+            const iOrigDipIdx   = parseInt(oCtx.getPath().split("/")[2]);
             const aTargetShifts = aDipendenti[iTargetIndex].shifts;
 
-            // Cerca il primo turno che si sovrappone
-            // In modalità copia l'appointment originale rimane, quindi lo escludiamo solo se è sulla stessa riga
             const oOverlapShift = aTargetShifts.find(function(oShift) {
-                if (!bCopy && oShift.id === sApptId) return false;
+                if (oShift.id === sApptId) return false;
                 return oStartDate < oShift.endDate && oNewEnd > oShift.startDate;
             });
 
             if (!oOverlapShift) {
-                if (bCopy) {
-                    this._copyAppointment(oOrigShift, oStartDate, oNewEnd, iTargetIndex);
-                } else {
-                    this._applyDrop(sApptId, oStartDate, oNewEnd, iTargetIndex);
-                }
+                this._applyDrop(sApptId, oStartDate, oNewEnd, iTargetIndex);
                 return;
             }
 
-            // Sovrapposizione: salva il contesto e mostra il dialog
             this._oPendingDrop = {
                 sApptId:       sApptId,
-                oOrigShift:    oOrigShift,
                 oNewStart:     oStartDate,
                 oNewEnd:       oNewEnd,
                 iTargetDipIdx: iTargetIndex,
                 iOrigDipIdx:   iOrigDipIdx,
                 oOrigStart:    oOldStart,
                 oOrigEnd:      oOldEnd,
-                oOverlapShift: oOverlapShift,
-                bCopy:         bCopy
+                oOverlapShift: oOverlapShift
             };
 
             MessageBox.warning(
@@ -275,46 +272,6 @@ sap.ui.define([
                     onClose: this._onOverlapDialogClose.bind(this)
                 }
             );
-        },
-
-        // Crea una copia dell'appointment nella nuova posizione via POST
-        _copyAppointment: function(oOrigShift, oNewStart, oNewEnd, iTargetDipIdx) {
-            const oModel    = this.getView().getModel();
-            const sStaffId  = oModel.getProperty("/dipendenti/" + iTargetDipIdx + "/staffId");
-
-            fetch("/odata/V4/catalog/appointments", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ID_Utente: sStaffId,
-                    title:     oOrigShift.title    || "",
-                    type:      oOrigShift.type     || "",
-                    shiftIcon: oOrigShift.shiftIcon || "",
-                    color:     oOrigShift.color    || "",
-                    startDate: oNewStart.toISOString(),
-                    endDate:   oNewEnd.toISOString()
-                })
-            }).then(function(oRes) {
-                if (!oRes.ok) throw new Error("POST fallito: " + oRes.status);
-                return oRes.json();
-            }).then(function(oNewAppt) {
-                // Aggiunge il nuovo turno al modello con l'ID assegnato dal DB
-                const aShifts = oModel.getProperty("/dipendenti/" + iTargetDipIdx + "/shifts");
-                aShifts.push({
-                    id:        oNewAppt.ID,
-                    startDate: oNewStart,
-                    endDate:   oNewEnd,
-                    title:     oOrigShift.title    || "",
-                    type:      oOrigShift.type     || "",
-                    shiftIcon: oOrigShift.shiftIcon || "",
-                    color:     oOrigShift.color    || ""
-                });
-                oModel.setProperty("/dipendenti/" + iTargetDipIdx + "/shifts", aShifts);
-                oModel.refresh(true);
-                MessageToast.show("Turno copiato");
-            }.bind(this)).catch(function(oErr) {
-                MessageToast.show("Errore copia: " + oErr.message);
-            });
         },
 
         // Applica il drop senza sovrapposizioni (aggiorna modello + PATCH DB)
@@ -331,15 +288,13 @@ sap.ui.define([
             fetch("/odata/V4/catalog/appointments(" + sApptId + ")", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ startDate: oNewStart.toISOString(), endDate: oNewEnd.toISOString() })
+                body: JSON.stringify({ startDate: this._toLocalISO(oNewStart), endDate: this._toLocalISO(oNewEnd) })
             }).then(function(oRes) {
                 if (!oRes.ok) throw new Error("PATCH fallito: " + oRes.status);
                 MessageToast.show("Turno aggiornato");
             }).catch(function(oErr) {
                 MessageToast.show("Errore salvataggio: " + oErr.message);
             });
-
-            this.onAfterModifyData();
         },
 
         // Gestisce la scelta dell'utente nel dialog di sovrapposizione
@@ -349,121 +304,64 @@ sap.ui.define([
             if (!p) return;
 
             if (sAction === "Sovrascrivi") {
+                // Sposta il turno trascinato nella nuova posizione ed elimina quello sovrapposto
                 const aShifts     = oModel.getProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts");
+                const iDragIdx    = aShifts.findIndex(function(s) { return s.id === p.sApptId; });
                 const iOverlapIdx = aShifts.findIndex(function(s) { return s.id === p.oOverlapShift.id; });
 
-                if (p.bCopy) {
-                    // COPIA: aggiunge il nuovo turno e cancella quello sovrapposto
-                    if (iOverlapIdx !== -1) aShifts.splice(iOverlapIdx, 1);
-                    aShifts.push({
-                        id: null, startDate: p.oNewStart, endDate: p.oNewEnd,
-                        title: p.oOrigShift.title || "", type: p.oOrigShift.type || "",
-                        shiftIcon: p.oOrigShift.shiftIcon || "", color: p.oOrigShift.color || ""
-                    });
-                    oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts", aShifts);
-                    oModel.refresh(true);
-
-                    const sStaffId = oModel.getProperty("/dipendenti/" + p.iTargetDipIdx + "/staffId");
-                    Promise.all([
-                        fetch("/odata/V4/catalog/appointments", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ ID_Utente: sStaffId, title: p.oOrigShift.title || "", type: p.oOrigShift.type || "", shiftIcon: p.oOrigShift.shiftIcon || "", color: p.oOrigShift.color || "", startDate: p.oNewStart.toISOString(), endDate: p.oNewEnd.toISOString() })
-                        }),
-                        fetch("/odata/V4/catalog/appointments(" + p.oOverlapShift.id + ")", { method: "DELETE" })
-                    ]).then(function(aRes) {
-                        if (aRes.some(function(r) { return !r.ok; })) throw new Error("Operazione fallita");
-                        MessageToast.show("Turno copiato, turno sovrapposto eliminato");
-                    }).catch(function(oErr) { MessageToast.show("Errore: " + oErr.message); });
-
-                } else {
-                    // SPOSTA: aggiorna posizione del trascinato e cancella quello sovrapposto
-                    const iDragIdx = aShifts.findIndex(function(s) { return s.id === p.sApptId; });
-                    if (iDragIdx !== -1) {
-                        oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts/" + iDragIdx + "/startDate", p.oNewStart);
-                        oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts/" + iDragIdx + "/endDate", p.oNewEnd);
-                    }
-                    if (iOverlapIdx !== -1) {
-                        aShifts.splice(iOverlapIdx, 1);
-                        oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts", aShifts);
-                    }
-                    oModel.refresh(true);
-
-                    Promise.all([
-                        fetch("/odata/V4/catalog/appointments(" + p.sApptId + ")", {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ startDate: p.oNewStart.toISOString(), endDate: p.oNewEnd.toISOString() })
-                        }),
-                        fetch("/odata/V4/catalog/appointments(" + p.oOverlapShift.id + ")", { method: "DELETE" })
-                    ]).then(function(aRes) {
-                        if (aRes.some(function(r) { return !r.ok; })) throw new Error("Operazione fallita");
-                        MessageToast.show("Turno spostato, turno sovrapposto eliminato");
-                    }).catch(function(oErr) { MessageToast.show("Errore: " + oErr.message); });
+                if (iDragIdx !== -1) {
+                    oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts/" + iDragIdx + "/startDate", p.oNewStart);
+                    oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts/" + iDragIdx + "/endDate", p.oNewEnd);
                 }
+                if (iOverlapIdx !== -1) {
+                    aShifts.splice(iOverlapIdx, 1);
+                    oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts", aShifts);
+                }
+                oModel.refresh(true);
+
+                Promise.all([
+                    fetch("/odata/V4/catalog/appointments(" + p.sApptId + ")", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ startDate: this._toLocalISO(p.oNewStart), endDate: this._toLocalISO(p.oNewEnd) })
+                    }),
+                    fetch("/odata/V4/catalog/appointments(" + p.oOverlapShift.id + ")", { method: "DELETE" })
+                ]).then(function(aRes) {
+                    if (aRes.some(function(r) { return !r.ok; })) throw new Error("Operazione fallita");
+                    MessageToast.show("Turno spostato, turno sovrapposto eliminato");
+                }).catch(function(oErr) { MessageToast.show("Errore: " + oErr.message); });
 
             } else if (sAction === "Sostituisci") {
+                // Scambia le posizioni dei due turni
                 const aShifts     = oModel.getProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts");
+                const iDragIdx    = aShifts.findIndex(function(s) { return s.id === p.sApptId; });
                 const iOverlapIdx = aShifts.findIndex(function(s) { return s.id === p.oOverlapShift.id; });
 
-                // Il sovrapposto va sempre nella posizione originale del turno trascinato
+                if (iDragIdx !== -1) {
+                    oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts/" + iDragIdx + "/startDate", p.oNewStart);
+                    oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts/" + iDragIdx + "/endDate", p.oNewEnd);
+                }
                 if (iOverlapIdx !== -1) {
                     oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts/" + iOverlapIdx + "/startDate", p.oOrigStart);
                     oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts/" + iOverlapIdx + "/endDate", p.oOrigEnd);
                 }
-
-                if (p.bCopy) {
-                    // COPIA: crea nuovo turno nella nuova posizione, il sovrapposto si sposta
-                    aShifts.push({
-                        id: null, startDate: p.oNewStart, endDate: p.oNewEnd,
-                        title: p.oOrigShift.title || "", type: p.oOrigShift.type || "",
-                        shiftIcon: p.oOrigShift.shiftIcon || "", color: p.oOrigShift.color || ""
-                    });
-                    oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts", aShifts);
-                    oModel.refresh(true);
-
-                    const sStaffId = oModel.getProperty("/dipendenti/" + p.iTargetDipIdx + "/staffId");
-                    Promise.all([
-                        fetch("/odata/V4/catalog/appointments", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ ID_Utente: sStaffId, title: p.oOrigShift.title || "", type: p.oOrigShift.type || "", shiftIcon: p.oOrigShift.shiftIcon || "", color: p.oOrigShift.color || "", startDate: p.oNewStart.toISOString(), endDate: p.oNewEnd.toISOString() })
-                        }),
-                        fetch("/odata/V4/catalog/appointments(" + p.oOverlapShift.id + ")", {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ startDate: p.oOrigStart.toISOString(), endDate: p.oOrigEnd.toISOString() })
-                        })
-                    ]).then(function(aRes) {
-                        if (aRes.some(function(r) { return !r.ok; })) throw new Error("Operazione fallita");
-                        MessageToast.show("Turno copiato, turno sovrapposto spostato");
-                    }).catch(function(oErr) { MessageToast.show("Errore: " + oErr.message); });
-
-                } else {
-                    // SPOSTA: scambia le posizioni dei due turni
-                    const iDragIdx = aShifts.findIndex(function(s) { return s.id === p.sApptId; });
-                    if (iDragIdx !== -1) {
-                        oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts/" + iDragIdx + "/startDate", p.oNewStart);
-                        oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts/" + iDragIdx + "/endDate", p.oNewEnd);
-                    }
-                    oModel.refresh(true);
+                oModel.refresh(true);
 
                     Promise.all([
                         fetch("/odata/V4/catalog/appointments(" + p.sApptId + ")", {
                             method: "PATCH",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ startDate: p.oNewStart.toISOString(), endDate: p.oNewEnd.toISOString() })
+                            body: JSON.stringify({ startDate: this._toLocalISO(p.oNewStart), endDate: this._toLocalISO(p.oNewEnd) })
                         }),
                         fetch("/odata/V4/catalog/appointments(" + p.oOverlapShift.id + ")", {
                             method: "PATCH",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ startDate: p.oOrigStart.toISOString(), endDate: p.oOrigEnd.toISOString() })
+                            body: JSON.stringify({ startDate: this._toLocalISO(p.oOrigStart), endDate: this._toLocalISO(p.oOrigEnd) })
                         })
                     ]).then(function(aRes) {
                         if (aRes.some(function(r) { return !r.ok; })) throw new Error("PATCH fallito");
                         MessageToast.show("Turni scambiati");
                     }).catch(function(oErr) { MessageToast.show("Errore: " + oErr.message); });
-                }
 
             } else {
                 // Cancella: ripristina lo stato visivo senza modifiche
