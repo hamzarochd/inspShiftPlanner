@@ -92,12 +92,11 @@ sap.ui.define([
                     { "key": "DERM",  "text": "Dermatologia" }
                 ],
                 "TipiTurno": [
-                    { "key": "AFFIANCAMENTO", "text": "Affiancamento", "color": "#0070F2", "title": "Turno Affiancamento", "shiftIcon": "sap-icon://collaborate" },
-                    { "key": "DIAGNOSTICA",   "text": "Diagnostica",   "color": "#E76500", "title": "Turno Diagnostica",   "shiftIcon": "sap-icon://stethoscope"  },
-                    { "key": "EMERGENZA",     "text": "Emergenza",     "color": "#D20000", "title": "Turno Emergenza",     "shiftIcon": "sap-icon://alert"        },
-                    { "key": "REPERIBILITA",  "text": "Reperibilità",  "color": "#0A6ED1", "title": "Reperibilità",        "shiftIcon": "sap-icon://phone"        },
-                    { "key": "RIPOSO",        "text": "Riposo",        "color": "#8B8B8B", "title": "Riposo",              "shiftIcon": "sap-icon://bed"          },
-                    { "key": "COORDINAMENTO", "text": "Coordinamento", "color": "#107E3E", "title": "Turno Coordinamento", "shiftIcon": "sap-icon://manager"      }
+                    { "key": "AFFIANCAMENTO", "text": "Affiancamento", "color": "#0070F2", "title": "Affiancamento", "shiftIcon": "" },
+                    { "key": "DIAGNOSTICA",   "text": "Diagnostica",   "color": "#E76500", "title": "Diagnostica",   "shiftIcon": "" },
+                    { "key": "EMERGENZA",     "text": "Emergenza",     "color": "#D20000", "title": "Emergenza",     "shiftIcon": "" },
+                    { "key": "REPERIBILITA",  "text": "Reperibilità",  "color": "#0A6ED1", "title": "Reperibilità",  "shiftIcon": "" },
+                    { "key": "RIPOSO",        "text": "Riposo",        "color": "#8B8B8B", "title": "Riposo",        "shiftIcon": "" }
                 ],
                 "Dipartimenti": [
                     {
@@ -158,8 +157,6 @@ sap.ui.define([
             this.getView().setModel(new JSONModel({}), "appt");
             // Modello per il dialog di modifica
             this.getView().setModel(new JSONModel({}), "editAppt");
-            // Modello per il dialog di creazione
-            this.getView().setModel(new JSONModel({}), "newAppt");
 
             const oODataModel = this.getOwnerComponent().getModel("odata");
             const oListBinding = oODataModel.bindList("/staffs", null, null, null, {
@@ -179,7 +176,6 @@ sap.ui.define([
 
                 const aDipendenti = aStaffData.map(function(oStaff) {
                     return {
-                        staffId: oStaff.ID,
                         name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
                         role: oStaff.Role || "",
                         department: oStaff.Department || "",
@@ -562,109 +558,6 @@ sap.ui.define([
 
         onCancelEditAppointment: function() {
             this.byId("editAppointmentDialog").close();
-        },
-
-        // Click su spazio vuoto del calendario → apre il dialog di creazione
-        onIntervalSelect: function(oEvent) {
-            const oStartDate   = oEvent.getParameter("startDate");
-            const oEndDate     = oEvent.getParameter("endDate");
-            const oCalendarRow = oEvent.getParameter("row");
-
-            const aRows      = this.byId("planningCalendar").getRows();
-            const iTargetIdx = aRows.indexOf(oCalendarRow);
-            if (iTargetIdx === -1) return;
-
-            const oDip = this.getView().getModel().getProperty("/dipendenti/" + iTargetIdx);
-
-            this.getView().getModel("newAppt").setData({
-                type:      "",
-                color:     "",
-                shiftIcon: "",
-                title:     "",
-                startDate: oStartDate,
-                endDate:   oEndDate,
-                dipIndex:  iTargetIdx,
-                staffId:   oDip.staffId
-            });
-
-            this.byId("createAppointmentDialog").open();
-        },
-
-        // Aggiorna colore/icona/titolo quando si sceglie il tipo nel dialog di creazione
-        onNewTypeChange: function(oEvent) {
-            const sKey  = oEvent.getSource().getSelectedKey();
-            const aTipi = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
-            const oTipo = aTipi.find(function(t) { return t.key === sKey; });
-            if (!oTipo) return;
-
-            const oNewModel = this.getView().getModel("newAppt");
-            oNewModel.setProperty("/color",     oTipo.color);
-            oNewModel.setProperty("/shiftIcon", oTipo.shiftIcon);
-            oNewModel.setProperty("/title",     oTipo.title);
-        },
-
-        onSaveNewAppointment: function() {
-            const oNewModel  = this.getView().getModel("newAppt");
-            const sType      = oNewModel.getProperty("/type");
-            const sColor     = oNewModel.getProperty("/color");
-            const sShiftIcon = oNewModel.getProperty("/shiftIcon");
-            const sTitle     = oNewModel.getProperty("/title");
-            const iDipIdx    = oNewModel.getProperty("/dipIndex");
-            const sStaffId   = oNewModel.getProperty("/staffId");
-
-            const oStart = this.byId("newStartPicker").getDateValue();
-            const oEnd   = this.byId("newEndPicker").getDateValue();
-
-            if (!sType) {
-                MessageToast.show("Seleziona un tipo di turno");
-                return;
-            }
-            if (!oStart || !oEnd) {
-                MessageToast.show("Inserisci date valide");
-                return;
-            }
-
-            const oModel = this.getView().getModel();
-
-            fetch("/odata/V4/catalog/appointments", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ID_Utente: sStaffId,
-                    type:      sType,
-                    title:     sTitle,
-                    color:     sColor,
-                    shiftIcon: sShiftIcon,
-                    startDate: this._toLocalISO(oStart),
-                    endDate:   this._toLocalISO(oEnd)
-                })
-            }).then(function(oRes) {
-                if (!oRes.ok) throw new Error("POST fallito: " + oRes.status);
-                return oRes.json();
-            }).then(function(oNewAppt) {
-                // Aggiunge il nuovo turno al modello locale con l'ID restituito dal DB
-                const aShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts");
-                aShifts.push({
-                    id:        oNewAppt.ID,
-                    type:      sType,
-                    title:     sTitle,
-                    color:     sColor,
-                    shiftIcon: sShiftIcon,
-                    startDate: oStart,
-                    endDate:   oEnd
-                });
-                oModel.setProperty("/dipendenti/" + iDipIdx + "/shifts", aShifts);
-                oModel.refresh(true);
-                MessageToast.show("Turno creato");
-            }).catch(function(oErr) {
-                MessageToast.show("Errore creazione: " + oErr.message);
-            });
-
-            this.byId("createAppointmentDialog").close();
-        },
-
-        onCancelNewAppointment: function() {
-            this.byId("createAppointmentDialog").close();
         },
 
         onDeleteAppointment: function() {
