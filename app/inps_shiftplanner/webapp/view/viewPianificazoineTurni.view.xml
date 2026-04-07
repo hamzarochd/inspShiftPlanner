@@ -64,15 +64,15 @@
 
                                 <fb:filterGroupItems>
                                     <fb:FilterGroupItem groupName="Main" name="Dipartimenti"
-                                        label="Area Dipartimentale" visibleInFilterBar="true">
+                                        label="Team" visibleInFilterBar="true">
                                         <fb:control>
                                             <ComboBox id="groupFilter"
                                                 width="100%"
-                                                items="{ruoliModel>/Dipartimenti}"
-                                                placeholder="Seleziona dipartimento"
+                                                items="{ruoliModel>/TeamFiltro}"
+                                                placeholder="Seleziona Team"
                                                 showClearIcon="true">
-                                                <core:Item key="{ruoliModel>Dipartimento}"
-                                                    text="{ruoliModel>Dipartimento}" />
+                                                <core:Item key="{ruoliModel>key}"
+                                                    text="{ruoliModel>text}" />
                                             </ComboBox>
                                         </fb:control>
                                     </fb:FilterGroupItem>

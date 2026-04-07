@@ -65,35 +65,18 @@ sap.ui.define([
         { "key": "Supporto esterno", "text": "Supporto esterno" }
     ],
     "Reparti": [
-        // Queste KEY corrispondono ai "type" nel file inps_appointments.csv
         { "key": "EMERGENZA", "text": "Emergenza / PS" },
         { "key": "DIAGNOSTICA", "text": "Diagnostica" },
         { "key": "AFFIANCAMENTO", "text": "Affiancamento" },
         { "key": "REPERIBILITA", "text": "Reperibilità" },
         { "key": "RIPOSO", "text": "Riposo" }
     ],
-    "Dipartimenti": [
-        {
-            "Dipartimento": "Emergenza-Urgenza e Area Critica",
-            "reparti": [
-                // Le KEY corrispondono esattamente al Name nel file inps_teams.csv
-                { "key": "Pronto Soccorso", "text": "Pronto Soccorso" },
-                { "key": "Terapia Intensiva", "text": "Terapia Intensiva" }
-            ]
-        },
-        {
-            "Dipartimento": "Dipartimento di Chirurgia",
-            "reparti": [
-                { "key": "Chirurgia", "text": "Chirurgia Generale" }, 
-                { "key": "Sala Operatoria", "text": "Blocco Operatorio" }
-            ]
-        },
-        {
-            "Dipartimento": "Dipartimento di Medicina",
-            "reparti": [
-                { "key": "Medicina Generale", "text": "Medicina Generale" }
-            ]
-        }
+    "TeamFiltro": [
+        { "key": "Pronto Soccorso", "text": "Pronto Soccorso" },
+        { "key": "Terapia Intensiva", "text": "Terapia Intensiva" },
+        { "key": "Medicina Generale", "text": "Medicina Generale" },
+        { "key": "Chirurgia", "text": "Chirurgia" },
+        { "key": "Sala Operatoria", "text": "Sala Operatoria" }
     ]
 };
             
@@ -452,35 +435,16 @@ sap.ui.define([
             const aFiltri = [];
 
             const sRuolo = this.byId("roleFilterCombo").getSelectedKey();
-            const sDipartimentoMacro = this.byId("groupFilter").getSelectedKey(); // Macro Area
-            const sRepartoAttivita = this.byId("repartoFilterCombo").getSelectedKey(); // Turno
+            const sTeam = this.byId("groupFilter").getSelectedKey(); 
+            const sRepartoAttivita = this.byId("repartoFilterCombo").getSelectedKey(); 
 
             // 1. Filtro Ruolo
             if (sRuolo) {
                 aFiltri.push(new Filter("role", FilterOperator.EQ, sRuolo));
             }
-
-            // 2. Filtro Dipartimento (Macro Area)
-            // 2. Filtro Dipartimento (Macro Area)
-            if (sDipartimentoMacro) {
-            const aDipartimenti = this.getView().getModel("ruoliModel").getProperty("/Dipartimenti");
-    const oMacroArea = aDipartimenti.find(d => d.Dipartimento === sDipartimentoMacro);
-    
-    if (oMacroArea && oMacroArea.reparti) {
-        // CORREZIONE: Creiamo correttamente l'array di filtri per l'operatore OR
-        const aSubFilters = oMacroArea.reparti.map(r => {
-            return new sap.ui.model.Filter("department", sap.ui.model.FilterOperator.EQ, r.key);
-        });
-
-        // Applichiamo i filtri in OR (and: false)
-        aFiltri.push(new sap.ui.model.Filter({
-            filters: aSubFilters,
-            and: false 
-        }));
-    }
-}
-
-            // 3. Filtro Reparto/Attività (guarda dentro i turni)
+            if (sTeam){
+                aFiltri.push(new Filter("department",FilterOperator.EQ,sTeam));
+            }
             if (sRepartoAttivita) {
                 aFiltri.push(new Filter({
                     path: "shifts",
