@@ -67,6 +67,39 @@
                     <Button icon="sap-icon://decline" text="Annulla" press="onCancelEditAppointment" />
                 </endButton>
             </Dialog>
+            <Dialog id="createAppointmentDialog" title="Nuovo Turno">
+                <content>
+                    <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
+                        <Label text="Tipo turno" design="Bold" />
+                        <Select
+                            id="newTypeSelect"
+                            selectedKey="{newAppt>/type}"
+                            change="onNewTypeChange"
+                            width="100%"
+                            class="sapUiTinyMarginBottom"
+                            items="{ruoliModel>/TipiTurno}">
+                            <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+                        </Select>
+                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="newStartPicker"
+                            dateValue="{newAppt>/startDate}"
+                            displayFormat="dd/MM/yyyy HH:mm"
+                            class="sapUiTinyMarginBottom" />
+                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="newEndPicker"
+                            dateValue="{newAppt>/endDate}"
+                            displayFormat="dd/MM/yyyy HH:mm" />
+                    </VBox>
+                </content>
+                <beginButton>
+                    <Button icon="sap-icon://add" text="Crea" type="Emphasized" press="onSaveNewAppointment" />
+                </beginButton>
+                <endButton>
+                    <Button icon="sap-icon://decline" text="Annulla" press="onCancelNewAppointment" />
+                </endButton>
+            </Dialog>
         </dependents>
 
         <f:DynamicPage id="turniDynamicPage" headerExpanded="true" toggleHeaderOnTitleClick="true">
@@ -204,7 +237,8 @@
                         appointmentsVisualization="Standard"
                         showEmptyIntervalHeaders="false"
                         appointmentHeight="Regular"
-                        appointmentSelect="onAppointmentSelect">
+                        appointmentSelect="onAppointmentSelect"
+                        intervalSelect="onIntervalSelect">
 
                         <rows>
                             <PlanningCalendarRow
