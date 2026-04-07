@@ -261,7 +261,12 @@
                                     <unified:CalendarAppointment
                                         startDate="{startDate}"
                                         endDate="{endDate}"
-                                        icon="{shiftIcon}"
+                                        icon="{= ${type} === 'AFFIANCAMENTO' ? 'sap-icon://collaborate'    :
+                                                  ${type} === 'DIAGNOSTICA'   ? 'sap-icon://stethoscope'   :
+                                                  ${type} === 'EMERGENZA'     ? 'sap-icon://alert'         :
+                                                  ${type} === 'REPERIBILITA'  ? 'sap-icon://phone'         :
+                                                  ${type} === 'RIPOSO'        ? 'sap-icon://bed'           :
+                                                  ${type} === 'COORDINAMENTO' ? 'sap-icon://manager'       : '' }"
                                         color="{color}"
                                         tooltip="{title}">
                                     </unified:CalendarAppointment>
