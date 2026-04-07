@@ -39,7 +39,14 @@
                 <content>
                     <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
                         <Label text="Tipo turno" design="Bold" />
-                        <Input value="{editAppt>/type}" class="sapUiTinyMarginBottom" />
+                        <Select
+                            selectedKey="{editAppt>/type}"
+                            change="onEditTypeChange"
+                            width="100%"
+                            class="sapUiTinyMarginBottom"
+                            items="{ruoliModel>/TipiTurno}">
+                            <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+                        </Select>
                         <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop" />
                         <DateTimePicker
                             id="editStartPicker"

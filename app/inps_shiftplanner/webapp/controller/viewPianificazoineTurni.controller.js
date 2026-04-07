@@ -91,6 +91,16 @@ sap.ui.define([
                     { "key": "PSI",   "text": "Psichiatria" },
                     { "key": "DERM",  "text": "Dermatologia" }
                 ],
+                "TipiTurno": [
+                    { "key": "MATTINO",    "text": "Mattino",    "color": "#1976D2", "title": "Turno Mattino",    "shiftIcon": "sap-icon://appointment-2" },
+                    { "key": "POMERIGGIO", "text": "Pomeriggio", "color": "#EF6C00", "title": "Turno Pomeriggio", "shiftIcon": "sap-icon://appointment-2" },
+                    { "key": "NOTTE",      "text": "Notte",      "color": "#311B92", "title": "Turno Notte",      "shiftIcon": "sap-icon://appointment-2" },
+                    { "key": "SMONTO",     "text": "Smonto",     "color": "#6A1B9A", "title": "Smonto",           "shiftIcon": "" },
+                    { "key": "RIPOSO",     "text": "Riposo",     "color": "#2E7D32", "title": "Riposo",           "shiftIcon": "" },
+                    { "key": "FERIE",      "text": "Ferie",      "color": "#00695C", "title": "Ferie",            "shiftIcon": "" },
+                    { "key": "MALATTIA",   "text": "Malattia",   "color": "#B71C1C", "title": "Malattia",         "shiftIcon": "" },
+                    { "key": "FORMAZIONE", "text": "Formazione", "color": "#F9A825", "title": "Formazione",       "shiftIcon": "" }
+                ],
                 "Dipartimenti": [
                     {
                         "Dipartimento": "Emergenza-Urgenza e Area Critica",
@@ -471,25 +481,43 @@ sap.ui.define([
 
             // Popola il modello editAppt con i dati attuali del turno
             this.getView().getModel("editAppt").setData({
-                id:       oShift.id,
-                type:     oShift.type     || "",
+                id:        oShift.id,
+                type:      oShift.type      || "",
+                color:     oShift.color     || "",
+                shiftIcon: oShift.shiftIcon || "",
+                title:     oShift.title     || "",
                 startDate: oShift.startDate,
                 endDate:   oShift.endDate,
-                dipIndex: iDipIdx,
-                shiftIdx: iShiftIdx
+                dipIndex:  iDipIdx,
+                shiftIdx:  iShiftIdx
             });
 
             this.byId("editAppointmentDialog").open();
+        },
+
+        // Quando l'utente cambia il tipo nel Select, aggiorna colore/icona/titolo
+        onEditTypeChange: function(oEvent) {
+            const sKey   = oEvent.getSource().getSelectedKey();
+            const aTipi  = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+            const oTipo  = aTipi.find(function(t) { return t.key === sKey; });
+            if (!oTipo) return;
+
+            const oEditModel = this.getView().getModel("editAppt");
+            oEditModel.setProperty("/color",     oTipo.color);
+            oEditModel.setProperty("/shiftIcon", oTipo.shiftIcon);
+            oEditModel.setProperty("/title",     oTipo.title);
         },
 
         onSaveEditAppointment: function() {
             const oEditModel = this.getView().getModel("editAppt");
             const sId        = oEditModel.getProperty("/id");
             const sType      = oEditModel.getProperty("/type");
+            const sColor     = oEditModel.getProperty("/color");
+            const sShiftIcon = oEditModel.getProperty("/shiftIcon");
+            const sTitle     = oEditModel.getProperty("/title");
             const iDipIdx    = oEditModel.getProperty("/dipIndex");
             const iShiftIdx  = oEditModel.getProperty("/shiftIdx");
 
-            // Legge le date direttamente dai DateTimePicker
             const oStart = this.byId("editStartPicker").getDateValue();
             const oEnd   = this.byId("editEndPicker").getDateValue();
 
@@ -498,11 +526,15 @@ sap.ui.define([
                 return;
             }
 
-            // Aggiorna il modello locale
+            // Aggiorna il modello locale — il calendario si aggiorna subito
             const oModel = this.getView().getModel();
-            oModel.setProperty("/dipendenti/" + iDipIdx + "/shifts/" + iShiftIdx + "/type",      sType);
-            oModel.setProperty("/dipendenti/" + iDipIdx + "/shifts/" + iShiftIdx + "/startDate", oStart);
-            oModel.setProperty("/dipendenti/" + iDipIdx + "/shifts/" + iShiftIdx + "/endDate",   oEnd);
+            const sBase  = "/dipendenti/" + iDipIdx + "/shifts/" + iShiftIdx;
+            oModel.setProperty(sBase + "/type",      sType);
+            oModel.setProperty(sBase + "/color",     sColor);
+            oModel.setProperty(sBase + "/shiftIcon", sShiftIcon);
+            oModel.setProperty(sBase + "/title",     sTitle);
+            oModel.setProperty(sBase + "/startDate", oStart);
+            oModel.setProperty(sBase + "/endDate",   oEnd);
             oModel.refresh(true);
 
             // PATCH al DB
@@ -511,6 +543,9 @@ sap.ui.define([
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     type:      sType,
+                    color:     sColor,
+                    shiftIcon: sShiftIcon,
+                    title:     sTitle,
                     startDate: this._toLocalISO(oStart),
                     endDate:   this._toLocalISO(oEnd)
                 })
