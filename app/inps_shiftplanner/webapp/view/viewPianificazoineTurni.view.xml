@@ -170,6 +170,7 @@
                         appointmentsVisualization="Standard"
                         showEmptyIntervalHeaders="false"
                         appointmentHeight="Regular"
+                        
                         appointmentSelect="onAppointmentSelect">
 
                         <rows>
@@ -181,6 +182,7 @@
                                 appointments="{path: 'shifts', templateShareable: false}"
                                 enableAppointmentsDragAndDrop="true"
                                 enableAppointmentsResize="false"
+                                selected="false"
                                 appointmentDrop="handleAppointmentDrop">
                                 <customData>
                                     <core:CustomData

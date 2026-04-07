@@ -295,6 +295,8 @@ sap.ui.define([
             }).catch(function (oErr) {
                 MessageToast.show("Errore salvataggio: " + oErr.message);
             });
+
+            this.onAfterModifyData();
         },
 
         // Gestisce la scelta dell'utente nel dialog di sovrapposizione
@@ -559,10 +561,6 @@ sap.ui.define([
 
             const aStaff = oModel?.getProperty("/dipendenti") || [];
 
-            /*const oStartDate = oCalendar?.getStartDate() || new Date();
-            const iYear = oStartDate.getFullYear();
-            const iMonth = oStartDate.getMonth();
-            const iDaysInMonth = new Date(iYear, iMonth + 1, 0).getDate();*/
 
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
 
@@ -606,7 +604,7 @@ sap.ui.define([
         },
 
         ////////// per tile Rischio salute:::
-        /////// non più di 6 giorni consecutivi.
+        /////// non più di x giorni consecutivi.
 
 
         onPressRischioSalute: function (bIsRefreshOnly) {
@@ -615,9 +613,8 @@ sap.ui.define([
 
             if (bIsRefreshOnly === true) {
 
-                bNewActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
+                bNewActive = oKpiModel.getProperty("/showConsecutiveHighlight");
             } else {
-
                 const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
                 bNewActive = !bCurrentlyActive;
                 oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
@@ -732,24 +729,15 @@ sap.ui.define([
             const oKpiModel = this.getView().getModel("kpi");
             let bNewActive;
 
-            ////// come sopra,la modifica nel planning calendar toglie le evidenze. 
-            if (bIsRefreshOnly === true) {
-                bNewActive = oKpiModel.getProperty("/showRestHighlight") || false;
+            if (bIsRefreshOnly === true) {  ///// se modifica nel planning calendar direttamente. 
+                bNewActive = oKpiModel.getProperty("/showRestHighlight");
             } else {
-
                 const bCurrentlyActive = oKpiModel.getProperty("/showRestHighlight") || false;
                 bNewActive = !bCurrentlyActive;
                 oKpiModel.setProperty("/showRestHighlight", bNewActive);
-
-                const TotPersonale = this.countNonroposoSettimanale(bNewActive);
-
-                if (bNewActive && TotPersonale > 0) {
-                    MessageToast.show("Attenzione: " + TotPersonale + " staffs senza riposo settimanale.");
-                } else {
-                    MessageToast.show("Evidenziazione rimossa");
-                }
             }
 
+            this.countNonroposoSettimanale(bNewActive);
         },
 
         countNonroposoSettimanale: function (bShouldHighlight) {
@@ -856,7 +844,6 @@ sap.ui.define([
 
             //// evidenzia kpi::
             this.onPressRischioSalute(true);
-            this.onPressMancanzaPersonale(true);
             this.onPressMancazaRiposso(true);
         },
 
