@@ -27,12 +27,39 @@
                 </content>
                 <footer>
                     <Toolbar>
-                        <Button text="Elimina" type="Reject" press="onDeleteAppointment" />
+                        <Button icon="sap-icon://delete" type="Reject" press="onDeleteAppointment" tooltip="Elimina" />
+                        <Button icon="sap-icon://edit" press="onEditAppointment" tooltip="Modifica" />
                         <ToolbarSpacer />
-                        <Button text="Chiudi" press="onClosePopover" />
+                        <Button icon="sap-icon://decline" press="onClosePopover" tooltip="Chiudi" />
                     </Toolbar>
                 </footer>
             </ResponsivePopover>
+
+            <Dialog id="editAppointmentDialog" title="Modifica Turno">
+                <content>
+                    <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
+                        <Label text="Tipo turno" design="Bold" />
+                        <Input value="{editAppt>/type}" class="sapUiTinyMarginBottom" />
+                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="editStartPicker"
+                            dateValue="{editAppt>/startDate}"
+                            displayFormat="dd/MM/yyyy HH:mm"
+                            class="sapUiTinyMarginBottom" />
+                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="editEndPicker"
+                            dateValue="{editAppt>/endDate}"
+                            displayFormat="dd/MM/yyyy HH:mm" />
+                    </VBox>
+                </content>
+                <beginButton>
+                    <Button icon="sap-icon://save" text="Salva" type="Emphasized" press="onSaveEditAppointment" />
+                </beginButton>
+                <endButton>
+                    <Button icon="sap-icon://decline" text="Annulla" press="onCancelEditAppointment" />
+                </endButton>
+            </Dialog>
         </dependents>
 
         <f:DynamicPage id="turniDynamicPage" headerExpanded="true" toggleHeaderOnTitleClick="true">

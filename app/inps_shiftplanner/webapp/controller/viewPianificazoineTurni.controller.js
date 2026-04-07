@@ -148,6 +148,8 @@ sap.ui.define([
 
             // Modello per il popover appointment — inizialmente vuoto
             this.getView().setModel(new JSONModel({}), "appt");
+            // Modello per il dialog di modifica
+            this.getView().setModel(new JSONModel({}), "editAppt");
 
             const oODataModel = this.getOwnerComponent().getModel("odata");
             const oListBinding = oODataModel.bindList("/staffs", null, null, null, {
@@ -454,6 +456,76 @@ sap.ui.define([
 
         onClosePopover: function() {
             this.byId("appointmentPopover").close();
+        },
+
+        onEditAppointment: function() {
+            this.byId("appointmentPopover").close();
+
+            // Prende indici e dati dal modello appt
+            const oApptModel = this.getView().getModel("appt");
+            const iDipIdx    = oApptModel.getProperty("/dipIndex");
+            const iShiftIdx  = oApptModel.getProperty("/shiftIdx");
+            const oShift     = this.getView().getModel().getProperty(
+                "/dipendenti/" + iDipIdx + "/shifts/" + iShiftIdx
+            );
+
+            // Popola il modello editAppt con i dati attuali del turno
+            this.getView().getModel("editAppt").setData({
+                id:       oShift.id,
+                type:     oShift.type     || "",
+                startDate: oShift.startDate,
+                endDate:   oShift.endDate,
+                dipIndex: iDipIdx,
+                shiftIdx: iShiftIdx
+            });
+
+            this.byId("editAppointmentDialog").open();
+        },
+
+        onSaveEditAppointment: function() {
+            const oEditModel = this.getView().getModel("editAppt");
+            const sId        = oEditModel.getProperty("/id");
+            const sType      = oEditModel.getProperty("/type");
+            const iDipIdx    = oEditModel.getProperty("/dipIndex");
+            const iShiftIdx  = oEditModel.getProperty("/shiftIdx");
+
+            // Legge le date direttamente dai DateTimePicker
+            const oStart = this.byId("editStartPicker").getDateValue();
+            const oEnd   = this.byId("editEndPicker").getDateValue();
+
+            if (!oStart || !oEnd) {
+                MessageToast.show("Inserisci date valide");
+                return;
+            }
+
+            // Aggiorna il modello locale
+            const oModel = this.getView().getModel();
+            oModel.setProperty("/dipendenti/" + iDipIdx + "/shifts/" + iShiftIdx + "/type",      sType);
+            oModel.setProperty("/dipendenti/" + iDipIdx + "/shifts/" + iShiftIdx + "/startDate", oStart);
+            oModel.setProperty("/dipendenti/" + iDipIdx + "/shifts/" + iShiftIdx + "/endDate",   oEnd);
+            oModel.refresh(true);
+
+            // PATCH al DB
+            fetch("/odata/V4/catalog/appointments(" + sId + ")", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type:      sType,
+                    startDate: this._toLocalISO(oStart),
+                    endDate:   this._toLocalISO(oEnd)
+                })
+            }).then(function(oRes) {
+                if (!oRes.ok) throw new Error("PATCH fallito: " + oRes.status);
+                MessageToast.show("Turno modificato");
+            }).catch(function(oErr) {
+                MessageToast.show("Errore: " + oErr.message);
+            });
+
+            this.byId("editAppointmentDialog").close();
+        },
+
+        onCancelEditAppointment: function() {
+            this.byId("editAppointmentDialog").close();
         },
 
         onDeleteAppointment: function() {
