@@ -128,11 +128,3 @@
 .sapMListTblRow:not(.sapMLIBSelected) .sapUiCalendarRowAppsNoWork, .sapMListTblSubRow:not(.sapMLIBSelected) .sapUiCalendarRowAppsNoWork{
     background-color: #ed6a5a !important;
 }
-
-/* Rimuove l'evidenziazione blu della riga del PlanningCalendar quando si clicca */
-.sapMPlanCalRow.sapMLIBSelected,
-.sapMPlanCalRow.sapMLIBSelected:hover {
-    background-color: transparent !important;
-    outline: none !important;
-    box-shadow: none !important;
-}
