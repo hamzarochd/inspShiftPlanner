@@ -339,11 +339,7 @@ sap.ui.define([
                 MessageToast.show("Errore salvataggio: " + oErr.message);
             });
 
-            this.countConsecutive(false);
-            this.updateUnderstaffing();
-            this.countNonroposoSettimanale(false);
-            //this.onPressRischioSalute();
-
+            this.onAfterModifyData();
         },
 
         // Gestisce la scelta dell'utente nel dialog di sovrapposizione
@@ -587,10 +583,7 @@ sap.ui.define([
                 MessageToast.show("Errore eliminazione: " + oErr.message);
             });
 
-            this.countConsecutive(false);
-            this.updateUnderstaffing();
-            this.countNonroposoSettimanale(false);
-            //this.onPressRischioSalute();
+            this.onAfterModifyData();
         },
 
         onSearch: function() {
@@ -718,22 +711,27 @@ sap.ui.define([
         /////// non più di 6 giorni consecutivi.
 
 
-        onPressRischioSalute: function() {
+        onPressRischioSalute: function(bIsRefreshOnly) {
             const oKpiModel = this.getView().getModel("kpi");
+            let bNewActive;
 
-            const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
-            const bNewActive = !bCurrentlyActive;
-            
-            oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
+            if (bIsRefreshOnly === true) {
 
+                bNewActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
+            } else {
+
+                const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
+                bNewActive = !bCurrentlyActive;
+                oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
+                
+                if (bNewActive) {
+                    MessageToast.show('Evidenziazione rischio salute attiva');
+                } else {
+                    MessageToast.show('Evidenziazione rimossa');
+                }
+            }
 
             this.countConsecutive(bNewActive);
-
-            if (bNewActive) {
-                MessageToast.show('Evidenziazione rischio salute attiva');
-            } else {
-                MessageToast.show('Evidenziazione rimossa');
-            }
         },
 
 
@@ -922,6 +920,24 @@ sap.ui.define([
             oModel.refresh(true);
             
             return iTotViolazioni;
-        }
+        },
+
+
+        onAfterModifyData: function() {
+
+            const oLocalModel = this.getView().getModel();
+
+
+            oLocalModel.refresh(true);
+
+            this.countConsecutive(false);
+            this.updateUnderstaffing();
+            this.countNonroposoSettimanale(false);
+
+
+            this.onPressRischioSalute(true);
+        },
+
+
     });
 });
