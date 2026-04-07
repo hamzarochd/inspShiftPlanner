@@ -92,14 +92,11 @@ sap.ui.define([
                     { "key": "DERM",  "text": "Dermatologia" }
                 ],
                 "TipiTurno": [
-                    { "key": "MATTINO",    "text": "Mattino",    "color": "#1976D2", "title": "Turno Mattino",    "shiftIcon": "sap-icon://appointment-2" },
-                    { "key": "POMERIGGIO", "text": "Pomeriggio", "color": "#EF6C00", "title": "Turno Pomeriggio", "shiftIcon": "sap-icon://appointment-2" },
-                    { "key": "NOTTE",      "text": "Notte",      "color": "#311B92", "title": "Turno Notte",      "shiftIcon": "sap-icon://appointment-2" },
-                    { "key": "SMONTO",     "text": "Smonto",     "color": "#6A1B9A", "title": "Smonto",           "shiftIcon": "" },
-                    { "key": "RIPOSO",     "text": "Riposo",     "color": "#2E7D32", "title": "Riposo",           "shiftIcon": "" },
-                    { "key": "FERIE",      "text": "Ferie",      "color": "#00695C", "title": "Ferie",            "shiftIcon": "" },
-                    { "key": "MALATTIA",   "text": "Malattia",   "color": "#B71C1C", "title": "Malattia",         "shiftIcon": "" },
-                    { "key": "FORMAZIONE", "text": "Formazione", "color": "#F9A825", "title": "Formazione",       "shiftIcon": "" }
+                    { "key": "AFFIANCAMENTO", "text": "Affiancamento", "color": "#0070F2", "title": "Affiancamento", "shiftIcon": "" },
+                    { "key": "DIAGNOSTICA",   "text": "Diagnostica",   "color": "#E76500", "title": "Diagnostica",   "shiftIcon": "" },
+                    { "key": "EMERGENZA",     "text": "Emergenza",     "color": "#D20000", "title": "Emergenza",     "shiftIcon": "" },
+                    { "key": "REPERIBILITA",  "text": "Reperibilità",  "color": "#0A6ED1", "title": "Reperibilità",  "shiftIcon": "" },
+                    { "key": "RIPOSO",        "text": "Riposo",        "color": "#8B8B8B", "title": "Riposo",        "shiftIcon": "" }
                 ],
                 "Dipartimenti": [
                     {
