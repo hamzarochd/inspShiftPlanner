@@ -569,13 +569,32 @@ sap.ui.define([
             const oDip = oModel.getProperty("/dipendenti/" + iDipIdx);
             const oShift = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts/" + iShiftIdx);
 
+            // Trova la prima data libera dopo l'appointment originale
+            const aShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts") || [];
+            const oOccupied = new Set(aShifts.map(function (s) {
+                const d = s.startDate instanceof Date ? s.startDate : new Date(s.startDate);
+                return d.toDateString();
+            }));
+            const oOrigStart = oShift.startDate instanceof Date ? oShift.startDate : new Date(oShift.startDate);
+            const oOrigEnd = oShift.endDate instanceof Date ? oShift.endDate : new Date(oShift.endDate);
+            const iDuration = oOrigEnd.getTime() - oOrigStart.getTime();
+
+            const oCandidate = new Date(oOrigStart);
+            oCandidate.setDate(oCandidate.getDate() + 1);
+            while (oOccupied.has(oCandidate.toDateString())) {
+                oCandidate.setDate(oCandidate.getDate() + 1);
+            }
+            const oFirstAvailStart = new Date(oCandidate);
+            oFirstAvailStart.setHours(oOrigStart.getHours(), oOrigStart.getMinutes(), 0, 0);
+            const oFirstAvailEnd = new Date(oFirstAvailStart.getTime() + iDuration);
+
             this.getView().getModel("dupAppt").setData({
                 type: oShift.type || "",
                 color: oShift.color || "",
                 shiftIcon: oShift.shiftIcon || "",
                 title: oShift.title || "",
-                startDate: oShift.startDate,
-                endDate: oShift.endDate,
+                startDate: oFirstAvailStart,
+                endDate: oFirstAvailEnd,
                 dipIndex: iDipIdx,
                 staffId: oDip.staffId,
                 copies: 1
