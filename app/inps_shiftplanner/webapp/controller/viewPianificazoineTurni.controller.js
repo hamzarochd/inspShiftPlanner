@@ -103,7 +103,7 @@ sap.ui.define([
 
             const oODataModel = this.getOwnerComponent().getModel("odata");
             const oListBinding = oODataModel.bindList("/staffs", null, null, null, {
-                "$expand": "Appointments"
+                "$expand": "Appointments,MemberOf"
             });
 
             oListBinding.requestContexts(0, 9999).then(function (aContexts) {
@@ -123,15 +123,16 @@ sap.ui.define([
                 const nowInner = new Date();
 
                 const aDipendenti = aStaffData.map(function (oStaff) {
+                    const sTeamName = oStaff.MemberOf ? oStaff.MemberOf.Name : "no team";
                     return {
                         staffId: oStaff.ID,
                         name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
                         role: oStaff.Role || "",
-                        department: oStaff.Department || "",
-                        repartoKey: oStaff.RepartoKey || "",
+                        teamName: sTeamName,
+                        //repartoKey: sTeamName,
                         icon: oStaff.icon || "",
                         highlight: false,
-                        teamName: oStaff.MemberOf ? oStaff.MemberOf.Name : "no team",
+                        //teamName: sTeamName,
                         teamID: oStaff.MemberOf ? oStaff.MemberOf.ID : null,
                         shifts: (oStaff.Appointments || []).map(function (oAppt) {
 
@@ -812,7 +813,7 @@ sap.ui.define([
                 aFiltri.push(new Filter("role", FilterOperator.EQ, sRuolo));
             }
             if (sTeam){
-                aFiltri.push(new Filter("department",FilterOperator.EQ,sTeam));
+                aFiltri.push(new Filter("teamName",FilterOperator.EQ,sTeam));
             }
             if (sRepartoAttivita) {
                 aFiltri.push(new Filter({
