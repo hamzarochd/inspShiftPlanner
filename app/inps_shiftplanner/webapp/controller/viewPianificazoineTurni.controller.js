@@ -1092,7 +1092,7 @@ sap.ui.define([
         },
 
 
-        countConsecutive: function (bShouldHighlight) {
+        countConsecutive: function (bShouldHighlight, bSkipDestroy) {
 
             ////// recuperare i modelli::::::
             const oModel = this.getView().getModel();
@@ -1115,7 +1115,7 @@ sap.ui.define([
                 const oRow = aRows[index];
 
 
-                if (oRow) {
+                if (oRow && !bSkipDestroy) {
                     oRow.destroySpecialDates();
                 }
 
@@ -1202,7 +1202,7 @@ sap.ui.define([
             this.countNonroposoSettimanale(bNewActive);
         },
 
-        countNonroposoSettimanale: function (bShouldHighlight) {
+        countNonroposoSettimanale: function (bShouldHighlight, bSkipDestroy) {
             const oModel = this.getView().getModel();
             const oKpiModel = this.getView().getModel("kpi");
             const oCalendar = this.byId("planningCalendar");
@@ -1219,7 +1219,7 @@ sap.ui.define([
                 const oRow = aRows[index];
 
 
-                if (oRow) {
+                if (oRow && !bSkipDestroy) {
                     oRow.destroySpecialDates();
                 }
 
@@ -1295,18 +1295,23 @@ sap.ui.define([
 
         onAfterModifyData: function () {
             const oLocalModel = this.getView().getModel();
-
             oLocalModel.refresh(true);
 
-
-            //// calcoli kpi
-            this.countConsecutive(false);
             this.updateUnderstaffing();
-            this.countNonroposoSettimanale(false);
 
-            //// evidenzia kpi::
-            this.onPressRischioSalute(true);
-            this.onPressMancazaRiposso(true);
+            // Pulizia unica di tutti i specialDates per evitare che le due funzioni si sovrascrivano
+            const oCalendar = this.byId("planningCalendar");
+            if (oCalendar) {
+                oCalendar.getRows().forEach(function (oRow) { oRow.destroySpecialDates(); });
+            }
+
+            const oKpiModel = this.getView().getModel("kpi");
+            const bConsecActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
+            const bRestActive = oKpiModel.getProperty("/showRestHighlight") || false;
+
+            // Entrambe le funzioni applicano i propri highlight senza distruggersi a vicenda
+            this.countConsecutive(bConsecActive, true);
+            this.countNonroposoSettimanale(bRestActive, true);
         },
 
 
