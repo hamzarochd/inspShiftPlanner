@@ -312,11 +312,14 @@ sap.ui.define([
             }).then(function (oRes) {
                 if (!oRes.ok) throw new Error("PATCH fallito: " + oRes.status);
                 MessageToast.show("Turno aggiornato");
+
+                
             }).catch(function (oErr) {
                 MessageToast.show("Errore salvataggio: " + oErr.message);
             });
 
             this.onAfterModifyData();
+
         },
 
         // Gestisce la scelta dell'utente nel dialog di sovrapposizione
@@ -503,6 +506,8 @@ sap.ui.define([
             });
 
             this.byId("editAppointmentDialog").open();
+
+            this.onAfterModifyData();
         },
 
         // Quando l'utente cambia il tipo nel Select, aggiorna colore/icona/titolo
@@ -571,10 +576,14 @@ sap.ui.define([
             });
 
             this.byId("editAppointmentDialog").close();
+
+            this.onAfterModifyData();
         },
 
         onCancelEditAppointment: function () {
             this.byId("editAppointmentDialog").close();
+
+            this.onAfterModifyData();
         },
 
         onDeleteAppointment: function () {
@@ -594,6 +603,9 @@ sap.ui.define([
                 const aShifts = oModel.getProperty("/dipendenti/" + iDipIndex + "/shifts");
                 aShifts.splice(iShiftIdx, 1);
                 oModel.setProperty("/dipendenti/" + iDipIndex + "/shifts", aShifts);
+
+                this.onAfterModifyData();
+
                 oModel.refresh(true);
 
                 this.byId("appointmentPopover").close();
@@ -601,8 +613,6 @@ sap.ui.define([
             }.bind(this)).catch(function (oErr) {
                 MessageToast.show("Errore eliminazione: " + oErr.message);
             });
-
-            this.onAfterModifyData();
         },
 
         // Apre il dialog di creazione quando si clicca su un intervallo vuoto
@@ -705,6 +715,7 @@ sap.ui.define([
             });
 
             this.byId("createAppointmentDialog").close();
+            this.onAfterModifyData();
         },
 
         onCancelNewAppointment: function () {
@@ -804,6 +815,9 @@ sap.ui.define([
                     color: sColor
                 });
                 oModel.setProperty("/dipendenti/" + iDipIdx + "/shifts", aShifts);
+
+                this.onAfterModifyData();
+
                 oModel.refresh(true);
                 MessageToast.show("Turno creato");
             }.bind(this)).catch(function (oErr) {
@@ -811,6 +825,8 @@ sap.ui.define([
             });
 
             this.byId("createAppointmentDialog").close();
+
+
         },
 
         onCancelNewAppointment: function () {
