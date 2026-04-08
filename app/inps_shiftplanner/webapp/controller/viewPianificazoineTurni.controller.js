@@ -68,28 +68,9 @@ sap.ui.define([
                     { "key": "Tecnico sanitario", "text": "Tecnico sanitario" },
                     { "key": "Fisioterapista", "text": "Fisioterapista" },
                     { "key": "Logopedista", "text": "Logopedista" },
-                    { "key": "Supporto esterno", "text": "Supporto esterno" },
-                    { "key": "Coordinatore infermieristico", "text": "Coordinatore infermieristico" },
-                    { "key": "Infermiere", "text": "Infermiere" },
-                    { "key": "Infermiere Terapia Intensiva", "text": "Infermiere Terapia Intensiva" },
-                    { "key": "Operatore Socio Sanitario (OSS)", "text": "Operatore Socio Sanitario (OSS)" },
-                    { "key": "Ausiliario/Barelliere", "text": "Ausiliario/Barelliere" },
-                    { "key": "Medico", "text": "Medico" },
-                    { "key": "Chirurgo", "text": "Chirurgo" },
-                    { "key": "Anestesista", "text": "Anestesista" },
-                    { "key": "Specializzando", "text": "Specializzando" },
-                    { "key": "Strumentista", "text": "Strumentista" },
-                    { "key": "Tecnico sanitario", "text": "Tecnico sanitario" },
-                    { "key": "Fisioterapista", "text": "Fisioterapista" },
-                    { "key": "Logopedista", "text": "Logopedista" },
                     { "key": "Supporto esterno", "text": "Supporto esterno" }
                 ],
                 "Reparti": [
-                    { "key": "EMERGENZA", "text": "Emergenza / PS" },
-                    { "key": "DIAGNOSTICA", "text": "Diagnostica" },
-                    { "key": "AFFIANCAMENTO", "text": "Affiancamento" },
-                    { "key": "REPERIBILITA", "text": "Reperibilità" },
-                    { "key": "RIPOSO", "text": "Riposo" },
                     { "key": "EMERGENZA", "text": "Emergenza / PS" },
                     { "key": "DIAGNOSTICA", "text": "Diagnostica" },
                     { "key": "AFFIANCAMENTO", "text": "Affiancamento" },
@@ -119,6 +100,8 @@ sap.ui.define([
             this.getView().setModel(new JSONModel({}), "editAppt");
             // Modello per il dialog di creazione
             this.getView().setModel(new JSONModel({}), "newAppt");
+            // Modello per il dialog di duplicazione
+            this.getView().setModel(new JSONModel({}), "dupAppt");
 
             const oODataModel = this.getOwnerComponent().getModel("odata");
             const oListBinding = oODataModel.bindList("/staffs", null, null, null, {
@@ -574,6 +557,164 @@ sap.ui.define([
             }.bind(this)).catch(function (oErr) {
                 MessageToast.show("Errore eliminazione: " + oErr.message);
             });
+        },
+
+        onDuplicateAppointment: function () {
+            this.byId("appointmentPopover").close();
+
+            const oApptModel = this.getView().getModel("appt");
+            const iDipIdx = oApptModel.getProperty("/dipIndex");
+            const iShiftIdx = oApptModel.getProperty("/shiftIdx");
+            const oModel = this.getView().getModel();
+            const oDip = oModel.getProperty("/dipendenti/" + iDipIdx);
+            const oShift = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts/" + iShiftIdx);
+
+            // Trova la prima data libera dopo l'appointment originale
+            const aShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts") || [];
+            const oOccupied = new Set(aShifts.map(function (s) {
+                const d = s.startDate instanceof Date ? s.startDate : new Date(s.startDate);
+                return d.toDateString();
+            }));
+            const oOrigStart = oShift.startDate instanceof Date ? oShift.startDate : new Date(oShift.startDate);
+            const oOrigEnd = oShift.endDate instanceof Date ? oShift.endDate : new Date(oShift.endDate);
+            const iDuration = oOrigEnd.getTime() - oOrigStart.getTime();
+
+            const oCandidate = new Date(oOrigStart);
+            oCandidate.setDate(oCandidate.getDate() + 1);
+            while (oOccupied.has(oCandidate.toDateString())) {
+                oCandidate.setDate(oCandidate.getDate() + 1);
+            }
+            const oFirstAvailStart = new Date(oCandidate);
+            oFirstAvailStart.setHours(oOrigStart.getHours(), oOrigStart.getMinutes(), 0, 0);
+            const oFirstAvailEnd = new Date(oFirstAvailStart.getTime() + iDuration);
+
+            this.getView().getModel("dupAppt").setData({
+                type: oShift.type || "",
+                color: oShift.color || "",
+                shiftIcon: oShift.shiftIcon || "",
+                title: oShift.title || "",
+                startDate: oFirstAvailStart,
+                endDate: oFirstAvailEnd,
+                dipIndex: iDipIdx,
+                staffId: oDip.staffId,
+                copies: 1
+            });
+
+            this.byId("duplicateAppointmentDialog").open();
+        },
+
+        onDupTypeChange: function (oEvent) {
+            const sKey = oEvent.getSource().getSelectedKey();
+            const aTipi = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+            const oTipo = aTipi.find(function (t) { return t.key === sKey; });
+            if (!oTipo) return;
+            const oDupModel = this.getView().getModel("dupAppt");
+            oDupModel.setProperty("/color", oTipo.color);
+            oDupModel.setProperty("/shiftIcon", oTipo.shiftIcon);
+            oDupModel.setProperty("/title", oTipo.title);
+        },
+
+        onSaveDuplicateAppointment: function () {
+            const oDupModel = this.getView().getModel("dupAppt");
+            const sType = oDupModel.getProperty("/type");
+            const iDipIdx = oDupModel.getProperty("/dipIndex");
+            const sStaffId = oDupModel.getProperty("/staffId");
+            const nCopies = parseInt(oDupModel.getProperty("/copies")) || 1;
+
+            const aTipi = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+            const oTipo = aTipi.find(function (t) { return t.key === sType; }) || {};
+            const sColor = oTipo.color || oDupModel.getProperty("/color") || "";
+            const sShiftIcon = oTipo.shiftIcon || oDupModel.getProperty("/shiftIcon") || "";
+            const sTitle = oTipo.title || oDupModel.getProperty("/title") || "";
+
+            const oStart = this.byId("dupStartPicker").getDateValue();
+            const oEnd = this.byId("dupEndPicker").getDateValue();
+
+            if (!sType) {
+                MessageToast.show("Seleziona un tipo di turno");
+                return;
+            }
+            if (!oStart || !oEnd) {
+                MessageToast.show("Inserisci date valide");
+                return;
+            }
+
+            const iDuration = oEnd.getTime() - oStart.getTime();
+
+            // Raccoglie i giorni già occupati
+            const oModel = this.getView().getModel();
+            const aShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts") || [];
+            const oOccupied = new Set(aShifts.map(function (s) {
+                const d = s.startDate instanceof Date ? s.startDate : new Date(s.startDate);
+                return d.toDateString();
+            }));
+
+            // Trova le prime N date disponibili a partire da oStart (già prima data libera)
+            const aAvailableDates = [];
+            const oCandidate = new Date(oStart);
+
+            while (aAvailableDates.length < nCopies) {
+                if (!oOccupied.has(oCandidate.toDateString())) {
+                    aAvailableDates.push(new Date(oCandidate));
+                    oOccupied.add(oCandidate.toDateString());
+                }
+                oCandidate.setDate(oCandidate.getDate() + 1);
+            }
+
+            const aPromises = aAvailableDates.map(function (oDate) {
+                const oCopyStart = new Date(oDate);
+                oCopyStart.setHours(oStart.getHours(), oStart.getMinutes(), 0, 0);
+                const oCopyEnd = new Date(oCopyStart.getTime() + iDuration);
+
+                return fetch("/odata/V4/catalog/appointments", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        ID_Utente: sStaffId,
+                        type: sType,
+                        title: sTitle,
+                        color: sColor,
+                        shiftIcon: sShiftIcon,
+                        startDate: this._toLocalISO(oCopyStart),
+                        endDate: this._toLocalISO(oCopyEnd)
+                    })
+                }).then(function (oRes) {
+                    if (!oRes.ok) throw new Error("POST fallito: " + oRes.status);
+                    if (oRes.status === 204) return { ID: "", _start: oCopyStart, _end: oCopyEnd };
+                    return oRes.json().then(function (d) {
+                        d._start = oCopyStart;
+                        d._end = oCopyEnd;
+                        return d;
+                    });
+                });
+            }.bind(this));
+
+            Promise.all(aPromises).then(function (aResults) {
+                const aShiftsNow = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts");
+                aResults.forEach(function (oData) {
+                    aShiftsNow.push({
+                        id: oData.ID || "",
+                        startDate: oData._start,
+                        endDate: oData._end,
+                        title: sTitle,
+                        type: sType,
+                        shiftIcon: sShiftIcon,
+                        color: sColor
+                    });
+                });
+                oModel.setProperty("/dipendenti/" + iDipIdx + "/shifts", aShiftsNow);
+                oModel.refresh(true);
+                this.onAfterModifyData();
+                MessageToast.show(nCopies + " turno/i duplicato/i con successo");
+            }.bind(this)).catch(function (oErr) {
+                MessageToast.show("Errore duplicazione: " + oErr.message);
+            });
+
+            this.byId("duplicateAppointmentDialog").close();
+        },
+
+        onCancelDuplicateAppointment: function () {
+            this.byId("duplicateAppointmentDialog").close();
         },
 
         // Apre il dialog di creazione quando si clicca su un intervallo vuoto

@@ -29,6 +29,7 @@
                     <Toolbar>
                         <Button icon="sap-icon://delete" type="Reject" press="onDeleteAppointment" tooltip="Elimina" />
                         <Button icon="sap-icon://edit" press="onEditAppointment" tooltip="Modifica" />
+                        <Button icon="sap-icon://duplicate" press="onDuplicateAppointment" tooltip="Duplica" />
                         <ToolbarSpacer />
                         <Button icon="sap-icon://decline" press="onClosePopover" tooltip="Chiudi" />
                     </Toolbar>
@@ -67,6 +68,48 @@
                     <Button icon="sap-icon://decline" text="Annulla" press="onCancelEditAppointment" />
                 </endButton>
             </Dialog>
+
+            <Dialog id="duplicateAppointmentDialog" title="Duplica Turno">
+                <content>
+                    <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
+                        <Label text="Tipo turno" design="Bold" />
+                        <Select
+                            selectedKey="{dupAppt>/type}"
+                            change="onDupTypeChange"
+                            width="100%"
+                            class="sapUiTinyMarginBottom"
+                            items="{ruoliModel>/TipiTurno}">
+                            <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+                        </Select>
+                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="dupStartPicker"
+                            dateValue="{dupAppt>/startDate}"
+                            displayFormat="dd/MM/yyyy HH:mm"
+                            class="sapUiTinyMarginBottom" />
+                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="dupEndPicker"
+                            dateValue="{dupAppt>/endDate}"
+                            displayFormat="dd/MM/yyyy HH:mm"
+                            class="sapUiTinyMarginBottom" />
+                        <Label text="Numero di copie" design="Bold" class="sapUiTinyMarginTop" />
+                        <StepInput
+                            value="{dupAppt>/copies}"
+                            min="1"
+                            max="365"
+                            step="1"
+                            width="100%" />
+                    </VBox>
+                </content>
+                <beginButton>
+                    <Button icon="sap-icon://duplicate" text="Duplica" type="Emphasized" press="onSaveDuplicateAppointment" />
+                </beginButton>
+                <endButton>
+                    <Button icon="sap-icon://decline" text="Annulla" press="onCancelDuplicateAppointment" />
+                </endButton>
+            </Dialog>
+
             <Dialog id="createAppointmentDialog" title="Nuovo Turno">
                 <content>
                     <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
