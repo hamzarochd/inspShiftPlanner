@@ -68,7 +68,6 @@
                     <Button icon="sap-icon://decline" text="Annulla" press="onCancelEditAppointment" />
                 </endButton>
             </Dialog>
-<<<<<<< HEAD
 
             <Dialog id="duplicateAppointmentDialog" title="Duplica Turno">
                 <content>
@@ -111,8 +110,6 @@
                 </endButton>
             </Dialog>
 
-=======
->>>>>>> b65133433c83a25d86226acc278ab4b6ca1adc07
             <Dialog id="createAppointmentDialog" title="Nuovo Turno">
                 <content>
                     <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
