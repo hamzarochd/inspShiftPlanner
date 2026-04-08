@@ -649,10 +649,9 @@ sap.ui.define([
                 return d.toDateString();
             }));
 
-            // Trova le prime N date disponibili a partire dal giorno successivo a oStart
+            // Trova le prime N date disponibili a partire da oStart (già prima data libera)
             const aAvailableDates = [];
             const oCandidate = new Date(oStart);
-            oCandidate.setDate(oCandidate.getDate() + 1);
 
             while (aAvailableDates.length < nCopies) {
                 if (!oOccupied.has(oCandidate.toDateString())) {
