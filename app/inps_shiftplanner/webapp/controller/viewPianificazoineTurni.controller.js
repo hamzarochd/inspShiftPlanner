@@ -19,18 +19,10 @@ sap.ui.define([
             // Converte stringhe ISO in UI5Date usando componenti locali
             // per evitare problemi di timezone (es. data spostata di un giorno)
             function toUI5Date(sISO) {
-                if (!sISO) return null;
-                // Legge i componenti direttamente dalla stringa ISO
-                // evitando qualsiasi conversione di fuso orario da parte di new Date()
-                // Funziona sia con "...T00:00:00Z" che senza Z
-                const m = sISO.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
-                if (!m) return null;
+                const d = new Date(sISO);
                 return UI5Date.getInstance(
-                    parseInt(m[1]),       // anno
-                    parseInt(m[2]) - 1,   // mese (0-based)
-                    parseInt(m[3]),       // giorno
-                    parseInt(m[4]),       // ore
-                    parseInt(m[5])        // minuti
+                    d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
+                    d.getUTCHours(), d.getUTCMinutes()
                 );
             }
 
@@ -92,36 +84,20 @@ sap.ui.define([
 
             // Modello per il popover appointment — inizialmente vuoto
             this.getView().setModel(new JSONModel({}), "appt");
-            // Modello per il dialog di modifica
-            this.getView().setModel(new JSONModel({}), "editAppt");
-            // Modello per il dialog di creazione
-            this.getView().setModel(new JSONModel({}), "newAppt");
 
             const oODataModel = this.getOwnerComponent().getModel("odata");
             const oListBinding = oODataModel.bindList("/staffs", null, null, null, {
                 "$expand": "Appointments,MemberOf"
             });
 
-            oListBinding.requestContexts(0, 9999).then(function(aContexts) {
-
-                // Mappa tipo → { shiftIcon, color, title } per derivare icone/colori mancanti
-                const aTipi = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
-                const oTipoMap = {};
-                aTipi.forEach(function(t) { oTipoMap[t.key] = t; });
+            oListBinding.requestContexts(0, 9999).then(function (aContexts) {
 
                 const aStaffData = aContexts.map(oCtx => oCtx.getObject());
-                // DEBUG — rimuovi dopo aver trovato il problema
-                console.log("Staff ricevuti:", aStaffData.length);
-                if (aStaffData[0]) {
-                    console.log("Primo staff ID:", aStaffData[0].ID);
-                    console.log("Appointments del primo staff:", aStaffData[0].Appointments);
-                }
                 const nowInner = new Date();
 
                 const aDipendenti = aStaffData.map(function (oStaff) {
                     const sTeamName = oStaff.MemberOf ? oStaff.MemberOf.Name : "no team";
                     return {
-                        staffId: oStaff.ID,
                         name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
                         role: oStaff.Role || "",
                         department: sTeamName,
@@ -132,13 +108,13 @@ sap.ui.define([
                         teamID: oStaff.MemberOf ? oStaff.MemberOf.ID : null,
                         shifts: (oStaff.Appointments || []).map(function (oAppt) {
                             return {
-                                id:        oAppt.ID,
+                                id: oAppt.ID,
                                 startDate: toUI5Date(oAppt.startDate),
-                                endDate:   toUI5Date(oAppt.endDate),
-                                type:      oAppt.type      || "",
-                                title:     oAppt.title     || oTipo.title     || "",
-                                shiftIcon: oAppt.shiftIcon || oTipo.shiftIcon || "",
-                                color:     oAppt.color     || oTipo.color     || ""
+                                endDate: toUI5Date(oAppt.endDate),
+                                title: oAppt.title || "",
+                                type: oAppt.type || "",
+                                shiftIcon: oAppt.shiftIcon || "",
+                                color: oAppt.color || ""
                             };
                         })
                     };
@@ -161,17 +137,8 @@ sap.ui.define([
                 this.checkLoadedOverlaps();
 
             }.bind(this)).catch(function (oErr) {
-            }.bind(this)).catch(function (oErr) {
                 MessageToast.show("Errore caricamento dati: " + oErr.message);
             });
-        },
-
-        // Formatta una data come stringa ISO locale (senza conversione UTC)
-        // Es: "2024-03-01T00:00:00.000" — il DB salva esattamente quello che vedi
-        _toLocalISO: function (d) {
-            const p = function (n) { return String(n).padStart(2, "0"); };
-            return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) +
-                "T" + p(d.getHours()) + ":" + p(d.getMinutes()) + ":00.000";
         },
 
         // Drag & drop: controlla sovrapposizioni e applica o chiede cosa fare
@@ -195,7 +162,9 @@ sap.ui.define([
             const iDuration = oOldEnd.getTime() - oOldStart.getTime();
             const oNewEnd = new Date(oStartDate.getTime() + iDuration);
 
+            // Indice originale del dipendente (es. da path "/dipendenti/2/shifts/0")
             const iOrigDipIdx = parseInt(oCtx.getPath().split("/")[2]);
+
             const aTargetShifts = aDipendenti[iTargetIndex].shifts;
 
             // Cerca il primo turno che si sovrappone
@@ -205,21 +174,17 @@ sap.ui.define([
             });
 
             if (!oOverlapShift) {
+                // Nessuna sovrapposizione: drop normale
                 this._applyDrop(sApptId, oStartDate, oNewEnd, iTargetIndex);
                 return;
             }
 
+            // Sovrapposizione: salva il contesto e mostra il dialog
             this._oPendingDrop = {
                 sApptId: sApptId,
                 oNewStart: oStartDate,
                 oNewEnd: oNewEnd,
-                sApptId: sApptId,
-                oNewStart: oStartDate,
-                oNewEnd: oNewEnd,
                 iTargetDipIdx: iTargetIndex,
-                iOrigDipIdx: iOrigDipIdx,
-                oOrigStart: oOldStart,
-                oOrigEnd: oOldEnd,
                 iOrigDipIdx: iOrigDipIdx,
                 oOrigStart: oOldStart,
                 oOrigEnd: oOldEnd,
@@ -242,10 +207,6 @@ sap.ui.define([
             const oModel = this.getView().getModel();
             const aShifts = oModel.getProperty("/dipendenti/" + iTargetDipIdx + "/shifts");
             const iShiftIdx = aShifts.findIndex(function (s) { return s.id === sApptId; });
-        _applyDrop: function (sApptId, oNewStart, oNewEnd, iTargetDipIdx) {
-            const oModel = this.getView().getModel();
-            const aShifts = oModel.getProperty("/dipendenti/" + iTargetDipIdx + "/shifts");
-            const iShiftIdx = aShifts.findIndex(function (s) { return s.id === sApptId; });
 
             if (iShiftIdx !== -1) {
                 oModel.setProperty("/dipendenti/" + iTargetDipIdx + "/shifts/" + iShiftIdx + "/startDate", oNewStart);
@@ -256,14 +217,12 @@ sap.ui.define([
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ startDate: oNewStart.toISOString(), endDate: oNewEnd.toISOString() })
-            }).then(function(oRes) {
+            }).then(function (oRes) {
                 if (!oRes.ok) throw new Error("PATCH fallito: " + oRes.status);
                 MessageToast.show("Turno aggiornato");
             }).catch(function (oErr) {
                 MessageToast.show("Errore salvataggio: " + oErr.message);
             });
-
-            this.onAfterModifyData();
         },
 
         // Gestisce la scelta dell'utente nel dialog di sovrapposizione
@@ -275,9 +234,9 @@ sap.ui.define([
             if (sAction === "Sovrascrivi") {
                 // Sposta il turno trascinato nella nuova posizione
                 // ed elimina quello sovrapposto
-                const aShifts     = oModel.getProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts");
-                const iDragIdx    = aShifts.findIndex(function(s) { return s.id === p.sApptId; });
-                const iOverlapIdx = aShifts.findIndex(function(s) { return s.id === p.oOverlapShift.id; });
+                const aShifts = oModel.getProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts");
+                const iDragIdx = aShifts.findIndex(function (s) { return s.id === p.sApptId; });
+                const iOverlapIdx = aShifts.findIndex(function (s) { return s.id === p.oOverlapShift.id; });
 
                 if (iDragIdx !== -1) {
                     oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts/" + iDragIdx + "/startDate", p.oNewStart);
@@ -293,24 +252,24 @@ sap.ui.define([
                     fetch("/odata/V4/catalog/appointments(" + p.sApptId + ")", {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ startDate: this._toLocalISO(p.oNewStart), endDate: this._toLocalISO(p.oNewEnd) })
+                        body: JSON.stringify({ startDate: p.oNewStart.toISOString(), endDate: p.oNewEnd.toISOString() })
                     }),
                     fetch("/odata/V4/catalog/appointments(" + p.oOverlapShift.id + ")", {
                         method: "DELETE"
                     })
-                ]).then(function(aRes) {
-                    if (aRes.some(function(r) { return !r.ok; })) throw new Error("Operazione fallita");
+                ]).then(function (aRes) {
+                    if (aRes.some(function (r) { return !r.ok; })) throw new Error("Operazione fallita");
                     MessageToast.show("Turno spostato, turno sovrapposto eliminato");
-                }).catch(function(oErr) {
+                }).catch(function (oErr) {
                     MessageToast.show("Errore: " + oErr.message);
                 });
 
             } else if (sAction === "Sostituisci") {
                 // Scambia le posizioni: il trascinato va nella nuova posizione,
                 // quello sovrapposto va nella posizione originale del trascinato
-                const aShifts     = oModel.getProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts");
-                const iDragIdx    = aShifts.findIndex(function(s) { return s.id === p.sApptId; });
-                const iOverlapIdx = aShifts.findIndex(function(s) { return s.id === p.oOverlapShift.id; });
+                const aShifts = oModel.getProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts");
+                const iDragIdx = aShifts.findIndex(function (s) { return s.id === p.sApptId; });
+                const iOverlapIdx = aShifts.findIndex(function (s) { return s.id === p.oOverlapShift.id; });
 
                 if (iDragIdx !== -1) {
                     oModel.setProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts/" + iDragIdx + "/startDate", p.oNewStart);
@@ -326,17 +285,17 @@ sap.ui.define([
                     fetch("/odata/V4/catalog/appointments(" + p.sApptId + ")", {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ startDate: this._toLocalISO(p.oNewStart), endDate: this._toLocalISO(p.oNewEnd) })
+                        body: JSON.stringify({ startDate: p.oNewStart.toISOString(), endDate: p.oNewEnd.toISOString() })
                     }),
                     fetch("/odata/V4/catalog/appointments(" + p.oOverlapShift.id + ")", {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ startDate: this._toLocalISO(p.oOrigStart), endDate: this._toLocalISO(p.oOrigEnd) })
+                        body: JSON.stringify({ startDate: p.oOrigStart.toISOString(), endDate: p.oOrigEnd.toISOString() })
                     })
                 ]).then(function (aRes) {
                     if (aRes.some(function (r) { return !r.ok; })) throw new Error("PATCH fallito");
                     MessageToast.show("Turni scambiati");
-                }).catch(function(oErr) {
+                }).catch(function (oErr) {
                     MessageToast.show("Errore: " + oErr.message);
                 });
 
@@ -433,11 +392,11 @@ sap.ui.define([
             this.byId("appointmentPopover").close();
         },
 
-        onDeleteAppointment: function() {
+        onDeleteAppointment: function () {
             const oApptModel = this.getView().getModel("appt");
-            const sId        = oApptModel.getProperty("/id");
-            const iDipIndex  = oApptModel.getProperty("/dipIndex");
-            const iShiftIdx  = oApptModel.getProperty("/shiftIdx");
+            const sId = oApptModel.getProperty("/id");
+            const iDipIndex = oApptModel.getProperty("/dipIndex");
+            const iShiftIdx = oApptModel.getProperty("/shiftIdx");
 
             // DELETE sul DB
             fetch("/odata/V4/catalog/appointments(" + sId + ")", {
@@ -459,11 +418,18 @@ sap.ui.define([
             });
         },
 
-        onSearch: function() {
-            const sRuoloChiave    = this.byId("roleFilterCombo").getSelectedKey();
-            const sDipartimento   = this.byId("Dipartimenti").getSelectedKey();
-            const sRepartoChiave  = this.byId("repartoFilterCombo").getSelectedKey();
+        onAreaChange: function (oEvent) {
+            const sSelectedArea = oEvent.getParamenter("selectedItem")?.getText();
+            const oRepartoCombo = this.byId("repartoFilterCombo");
+            const oBinding = oRepartoCombo.getBinding("item");
 
+            if (!sSelectedArea) {
+
+            }
+
+        },
+
+        onSearch: function () {
             const oCalendar = this.byId("planningCalendar");
             const oBinding = oCalendar.getBinding("rows");
             const aFiltri = [];
@@ -495,7 +461,8 @@ sap.ui.define([
             }
         },
 
-        onResetFilters: function() {
+        onResetFilters: function () {
+            // 1. Pulizia fisica dei campi con ID corretti
             this.byId("roleFilterCombo").setSelectedKey("");
             this.byId("groupFilter").setSelectedKey("");
             this.byId("repartoFilterCombo").setSelectedKey("");
@@ -546,6 +513,10 @@ sap.ui.define([
 
             const aStaff = oModel?.getProperty("/dipendenti") || [];
 
+            /*const oStartDate = oCalendar?.getStartDate() || new Date();
+            const iYear = oStartDate.getFullYear();
+            const iMonth = oStartDate.getMonth();
+            const iDaysInMonth = new Date(iYear, iMonth + 1, 0).getDate();*/
 
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
 
@@ -589,26 +560,25 @@ sap.ui.define([
         },
 
         ////////// per tile Rischio salute:::
-        /////// non più di x giorni consecutivi.
+        /////// non più di 6 giorni consecutivi.
 
 
-        onPressRischioSalute: function() {
+        onPressRischioSalute: function () {
             const oKpiModel = this.getView().getModel("kpi");
-            let bNewActive;
 
             const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
             const bNewActive = !bCurrentlyActive;
-            
+
             oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
 
-                if (bNewActive) {
-                    MessageToast.show('Evidenziazione rischio salute attiva');
-                } else {
-                    MessageToast.show('Evidenziazione rimossa');
-                }
-            }
 
             this.countConsecutive(bNewActive);
+
+            if (bNewActive) {
+                MessageToast.show('Evidenziazione rischio salute attiva');
+            } else {
+                MessageToast.show('Evidenziazione rimossa');
+            }
         },
 
 
@@ -707,17 +677,17 @@ sap.ui.define([
 
         ////// va nell  kpi/personaleSenzaMinimoRiposoCount ---> per default 0;
 
-        onPressMancazaRiposso: function() {
+        onPressMancazaRiposso: function () {
             const oKpiModel = this.getView().getModel("kpi");
 
             const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
             const bNewActive = !bCurrentlyActive;
-            
+
             oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
-            
+
             const TotPersonale = this.countNonroposoSettimanale(bNewActive);
 
-            
+
             //const sStatus = TotPersonale > 0 ? "Error" : "Success";
             //oKpiModel.setProperty("/restStatus", sStatus); 
 
@@ -728,7 +698,7 @@ sap.ui.define([
             }
         },
 
-       
+
 
 
         ////// la funzione da chiamare al interno di onPressMancanzaRiposo
@@ -737,73 +707,65 @@ sap.ui.define([
         countNonroposoSettimanale: function (bShouldHighlight) {
             const oModel = this.getView().getModel();
             const oKpiModel = this.getView().getModel("kpi");
-            const oCalendar = this.byId("planningCalendar");
-
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
 
-            let iTotalViolatingPeople = 0;
+            let iTotViolazioni = 0;
             const aStaff = oModel.getProperty("/dipendenti") || [];
-            const aRows = oCalendar ? oCalendar.getRows() : [];
 
             aStaff.forEach(person => {
                 let bMancaRiposo = false;
-                
+
                 // Estrazione dei giorni di riposo
                 const restDays = {};
                 if (person.shifts) {
                     person.shifts.forEach(shift => {
-                        if (shift.type === "RIPOSO" && shift.startDate) {
-                            const sDate = new Date(shift.startDate).toDateString();
-                            restDays[sDate] = true;
+                        if (shift.type === "RIPOSO" && shift.startDate) { ///// emergenza --> per test
+                            restDays[new Date(shift.startDate).toDateString()] = true;
                         }
                     });
                 }
 
-                ////// trovare la prima settimana intera del mese --> il primo lunedì
+                // Trova il primo lunedì del mese per iniziare il conteggio delle settimane
                 let iStartDay = 1;
-                for (let i = 1; i <= 7; i++) {
-                    let oTempDate = new Date(iYear, iMonth, i);
-                    if (oTempDate.getDay() === 1) {
-                        iStartDay = i;
-                        break;
-                    }
+                while (iStartDay <= iDaysInMonth) {
+                    let oTempDate = new Date(iYear, iMonth, iStartDay);
+                    if (oTempDate.getDay() === 1) break;
+                    iStartDay++;
                 }
 
-                ///// controllare la condizione in base alla settimana. 
+                //////// Ciclo per ogni settimana intera del mese
                 for (let weekStart = iStartDay; weekStart + 6 <= iDaysInMonth; weekStart += 7) {
                     let bHaRiposatoInSettimana = false;
-                    let aCurrentWeekDates = [];
 
+                    //////// Controlla i 7 giorni della settimana corrente
                     for (let d = 0; d < 7; d++) {
-                        let oCheckDate = new Date(iYear, iMonth, weekStart + d);
-                        aCurrentWeekDates.push(new Date(oCheckDate));
-
-                        if (restDays[oCheckDate.toDateString()]) {
+                        let currentCheckDate = new Date(iYear, iMonth, weekStart + d);
+                        if (restDays[currentCheckDate.toDateString()]) {
                             bHaRiposatoInSettimana = true;
-                            break; 
+                            break;
                         }
                     }
 
-                    ////// fuori condizione ?
+                    /////// persona no valida ---> almeno una settimana.
                     if (!bHaRiposatoInSettimana) {
                         bMancaRiposo = true;
-                        break;         
+                        break;
                     }
                 }
 
                 //!!!!!!!Imposta highlight a true se richiesto e se c'è violazione
                 person.highlight = bShouldHighlight && bMancaRiposo;
 
-                if (bPersonViolates) {
-                    iTotalViolatingPeople++;
+                if (bMancaRiposo) {
+                    iTotViolazioni++;
                 }
             });
 
             oKpiModel.setProperty("/personaleSenzaMinimoRiposoCount", iTotViolazioni);
-            
+
 
             oModel.refresh(true);
-            
+
             return iTotViolazioni;
         }
     });
