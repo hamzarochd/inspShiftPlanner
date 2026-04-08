@@ -6,6 +6,8 @@
     xmlns:card="sap.f.cards"
     xmlns:fb="sap.ui.comp.filterbar"
     xmlns:unified="sap.ui.unified">
+    <!-- Aggiunto xmlns:unified per usare CalendarAppointment nel PlanningCalendar -->
+
     <Page id="page">
 
         <dependents>
@@ -65,7 +67,6 @@
                     <Button icon="sap-icon://decline" text="Annulla" press="onCancelEditAppointment" />
                 </endButton>
             </Dialog>
-
             <Dialog id="createAppointmentDialog" title="Nuovo Turno">
                 <content>
                     <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
@@ -113,6 +114,7 @@
                     </f:expandedContent>
                 </f:DynamicPageTitle>
             </f:title>
+
 
             <f:header>
                 <f:DynamicPageHeader pinnable="false">
@@ -172,10 +174,10 @@
                                     </fb:FilterGroupItem>
                                 </fb:filterGroupItems>
                             </fb:FilterBar>
-
                             <HBox
                                 class="sapUiSmallMarginEnd sapUiSmallMarginTop sapUiSmallMarginBottom">
-                                <GenericTile header="Mancanza personale"
+                                <!-- Chenyu KPIS -->
+                                <GenericTile class="" header="Mancanza personale"
                                     frameType="OneByHalf" press="onPressMancanzaPersonale"
                                     wrappingType="Hyphenated">
                                     <TileContent>
@@ -192,6 +194,8 @@
                                     </TileContent>
                                 </GenericTile>
 
+                                <!-- card: avere almeno un giorno di riposto alla settimana-->
+
                                 <GenericTile class="sapUiTinyMarginBegin" header="Mancanza riposo"
                                     frameType="OneByHalf" press="onPressMancazaRiposso"
                                     wrappingType="Hyphenated">
@@ -201,6 +205,8 @@
                                             valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
                                 </GenericTile>
+
+
                             </HBox>
                         </VBox>
                     </f:content>
@@ -241,7 +247,7 @@
                                     <unified:CalendarAppointment
                                         startDate="{startDate}"
                                         endDate="{endDate}"
-                                        icon="{= ${type} === 'AFFIANCAMENTO' ? 'sap-icon://collaborate'   :
+                                        icon="{= ${type} === 'AFFIANCAMENTO' ? 'sap-icon://collaborate'    :
                                                   ${type} === 'DIAGNOSTICA'   ? 'sap-icon://stethoscope'   :
                                                   ${type} === 'EMERGENZA'     ? 'sap-icon://alert'         :
                                                   ${type} === 'REPERIBILITA'  ? 'sap-icon://phone'         :
