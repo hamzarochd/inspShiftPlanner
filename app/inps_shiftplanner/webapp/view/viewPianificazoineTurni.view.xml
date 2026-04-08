@@ -280,12 +280,6 @@
                                 enableAppointmentsResize="false"
                                 selected="false"
                                 appointmentDrop="handleAppointmentDrop">
-                                <customData>
-                                    <core:CustomData
-                                        key="myHighlight"
-                                        value="{= ${highlight} ? 'true' : 'false' }"
-                                        writeToDom="true" />
-                                </customData>
                                 <appointments>
                                     <unified:CalendarAppointment
                                         startDate="{startDate}"
