@@ -620,6 +620,19 @@ sap.ui.define([
                 return;
             }
 
+            // Controlla se esiste già un appuntamento nello stesso giorno
+            const oModel = this.getView().getModel();
+            const aExistingShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts") || [];
+            const sStartDay = oStart.toDateString();
+            const bConflict = aExistingShifts.some(function (oShift) {
+                const oShiftDate = oShift.startDate instanceof Date ? oShift.startDate : new Date(oShift.startDate);
+                return oShiftDate.toDateString() === sStartDay;
+            });
+            if (bConflict) {
+                MessageToast.show("Esiste già un turno in questo giorno");
+                return;
+            }
+
             fetch("/odata/V4/catalog/appointments", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -638,7 +651,6 @@ sap.ui.define([
                 return oRes.status === 204 ? null : oRes.json();
             }).then(function (oData) {
                 const sNewId = oData ? (oData.ID || "") : "";
-                const oModel = this.getView().getModel();
                 const aShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts");
                 aShifts.push({
                     id: sNewId,
@@ -727,6 +739,19 @@ sap.ui.define([
                 return;
             }
 
+            // Controlla se esiste già un appuntamento nello stesso giorno
+            const oModel = this.getView().getModel();
+            const aExistingShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts") || [];
+            const sStartDay = oStart.toDateString();
+            const bConflict = aExistingShifts.some(function (oShift) {
+                const oShiftDate = oShift.startDate instanceof Date ? oShift.startDate : new Date(oShift.startDate);
+                return oShiftDate.toDateString() === sStartDay;
+            });
+            if (bConflict) {
+                MessageToast.show("Esiste già un turno in questo giorno");
+                return;
+            }
+
             fetch("/odata/V4/catalog/appointments", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -745,7 +770,6 @@ sap.ui.define([
                 return oRes.status === 204 ? null : oRes.json();
             }).then(function (oData) {
                 const sNewId = oData ? (oData.ID || "") : "";
-                const oModel = this.getView().getModel();
                 const aShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts");
                 aShifts.push({
                     id: sNewId,
