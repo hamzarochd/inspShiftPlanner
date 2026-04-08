@@ -1,8 +1,9 @@
-<mvc:View
+<mvc:View xmlns:cards="sap.f.cards"
     controllerName="inpsshiftplanner.controller.turnoPersonale"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:f="sap.f"
+    xmlns:l="sap.ui.layout" 
     xmlns:core="sap.ui.core"
     xmlns:unified="sap.ui.unified">
 
@@ -25,26 +26,26 @@
             <VBox class="sapUiMediumMargin">
 
                 <!-- CARD PROFILO -->
-                <Panel class="cardProfile sapUiResponsiveMargin">
+                <f:Card class="cardProfile sapUiMediumMarginBotton"> <!-- Capire sapUiMediumMarginBotton e anche f:card-->
 
-                    <content>
-                        <FlexBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap">
+                    <f:content>
+                        <FlexBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="sapUiMediumMargin"> <!--Capire SapMediumMrgin-->
 
                             <!-- Profilo-->
                             <VBox class="sapUiMediumMarginEnd">
-                                <Avatar initials="MR" displaySize="XL"/>
-                                <Title text="Mario Rossi" class="sapUiSmallMarginTop"/>
+                                <Avatar initials="MR" displaySize="XL" backgroundColor="Accent6"/> <!-- capire "Accent6"-->
+                                <Title text="Mario Rossi" class="sapUiSmallMarginTop" titleStyle="H4"/> <!-- H4?-->
                                 <Text text="Matricola: INF-2458"/>
                             </VBox>
 
                             <!-- INFO -->
-                            <FlexBox wrap="Wrap" width="600px" justifyContent="SpaceBetween">
+                            <FlexBox wrap="Wrap" width="70%" justifyContent="SpaceBetween"> <!-- Cambiato width-->
 
                                 <HBox class="infoItem">
                                     <core:Icon src="sap-icon://briefcase" class="icon blue"/>
                                     <VBox>
                                         <Text text="RUOLO" class="label"/>
-                                        <Text text="Infermiere" class="value"/>
+                                        <Text text="Infermiere" class="value"/> <!-- da cambiare funzione text più avanti, collegandolo al db-->
                                     </VBox>
                                 </HBox>
 
@@ -87,20 +88,82 @@
                                         <ObjectStatus text="Attivo" state="Success"/>
                                     </VBox>
                                 </HBox>
-
                             </FlexBox>
+                        </FlexBox>
+                    </f:content>
+                </f:Card>
+
+                <!--Card Gruppo-->
+                <f:Card class="sapUiMediumMarginBottom cardProfile">
+                    <f:header>
+                        <cards:Header
+                        title="Team A- Terapia Intensiva"
+                        subtitle="6 membri-Coordinatore :"
+                        iconSrc="sap-icon://group-2"/>
+                    </f:header>
+
+                    <f:content>
+                        <FlexBox  wrap="Wrap"  justifyContent="Start" class="sapUiSmallMargin">
+                          <HBox class ="teamMemberCard currentMember">
+                                <Avatar initials="MR" displaySize="S" class="sapUiTinyMarginEnd"/>
+                                <VBox >
+                                <HBox  alignItems="Center">
+                                    <Title text="Mario Rossi" class="value"/>
+                                    <ObjectStatus text="Tu" state="Information"  class="sapUiTinyMarginBegin"/>
+                                </HBox>
+                                <Text  text="Cordinatore" class="label"/>
+                            </VBox>
+                           </HBox>
+
+                           <HBox class ="teamMemberCard ">
+                                <Avatar initials="GV" displaySize="S" class="sapUiTinyMarginEnd"/>
+                                <VBox>
+                                    <Text text="Giulia Verdi" class="value"/>
+                                    <Text text="Infermiera"  class="label"/>
+                                </VBox>
+                             </HBox>
+
+                            <HBox class ="teamMemberCard ">
+                                <Avatar initials="PN" displaySize="S" class="sapUiTinyMarginEnd"/>
+                                <VBox>
+                                    <Text text="Paolo Neri" class="value"/>
+                                    <Text text="Infermiere"  class="label"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox class ="teamMemberCard ">
+                                <Avatar initials="SG" displaySize="S" class="sapUiTinyMarginEnd"/>
+                                <VBox>
+                                    <Text text="Sara Gialli" class="value"/>
+                                    <Text text="OSS"  class="label"/>
+                                </VBox>
+                            </HBox>
+
+                           <HBox class ="teamMemberCard ">
+                                <Avatar initials="MB" displaySize="S" class="sapUiTinyMarginEnd"/>
+                                <VBox>
+                                    <Text text="Marco Blu" class="value"/>
+                                    <Text text="OSS"  class="label"/>
+                                </VBox>
+                            </HBox>
+                            <HBox class ="teamMemberCard ">
+                                <Avatar initials="EB" displaySize="S" class="sapUiTinyMarginEnd"/>
+                                <VBox>
+                                    <Text text="Elena Bianchi" class="value"/>
+                                    <Text text="Medico Specializzando"  class="label"/>
+                                </VBox>
+                            </HBox>
 
                         </FlexBox>
-                    </content>
-
-                </Panel>
+                    </f:content>
+                </f:Card>
 
                 <!-- KPI -->
-                <FlexBox wrap="Wrap" justifyContent="Center" alignItems="Stretch"> 
+                <FlexBox wrap="Wrap" justifyContent="SpaceBetween" class="sapUiSmallMargin"> 
 
                     <!-- Ore -->
-                    <VBox class="kpiCard blue">
-                        <HBox alignItems="Center">
+                    <VBox class="kpiCard blue>Card">
+                        <HBox alignItems="Center" class="sapUiSmallMarginBottom">
                             <core:Icon src="sap-icon://history" class="kpiIcon"/>
                             <Title text="Ore Lavorate (Marzo)"/>
                         </HBox>
@@ -133,7 +196,7 @@
                             <Title text="Ferie e Recuperi"/>
                         </HBox>
 
-                        <FlexBox wrap="Wrap" width="600px" justifyContent="SpaceBetween">
+                        <FlexBox wrap="Wrap" width="600px" justifyContent="SpaceBetween"> <!--Simple form-->
                          <HBox  justifyContent="SpaceBetween" width="55%">
                             <VBox >
                             <Title text="Ferie residue"/>

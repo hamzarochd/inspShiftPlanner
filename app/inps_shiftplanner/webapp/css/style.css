@@ -135,3 +135,39 @@
     background-image: none !important;
     opacity: 1 !important;
 }
+
+/*Parte nuova
+
+/* Questa classe crea l'effetto "Card" bianca e definisce la larghezza */
+.teamMemberCard {
+    /* Fondamentale: 33% per averne 3 per riga, meno i margini */
+    width: calc(33% - 1rem); 
+    min-width: 250px; /* Evita che si schiaccino troppo */
+    
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 0.5rem; /* Spazio tra una card e l'altra */
+    
+    display: flex; /* Allinea Avatar e Testo orizzontalmente */
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Effetto profondità */
+}
+
+/* Colore speciale per la tua card */
+.currentMember {
+    background: #eff6ff !important;
+    border-color: #3b82f6 !important;
+}
+
+/* Stile per i testi dentro la card */
+.value {
+    font-size: 1rem !important;
+    font-weight: bold !important;
+}
+
+.label {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
