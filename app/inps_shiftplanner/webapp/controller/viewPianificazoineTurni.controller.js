@@ -69,8 +69,27 @@ sap.ui.define([
                     { "key": "Fisioterapista", "text": "Fisioterapista" },
                     { "key": "Logopedista", "text": "Logopedista" },
                     { "key": "Supporto esterno", "text": "Supporto esterno" }
+                    { "key": "Coordinatore infermieristico", "text": "Coordinatore infermieristico" },
+                    { "key": "Infermiere", "text": "Infermiere" },
+                    { "key": "Infermiere Terapia Intensiva", "text": "Infermiere Terapia Intensiva" },
+                    { "key": "Operatore Socio Sanitario (OSS)", "text": "Operatore Socio Sanitario (OSS)" },
+                    { "key": "Ausiliario/Barelliere", "text": "Ausiliario/Barelliere" },
+                    { "key": "Medico", "text": "Medico" },
+                    { "key": "Chirurgo", "text": "Chirurgo" },
+                    { "key": "Anestesista", "text": "Anestesista" },
+                    { "key": "Specializzando", "text": "Specializzando" },
+                    { "key": "Strumentista", "text": "Strumentista" },
+                    { "key": "Tecnico sanitario", "text": "Tecnico sanitario" },
+                    { "key": "Fisioterapista", "text": "Fisioterapista" },
+                    { "key": "Logopedista", "text": "Logopedista" },
+                    { "key": "Supporto esterno", "text": "Supporto esterno" }
                 ],
                 "Reparti": [
+                    { "key": "EMERGENZA", "text": "Emergenza / PS" },
+                    { "key": "DIAGNOSTICA", "text": "Diagnostica" },
+                    { "key": "AFFIANCAMENTO", "text": "Affiancamento" },
+                    { "key": "REPERIBILITA", "text": "Reperibilità" },
+                    { "key": "RIPOSO", "text": "Riposo" }
                     { "key": "EMERGENZA", "text": "Emergenza / PS" },
                     { "key": "DIAGNOSTICA", "text": "Diagnostica" },
                     { "key": "AFFIANCAMENTO", "text": "Affiancamento" },
@@ -84,6 +103,12 @@ sap.ui.define([
                     { "key": "REPERIBILITA", "text": "Reperibilità", "color": "#0A6ED1", "title": "Reperibilità", "shiftIcon": "" },
                     { "key": "RIPOSO", "text": "Riposo", "color": "#8B8B8B", "title": "Riposo", "shiftIcon": "" }
                 ],
+                "TeamFiltro": [
+                    { "key": "Pronto Soccorso", "text": "Pronto Soccorso" },
+                    { "key": "Terapia Intensiva", "text": "Terapia Intensiva" },
+                    { "key": "Medicina Generale", "text": "Medicina Generale" },
+                    { "key": "Chirurgia", "text": "Chirurgia" },
+                    { "key": "Sala Operatoria", "text": "Sala Operatoria" }
                 "TeamFiltro": [
                     { "key": "Pronto Soccorso", "text": "Pronto Soccorso" },
                     { "key": "Terapia Intensiva", "text": "Terapia Intensiva" },
