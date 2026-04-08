@@ -1,5 +1,3 @@
-
-
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
@@ -19,10 +17,18 @@ sap.ui.define([
             // Converte stringhe ISO in UI5Date usando componenti locali
             // per evitare problemi di timezone (es. data spostata di un giorno)
             function toUI5Date(sISO) {
-                const d = new Date(sISO);
+                if (!sISO) return null;
+                // Legge i componenti direttamente dalla stringa ISO
+                // evitando qualsiasi conversione di fuso orario da parte di new Date()
+                // Funziona sia con "...T00:00:00Z" che senza Z
+                const m = sISO.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+                if (!m) return null;
                 return UI5Date.getInstance(
-                    d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
-                    d.getUTCHours(), d.getUTCMinutes()
+                    parseInt(m[1]),       // anno
+                    parseInt(m[2]) - 1,   // mese (0-based)
+                    parseInt(m[3]),       // giorno
+                    parseInt(m[4]),       // ore
+                    parseInt(m[5])        // minuti
                 );
             }
 
@@ -48,73 +54,156 @@ sap.ui.define([
 
             // Modello Dipartimenti e Ruoli
             var setRuoli = {
-    "RuoliCollezione": [
-        { "key": "Coordinatore infermieristico", "text": "Coordinatore infermieristico" },
-        { "key": "Infermiere", "text": "Infermiere" },
-        { "key": "Infermiere Terapia Intensiva", "text": "Infermiere Terapia Intensiva" },
-        { "key": "Operatore Socio Sanitario (OSS)", "text": "Operatore Socio Sanitario (OSS)" },
-        { "key": "Ausiliario/Barelliere", "text": "Ausiliario/Barelliere" },
-        { "key": "Medico", "text": "Medico" },
-        { "key": "Chirurgo", "text": "Chirurgo" },
-        { "key": "Anestesista", "text": "Anestesista" },
-        { "key": "Specializzando", "text": "Specializzando" },
-        { "key": "Strumentista", "text": "Strumentista" },
-        { "key": "Tecnico sanitario", "text": "Tecnico sanitario" },
-        { "key": "Fisioterapista", "text": "Fisioterapista" },
-        { "key": "Logopedista", "text": "Logopedista" },
-        { "key": "Supporto esterno", "text": "Supporto esterno" }
-    ],
-    "Reparti": [
-        { "key": "EMERGENZA", "text": "Emergenza / PS" },
-        { "key": "DIAGNOSTICA", "text": "Diagnostica" },
-        { "key": "AFFIANCAMENTO", "text": "Affiancamento" },
-        { "key": "REPERIBILITA", "text": "Reperibilità" },
-        { "key": "RIPOSO", "text": "Riposo" }
-    ],
-    "TeamFiltro": [
-        { "key": "Pronto Soccorso", "text": "Pronto Soccorso" },
-        { "key": "Terapia Intensiva", "text": "Terapia Intensiva" },
-        { "key": "Medicina Generale", "text": "Medicina Generale" },
-        { "key": "Chirurgia", "text": "Chirurgia" },
-        { "key": "Sala Operatoria", "text": "Sala Operatoria" }
-    ]
-};
-            
+                "RuoliCollezione": [
+                    { "key": "COORD", "text": "Coordinatore infermieristico" },
+                    { "key": "INF", "text": "Infermiere" },
+                    { "key": "INF_TI", "text": "Infermiere Terapia Intensiva" },
+                    { "key": "OSS", "text": "Operatore Socio Sanitario (OSS)" },
+                    { "key": "AUS", "text": "Ausiliario/Barelliere" },
+                    { "key": "MED", "text": "Medico" },
+                    { "key": "CHIR", "text": "Chirurgo" },
+                    { "key": "ANES", "text": "Anestesista" },
+                    { "key": "SPEC", "text": "Specializzando" },
+                    { "key": "STRUM", "text": "Strumentista" },
+                    { "key": "TEC", "text": "Tecnico sanitario" },
+                    { "key": "FISI", "text": "Fisioterapista" },
+                    { "key": "LOGO", "text": "Logopedista" },
+                    { "key": "SUP", "text": "Supporto esterno" }
+                ],
+                "Reparti": [
+                    { "key": "PS", "text": "Pronto Soccorso" },
+                    { "key": "TI", "text": "Terapia Intensiva" },
+                    { "key": "MED", "text": "Medicina Generale" },
+                    { "key": "CHIR", "text": "Chirurgia" },
+                    { "key": "SO", "text": "Sala Operatoria" },
+                    { "key": "RAD", "text": "Radiologia" },
+                    { "key": "LAB", "text": "Laboratorio Analisi" },
+                    { "key": "RIAB", "text": "Riabilitazione" },
+                    { "key": "AMB", "text": "Ambulatorio" },
+                    { "key": "DIR", "text": "Direzione Sanitaria" },
+                    { "key": "CARD", "text": "Cardiologia" },
+                    { "key": "ORT", "text": "Ortopedia" },
+                    { "key": "PED", "text": "Pediatria" },
+                    { "key": "GINE", "text": "Ginecologia" },
+                    { "key": "NEURO", "text": "Neurologia" },
+                    { "key": "ONCO", "text": "Oncologia" },
+                    { "key": "URO", "text": "Urologia" },
+                    { "key": "PSI", "text": "Psichiatria" },
+                    { "key": "DERM", "text": "Dermatologia" }
+                ],
+                "TipiTurno": [
+                    { "key": "AFFIANCAMENTO", "text": "Affiancamento", "color": "#0070F2", "title": "Affiancamento", "shiftIcon": "" },
+                    { "key": "DIAGNOSTICA", "text": "Diagnostica", "color": "#E76500", "title": "Diagnostica", "shiftIcon": "" },
+                    { "key": "EMERGENZA", "text": "Emergenza", "color": "#D20000", "title": "Emergenza", "shiftIcon": "" },
+                    { "key": "REPERIBILITA", "text": "Reperibilità", "color": "#0A6ED1", "title": "Reperibilità", "shiftIcon": "" },
+                    { "key": "RIPOSO", "text": "Riposo", "color": "#8B8B8B", "title": "Riposo", "shiftIcon": "" }
+                ],
+                "Dipartimenti": [
+                    {
+                        "Dipartimento": "Emergenza-Urgenza e Area Critica",
+                        "reparti": [
+                            { "key": "PS", "text": "Pronto Soccorso e OBI" },
+                            { "key": "TI", "text": "Terapia Intensiva e Rianimazione" },
+                            { "key": "118", "text": "Centrale Operativa 118" }
+                        ]
+                    },
+                    {
+                        "Dipartimento": "Dipartimento di Chirurgia",
+                        "reparti": [
+                            { "key": "CHIR", "text": "Chirurgia Generale" },
+                            { "key": "SO", "text": "Blocco Operatorio" },
+                            { "key": "URO", "text": "Urologia" },
+                            { "key": "ORT", "text": "Ortopedia e Traumatologia" }
+                        ]
+                    },
+                    {
+                        "Dipartimento": "Dipartimento di Medicina Specialistica",
+                        "reparti": [
+                            { "key": "MED", "text": "Medicina Interna" },
+                            { "key": "CARD", "text": "Cardiologia e UTIC" },
+                            { "key": "NEURO", "text": "Neurologia" },
+                            { "key": "ONCO", "text": "Oncologia Medica" },
+                            { "key": "DERM", "text": "Dermatologia" }
+                        ]
+                    },
+                    {
+                        "Dipartimento": "Dipartimento Materno-Infantile",
+                        "reparti": [
+                            { "key": "PED", "text": "Pediatria e Neonatologia" },
+                            { "key": "GINE", "text": "Ostetricia e Ginecologia" }
+                        ]
+                    },
+                    {
+                        "Dipartimento": "Servizi Diagnostici e Riabilitazione",
+                        "reparti": [
+                            { "key": "RAD", "text": "Radiologia e Imaging" },
+                            { "key": "LAB", "text": "Laboratorio Analisi" },
+                            { "key": "RIAB", "text": "Medicina Riabilitativa" },
+                            { "key": "AMB", "text": "Poliambulatorio" }
+                        ]
+                    },
+                    {
+                        "Dipartimento": "Salute Mentale e Direzione",
+                        "reparti": [
+                            { "key": "PSI", "text": "Psichiatria (SPDC)" },
+                            { "key": "DIR", "text": "Direzione Sanitaria" }
+                        ]
+                    }
+                ]
+            };
             this.getView().setModel(new JSONModel(setRuoli), "ruoliModel");
 
             // Modello per il popover appointment — inizialmente vuoto
             this.getView().setModel(new JSONModel({}), "appt");
+            // Modello per il dialog di modifica
+            this.getView().setModel(new JSONModel({}), "editAppt");
+            // Modello per il dialog di creazione
+            this.getView().setModel(new JSONModel({}), "newAppt");
 
             const oODataModel = this.getOwnerComponent().getModel("odata");
             const oListBinding = oODataModel.bindList("/staffs", null, null, null, {
-                "$expand": "Appointments,MemberOf"
+                "$expand": "Appointments"
             });
 
             oListBinding.requestContexts(0, 9999).then(function (aContexts) {
 
+                // Mappa tipo → { shiftIcon, color, title } per derivare icone/colori mancanti
+                const aTipi = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+                const oTipoMap = {};
+                aTipi.forEach(function (t) { oTipoMap[t.key] = t; });
+
                 const aStaffData = aContexts.map(oCtx => oCtx.getObject());
+                // DEBUG — rimuovi dopo aver trovato il problema
+                console.log("Staff ricevuti:", aStaffData.length);
+                if (aStaffData[0]) {
+                    console.log("Primo staff ID:", aStaffData[0].ID);
+                    console.log("Appointments del primo staff:", aStaffData[0].Appointments);
+                }
                 const nowInner = new Date();
 
                 const aDipendenti = aStaffData.map(function (oStaff) {
-                    const sTeamName = oStaff.MemberOf ? oStaff.MemberOf.Name : "no team";
                     return {
+                        staffId: oStaff.ID,
                         name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
                         role: oStaff.Role || "",
-                        department: sTeamName,
-                        repartoKey: sTeamName,
+                        department: oStaff.Department || "",
+                        repartoKey: oStaff.RepartoKey || "",
                         icon: oStaff.icon || "",
                         highlight: false,
-                        teamName: sTeamName,
+                        teamName: oStaff.MemberOf ? oStaff.MemberOf.Name : "no team",
                         teamID: oStaff.MemberOf ? oStaff.MemberOf.ID : null,
                         shifts: (oStaff.Appointments || []).map(function (oAppt) {
+
+                            const oTipoConfig = oTipoMap[oAppt.type] || {};
+
                             return {
                                 id: oAppt.ID,
                                 startDate: toUI5Date(oAppt.startDate),
                                 endDate: toUI5Date(oAppt.endDate),
-                                title: oAppt.title || "",
                                 type: oAppt.type || "",
-                                shiftIcon: oAppt.shiftIcon || "",
-                                color: oAppt.color || ""
+                                title: oAppt.title || oTipoConfig.title || "",
+                                shiftIcon: oAppt.shiftIcon || oTipoConfig.shiftIcon || "",
+                                color: oAppt.color || oTipoConfig.color || ""
                             };
                         })
                     };
@@ -141,6 +230,14 @@ sap.ui.define([
             });
         },
 
+        // Formatta una data come stringa ISO locale (senza conversione UTC)
+        // Es: "2024-03-01T00:00:00.000" — il DB salva esattamente quello che vedi
+        _toLocalISO: function (d) {
+            const p = function (n) { return String(n).padStart(2, "0"); };
+            return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) +
+                "T" + p(d.getHours()) + ":" + p(d.getMinutes()) + ":00.000";
+        },
+
         // Drag & drop: controlla sovrapposizioni e applica o chiede cosa fare
         handleAppointmentDrop: function (oEvent) {
             const oAppointment = oEvent.getParameter("appointment");
@@ -162,24 +259,19 @@ sap.ui.define([
             const iDuration = oOldEnd.getTime() - oOldStart.getTime();
             const oNewEnd = new Date(oStartDate.getTime() + iDuration);
 
-            // Indice originale del dipendente (es. da path "/dipendenti/2/shifts/0")
             const iOrigDipIdx = parseInt(oCtx.getPath().split("/")[2]);
-
             const aTargetShifts = aDipendenti[iTargetIndex].shifts;
 
-            // Cerca il primo turno che si sovrappone
             const oOverlapShift = aTargetShifts.find(function (oShift) {
                 if (oShift.id === sApptId) return false;
                 return oStartDate < oShift.endDate && oNewEnd > oShift.startDate;
             });
 
             if (!oOverlapShift) {
-                // Nessuna sovrapposizione: drop normale
                 this._applyDrop(sApptId, oStartDate, oNewEnd, iTargetIndex);
                 return;
             }
 
-            // Sovrapposizione: salva il contesto e mostra il dialog
             this._oPendingDrop = {
                 sApptId: sApptId,
                 oNewStart: oStartDate,
@@ -216,13 +308,15 @@ sap.ui.define([
             fetch("/odata/V4/catalog/appointments(" + sApptId + ")", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ startDate: oNewStart.toISOString(), endDate: oNewEnd.toISOString() })
+                body: JSON.stringify({ startDate: this._toLocalISO(oNewStart), endDate: this._toLocalISO(oNewEnd) })
             }).then(function (oRes) {
                 if (!oRes.ok) throw new Error("PATCH fallito: " + oRes.status);
                 MessageToast.show("Turno aggiornato");
             }).catch(function (oErr) {
                 MessageToast.show("Errore salvataggio: " + oErr.message);
             });
+
+            this.onAfterModifyData();
         },
 
         // Gestisce la scelta dell'utente nel dialog di sovrapposizione
@@ -232,8 +326,7 @@ sap.ui.define([
             if (!p) return;
 
             if (sAction === "Sovrascrivi") {
-                // Sposta il turno trascinato nella nuova posizione
-                // ed elimina quello sovrapposto
+                // Sposta il turno trascinato nella nuova posizione ed elimina quello sovrapposto
                 const aShifts = oModel.getProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts");
                 const iDragIdx = aShifts.findIndex(function (s) { return s.id === p.sApptId; });
                 const iOverlapIdx = aShifts.findIndex(function (s) { return s.id === p.oOverlapShift.id; });
@@ -252,21 +345,16 @@ sap.ui.define([
                     fetch("/odata/V4/catalog/appointments(" + p.sApptId + ")", {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ startDate: p.oNewStart.toISOString(), endDate: p.oNewEnd.toISOString() })
+                        body: JSON.stringify({ startDate: this._toLocalISO(p.oNewStart), endDate: this._toLocalISO(p.oNewEnd) })
                     }),
-                    fetch("/odata/V4/catalog/appointments(" + p.oOverlapShift.id + ")", {
-                        method: "DELETE"
-                    })
+                    fetch("/odata/V4/catalog/appointments(" + p.oOverlapShift.id + ")", { method: "DELETE" })
                 ]).then(function (aRes) {
                     if (aRes.some(function (r) { return !r.ok; })) throw new Error("Operazione fallita");
                     MessageToast.show("Turno spostato, turno sovrapposto eliminato");
-                }).catch(function (oErr) {
-                    MessageToast.show("Errore: " + oErr.message);
-                });
+                }).catch(function (oErr) { MessageToast.show("Errore: " + oErr.message); });
 
             } else if (sAction === "Sostituisci") {
-                // Scambia le posizioni: il trascinato va nella nuova posizione,
-                // quello sovrapposto va nella posizione originale del trascinato
+                // Scambia le posizioni dei due turni
                 const aShifts = oModel.getProperty("/dipendenti/" + p.iTargetDipIdx + "/shifts");
                 const iDragIdx = aShifts.findIndex(function (s) { return s.id === p.sApptId; });
                 const iOverlapIdx = aShifts.findIndex(function (s) { return s.id === p.oOverlapShift.id; });
@@ -285,19 +373,17 @@ sap.ui.define([
                     fetch("/odata/V4/catalog/appointments(" + p.sApptId + ")", {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ startDate: p.oNewStart.toISOString(), endDate: p.oNewEnd.toISOString() })
+                        body: JSON.stringify({ startDate: this._toLocalISO(p.oNewStart), endDate: this._toLocalISO(p.oNewEnd) })
                     }),
                     fetch("/odata/V4/catalog/appointments(" + p.oOverlapShift.id + ")", {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ startDate: p.oOrigStart.toISOString(), endDate: p.oOrigEnd.toISOString() })
+                        body: JSON.stringify({ startDate: this._toLocalISO(p.oOrigStart), endDate: this._toLocalISO(p.oOrigEnd) })
                     })
                 ]).then(function (aRes) {
                     if (aRes.some(function (r) { return !r.ok; })) throw new Error("PATCH fallito");
                     MessageToast.show("Turni scambiati");
-                }).catch(function (oErr) {
-                    MessageToast.show("Errore: " + oErr.message);
-                });
+                }).catch(function (oErr) { MessageToast.show("Errore: " + oErr.message); });
 
             } else {
                 // Cancella: ripristina lo stato visivo senza modifiche
@@ -392,6 +478,105 @@ sap.ui.define([
             this.byId("appointmentPopover").close();
         },
 
+        onEditAppointment: function () {
+            this.byId("appointmentPopover").close();
+
+            // Prende indici e dati dal modello appt
+            const oApptModel = this.getView().getModel("appt");
+            const iDipIdx = oApptModel.getProperty("/dipIndex");
+            const iShiftIdx = oApptModel.getProperty("/shiftIdx");
+            const oShift = this.getView().getModel().getProperty(
+                "/dipendenti/" + iDipIdx + "/shifts/" + iShiftIdx
+            );
+
+            // Popola il modello editAppt con i dati attuali del turno
+            this.getView().getModel("editAppt").setData({
+                id: oShift.id,
+                type: oShift.type || "",
+                color: oShift.color || "",
+                shiftIcon: oShift.shiftIcon || "",
+                title: oShift.title || "",
+                startDate: oShift.startDate,
+                endDate: oShift.endDate,
+                dipIndex: iDipIdx,
+                shiftIdx: iShiftIdx
+            });
+
+            this.byId("editAppointmentDialog").open();
+        },
+
+        // Quando l'utente cambia il tipo nel Select, aggiorna colore/icona/titolo
+        onEditTypeChange: function (oEvent) {
+            const sKey = oEvent.getSource().getSelectedKey();
+            const aTipi = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+            const oTipo = aTipi.find(function (t) { return t.key === sKey; });
+            if (!oTipo) return;
+
+            const oEditModel = this.getView().getModel("editAppt");
+            oEditModel.setProperty("/color", oTipo.color);
+            oEditModel.setProperty("/shiftIcon", oTipo.shiftIcon);
+            oEditModel.setProperty("/title", oTipo.title);
+        },
+
+        onSaveEditAppointment: function () {
+            const oEditModel = this.getView().getModel("editAppt");
+            const sId = oEditModel.getProperty("/id");
+            const sType = oEditModel.getProperty("/type");
+
+            // Ricava sempre icona/colore/titolo dalla mappa TipiTurno (fonte di verità)
+            const aTipiEdit = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+            const oTipoEdit = aTipiEdit.find(function (t) { return t.key === sType; }) || {};
+            const sColor = oTipoEdit.color || oEditModel.getProperty("/color") || "";
+            const sShiftIcon = oTipoEdit.shiftIcon || oEditModel.getProperty("/shiftIcon") || "";
+            const sTitle = oTipoEdit.title || oEditModel.getProperty("/title") || "";
+            const iDipIdx = oEditModel.getProperty("/dipIndex");
+            const iShiftIdx = oEditModel.getProperty("/shiftIdx");
+
+            const oStart = this.byId("editStartPicker").getDateValue();
+            const oEnd = this.byId("editEndPicker").getDateValue();
+
+            if (!oStart || !oEnd) {
+                MessageToast.show("Inserisci date valide");
+                return;
+            }
+
+            // Aggiorna il modello locale — il calendario si aggiorna subito
+            const oModel = this.getView().getModel();
+            const sBase = "/dipendenti/" + iDipIdx + "/shifts/" + iShiftIdx;
+            oModel.setProperty(sBase + "/type", sType);
+            oModel.setProperty(sBase + "/color", sColor);
+            oModel.setProperty(sBase + "/shiftIcon", sShiftIcon);
+            oModel.setProperty(sBase + "/title", sTitle);
+            oModel.setProperty(sBase + "/startDate", oStart);
+            oModel.setProperty(sBase + "/endDate", oEnd);
+            oModel.refresh(true);
+
+            // PATCH al DB
+            fetch("/odata/V4/catalog/appointments(" + sId + ")", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: sType,
+                    color: sColor,
+                    shiftIcon: sShiftIcon,
+                    title: sTitle,
+                    startDate: this._toLocalISO(oStart),
+                    endDate: this._toLocalISO(oEnd)
+                })
+            }).then(function (oRes) {
+                if (!oRes.ok) throw new Error("PATCH fallito: " + oRes.status);
+                MessageToast.show("Turno modificato");
+            }).catch(function (oErr) {
+                MessageToast.show("Errore: " + oErr.message);
+            });
+
+            this.byId("editAppointmentDialog").close();
+        },
+
+        onCancelEditAppointment: function () {
+            this.byId("editAppointmentDialog").close();
+        },
+
         onDeleteAppointment: function () {
             const oApptModel = this.getView().getModel("appt");
             const sId = oApptModel.getProperty("/id");
@@ -416,58 +601,252 @@ sap.ui.define([
             }.bind(this)).catch(function (oErr) {
                 MessageToast.show("Errore eliminazione: " + oErr.message);
             });
+
+            this.onAfterModifyData();
         },
 
-        onAreaChange: function (oEvent) {
-            const sSelectedArea = oEvent.getParamenter("selectedItem")?.getText();
-            const oRepartoCombo = this.byId("repartoFilterCombo");
-            const oBinding = oRepartoCombo.getBinding("item");
+        // Apre il dialog di creazione quando si clicca su un intervallo vuoto
+        onIntervalSelect: function (oEvent) {
+            const oStartDate = oEvent.getParameter("startDate");
+            const oEndDate = oEvent.getParameter("endDate");
+            const oCalendarRow = oEvent.getParameter("row");
 
-            if (!sSelectedArea) {
+            const aRows = this.byId("planningCalendar").getRows();
+            const iTargetIdx = aRows.indexOf(oCalendarRow);
+            if (iTargetIdx === -1) return;
 
+            const oDip = this.getView().getModel().getProperty("/dipendenti/" + iTargetIdx);
+            this.getView().getModel("newAppt").setData({
+                type: "",
+                color: "",
+                shiftIcon: "",
+                title: "",
+                startDate: oStartDate,
+                endDate: oEndDate,
+                dipIndex: iTargetIdx,
+                staffId: oDip.staffId
+            });
+
+            this.byId("createAppointmentDialog").open();
+        },
+
+        // Quando si cambia tipo nel Select del dialog di creazione
+        onNewTypeChange: function (oEvent) {
+            const sKey = oEvent.getSource().getSelectedKey();
+            const aTipi = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+            const oTipo = aTipi.find(function (t) { return t.key === sKey; });
+            if (!oTipo) return;
+
+            const oNewModel = this.getView().getModel("newAppt");
+            oNewModel.setProperty("/color", oTipo.color);
+            oNewModel.setProperty("/shiftIcon", oTipo.shiftIcon);
+            oNewModel.setProperty("/title", oTipo.title);
+        },
+
+        onSaveNewAppointment: function () {
+            const oNewModel = this.getView().getModel("newAppt");
+            const sType = oNewModel.getProperty("/type");
+            const iDipIdx = oNewModel.getProperty("/dipIndex");
+            const sStaffId = oNewModel.getProperty("/staffId");
+
+            // Ricava sempre icona/colore/titolo dalla mappa TipiTurno (fonte di verità)
+            const aTipi = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+            const oTipo = aTipi.find(function (t) { return t.key === sType; }) || {};
+            const sColor = oTipo.color || oNewModel.getProperty("/color") || "";
+            const sShiftIcon = oTipo.shiftIcon || oNewModel.getProperty("/shiftIcon") || "";
+            const sTitle = oTipo.title || oNewModel.getProperty("/title") || "";
+
+            const oStart = this.byId("newStartPicker").getDateValue();
+            const oEnd = this.byId("newEndPicker").getDateValue();
+
+            if (!sType) {
+                MessageToast.show("Seleziona un tipo di turno");
+                return;
+            }
+            if (!oStart || !oEnd) {
+                MessageToast.show("Inserisci date valide");
+                return;
             }
 
+            fetch("/odata/V4/catalog/appointments", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ID_Utente: sStaffId,
+                    type: sType,
+                    title: sTitle,
+                    color: sColor,
+                    shiftIcon: sShiftIcon,
+                    startDate: this._toLocalISO(oStart),
+                    endDate: this._toLocalISO(oEnd)
+                })
+            }).then(function (oRes) {
+                if (!oRes.ok) throw new Error("POST fallito: " + oRes.status);
+                // CAP può rispondere 201 con body oppure 204 senza body
+                return oRes.status === 204 ? null : oRes.json();
+            }).then(function (oData) {
+                const sNewId = oData ? (oData.ID || "") : "";
+                const oModel = this.getView().getModel();
+                const aShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts");
+                aShifts.push({
+                    id: sNewId,
+                    startDate: oStart,
+                    endDate: oEnd,
+                    title: sTitle,
+                    type: sType,
+                    shiftIcon: sShiftIcon,
+                    color: sColor
+                });
+                oModel.setProperty("/dipendenti/" + iDipIdx + "/shifts", aShifts);
+                oModel.refresh(true);
+                MessageToast.show("Turno creato");
+            }.bind(this)).catch(function (oErr) {
+                MessageToast.show("Errore creazione: " + oErr.message);
+            });
+
+            this.byId("createAppointmentDialog").close();
+        },
+
+        onCancelNewAppointment: function () {
+            this.byId("createAppointmentDialog").close();
+        },
+
+        // Apre il dialog di creazione quando si clicca su un intervallo vuoto
+        onIntervalSelect: function (oEvent) {
+            const oStartDate = oEvent.getParameter("startDate");
+            const oEndDate = oEvent.getParameter("endDate");
+            const oCalendarRow = oEvent.getParameter("row");
+
+            const aRows = this.byId("planningCalendar").getRows();
+            const iTargetIdx = aRows.indexOf(oCalendarRow);
+            if (iTargetIdx === -1) return;
+
+            const oDip = this.getView().getModel().getProperty("/dipendenti/" + iTargetIdx);
+            this.getView().getModel("newAppt").setData({
+                type: "",
+                color: "",
+                shiftIcon: "",
+                title: "",
+                startDate: oStartDate,
+                endDate: oEndDate,
+                dipIndex: iTargetIdx,
+                staffId: oDip.staffId
+            });
+
+            this.byId("createAppointmentDialog").open();
+        },
+
+        // Quando si cambia tipo nel Select del dialog di creazione
+        onNewTypeChange: function (oEvent) {
+            const sKey = oEvent.getSource().getSelectedKey();
+            const aTipi = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+            const oTipo = aTipi.find(function (t) { return t.key === sKey; });
+            if (!oTipo) return;
+
+            const oNewModel = this.getView().getModel("newAppt");
+            oNewModel.setProperty("/color", oTipo.color);
+            oNewModel.setProperty("/shiftIcon", oTipo.shiftIcon);
+            oNewModel.setProperty("/title", oTipo.title);
+        },
+
+        onSaveNewAppointment: function () {
+            const oNewModel = this.getView().getModel("newAppt");
+            const sType = oNewModel.getProperty("/type");
+            const iDipIdx = oNewModel.getProperty("/dipIndex");
+            const sStaffId = oNewModel.getProperty("/staffId");
+
+            // Ricava sempre icona/colore/titolo dalla mappa TipiTurno (fonte di verità)
+            const aTipi = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
+            const oTipo = aTipi.find(function (t) { return t.key === sType; }) || {};
+            const sColor = oTipo.color || oNewModel.getProperty("/color") || "";
+            const sShiftIcon = oTipo.shiftIcon || oNewModel.getProperty("/shiftIcon") || "";
+            const sTitle = oTipo.title || oNewModel.getProperty("/title") || "";
+
+            const oStart = this.byId("newStartPicker").getDateValue();
+            const oEnd = this.byId("newEndPicker").getDateValue();
+
+            if (!sType) {
+                MessageToast.show("Seleziona un tipo di turno");
+                return;
+            }
+            if (!oStart || !oEnd) {
+                MessageToast.show("Inserisci date valide");
+                return;
+            }
+
+            fetch("/odata/V4/catalog/appointments", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ID_Utente: sStaffId,
+                    type: sType,
+                    title: sTitle,
+                    color: sColor,
+                    shiftIcon: sShiftIcon,
+                    startDate: this._toLocalISO(oStart),
+                    endDate: this._toLocalISO(oEnd)
+                })
+            }).then(function (oRes) {
+                if (!oRes.ok) throw new Error("POST fallito: " + oRes.status);
+                // CAP può rispondere 201 con body oppure 204 senza body
+                return oRes.status === 204 ? null : oRes.json();
+            }).then(function (oData) {
+                const sNewId = oData ? (oData.ID || "") : "";
+                const oModel = this.getView().getModel();
+                const aShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts");
+                aShifts.push({
+                    id: sNewId,
+                    startDate: oStart,
+                    endDate: oEnd,
+                    title: sTitle,
+                    type: sType,
+                    shiftIcon: sShiftIcon,
+                    color: sColor
+                });
+                oModel.setProperty("/dipendenti/" + iDipIdx + "/shifts", aShifts);
+                oModel.refresh(true);
+                MessageToast.show("Turno creato");
+            }.bind(this)).catch(function (oErr) {
+                MessageToast.show("Errore creazione: " + oErr.message);
+            });
+
+            this.byId("createAppointmentDialog").close();
+        },
+
+        onCancelNewAppointment: function () {
+            this.byId("createAppointmentDialog").close();
         },
 
         onSearch: function () {
+            const sRuoloChiave = this.byId("roleFilterCombo").getSelectedKey();
+            const sDipartimento = this.byId("Dipartimenti").getSelectedKey();
+            const sRepartoChiave = this.byId("repartoFilterCombo").getSelectedKey();
+
             const oCalendar = this.byId("planningCalendar");
             const oBinding = oCalendar.getBinding("rows");
             const aFiltri = [];
 
-            const sRuolo = this.byId("roleFilterCombo").getSelectedKey();
-            const sTeam = this.byId("groupFilter").getSelectedKey(); 
-            const sRepartoAttivita = this.byId("repartoFilterCombo").getSelectedKey(); 
-
-            // 1. Filtro Ruolo
-            if (sRuolo) {
-                aFiltri.push(new Filter("role", FilterOperator.EQ, sRuolo));
+            if (sRuoloChiave) {
+                aFiltri.push(new Filter("role", FilterOperator.EQ, sRuoloChiave));
             }
-            if (sTeam){
-                aFiltri.push(new Filter("department",FilterOperator.EQ,sTeam));
+            if (sDipartimento) {
+                aFiltri.push(new Filter("department", FilterOperator.EQ, sDipartimento));
             }
-            if (sRepartoAttivita) {
-                aFiltri.push(new Filter({
-                    path: "shifts",
-                    test: function (aShifts) {
-                        if (!aShifts) return false;
-                        return aShifts.some(s => s.type === sRepartoAttivita);
-                    }
-                }));
+            if (sRepartoChiave) {
+                aFiltri.push(new Filter("repartoKey", FilterOperator.EQ, sRepartoChiave));
             }
 
             if (oBinding) {
                 oBinding.filter(aFiltri);
-                MessageToast.show("Filtri applicati");
+                MessageToast.show("Risultati aggiornati");
             }
         },
 
         onResetFilters: function () {
-            // 1. Pulizia fisica dei campi con ID corretti
             this.byId("roleFilterCombo").setSelectedKey("");
-            this.byId("groupFilter").setSelectedKey("");
+            this.byId("Dipartimenti").setSelectedKey("");
             this.byId("repartoFilterCombo").setSelectedKey("");
 
-            // 2. Rilascio dei filtri sul calendario
             const oBinding = this.byId("planningCalendar").getBinding("rows");
             if (oBinding) {
                 oBinding.filter([]);
@@ -513,10 +892,6 @@ sap.ui.define([
 
             const aStaff = oModel?.getProperty("/dipendenti") || [];
 
-            /*const oStartDate = oCalendar?.getStartDate() || new Date();
-            const iYear = oStartDate.getFullYear();
-            const iMonth = oStartDate.getMonth();
-            const iDaysInMonth = new Date(iYear, iMonth + 1, 0).getDate();*/
 
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
 
@@ -560,25 +935,29 @@ sap.ui.define([
         },
 
         ////////// per tile Rischio salute:::
-        /////// non più di 6 giorni consecutivi.
+        /////// non più di x giorni consecutivi.
 
 
-        onPressRischioSalute: function () {
+        onPressRischioSalute: function (bIsRefreshOnly) {
             const oKpiModel = this.getView().getModel("kpi");
+            let bNewActive;
 
-            const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
-            const bNewActive = !bCurrentlyActive;
+            if (bIsRefreshOnly === true) {
 
-            oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
+                bNewActive = oKpiModel.getProperty("/showConsecutiveHighlight");
+            } else {
+                const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
+                bNewActive = !bCurrentlyActive;
+                oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
 
+                if (bNewActive) {
+                    MessageToast.show('Evidenziazione rischio salute attiva');
+                } else {
+                    MessageToast.show('Evidenziazione rimossa');
+                }
+            }
 
             this.countConsecutive(bNewActive);
-
-            if (bNewActive) {
-                MessageToast.show('Evidenziazione rischio salute attiva');
-            } else {
-                MessageToast.show('Evidenziazione rimossa');
-            }
         },
 
 
@@ -677,96 +1056,128 @@ sap.ui.define([
 
         ////// va nell  kpi/personaleSenzaMinimoRiposoCount ---> per default 0;
 
-        onPressMancazaRiposso: function () {
+        onPressMancazaRiposso: function (bIsRefreshOnly) {
             const oKpiModel = this.getView().getModel("kpi");
+            let bNewActive;
 
-            const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
-            const bNewActive = !bCurrentlyActive;
-
-            oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
-
-            const TotPersonale = this.countNonroposoSettimanale(bNewActive);
-
-
-            //const sStatus = TotPersonale > 0 ? "Error" : "Success";
-            //oKpiModel.setProperty("/restStatus", sStatus); 
-
-            if (TotPersonale > 0) {
-                MessageToast.show("Attenzione: " + TotPersonale + " staffs senza riposo settimanale.");
+            if (bIsRefreshOnly === true) {  ///// se modifica nel planning calendar direttamente. 
+                bNewActive = oKpiModel.getProperty("/showRestHighlight");
             } else {
-                MessageToast.show("Tutto in regola: ogni dipendente ha almeno un riposo a settimana.");
+                const bCurrentlyActive = oKpiModel.getProperty("/showRestHighlight") || false;
+                bNewActive = !bCurrentlyActive;
+                oKpiModel.setProperty("/showRestHighlight", bNewActive);
             }
+
+            this.countNonroposoSettimanale(bNewActive);
         },
-
-
-
-
-        ////// la funzione da chiamare al interno di onPressMancanzaRiposo
-
 
         countNonroposoSettimanale: function (bShouldHighlight) {
             const oModel = this.getView().getModel();
             const oKpiModel = this.getView().getModel("kpi");
+            const oCalendar = this.byId("planningCalendar");
+
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
 
-            let iTotViolazioni = 0;
+            let iTotalViolatingPeople = 0;
             const aStaff = oModel.getProperty("/dipendenti") || [];
+            const aRows = oCalendar ? oCalendar.getRows() : [];
 
-            aStaff.forEach(person => {
-                let bMancaRiposo = false;
+            aStaff.forEach((person, index) => {
+                let bPersonViolates = false;
+                let bFirstViolationFound = false; /////// per controllare se abbiamo trovato già la prima settimana fuori condizione.
+                const oRow = aRows[index];
 
-                // Estrazione dei giorni di riposo
+
+                if (oRow) {
+                    oRow.destroySpecialDates();
+                }
+
                 const restDays = {};
                 if (person.shifts) {
                     person.shifts.forEach(shift => {
-                        if (shift.type === "RIPOSO" && shift.startDate) { ///// emergenza --> per test
-                            restDays[new Date(shift.startDate).toDateString()] = true;
+                        if (shift.type === "RIPOSO" && shift.startDate) {
+                            const sDate = new Date(shift.startDate).toDateString();
+                            restDays[sDate] = true;
                         }
                     });
                 }
 
-                // Trova il primo lunedì del mese per iniziare il conteggio delle settimane
+                ////// trovare la prima settimana intera del mese --> il primo lunedì
                 let iStartDay = 1;
-                while (iStartDay <= iDaysInMonth) {
-                    let oTempDate = new Date(iYear, iMonth, iStartDay);
-                    if (oTempDate.getDay() === 1) break;
-                    iStartDay++;
-                }
-
-                //////// Ciclo per ogni settimana intera del mese
-                for (let weekStart = iStartDay; weekStart + 6 <= iDaysInMonth; weekStart += 7) {
-                    let bHaRiposatoInSettimana = false;
-
-                    //////// Controlla i 7 giorni della settimana corrente
-                    for (let d = 0; d < 7; d++) {
-                        let currentCheckDate = new Date(iYear, iMonth, weekStart + d);
-                        if (restDays[currentCheckDate.toDateString()]) {
-                            bHaRiposatoInSettimana = true;
-                            break;
-                        }
-                    }
-
-                    /////// persona no valida ---> almeno una settimana.
-                    if (!bHaRiposatoInSettimana) {
-                        bMancaRiposo = true;
+                for (let i = 1; i <= 7; i++) {
+                    let oTempDate = new Date(iYear, iMonth, i);
+                    if (oTempDate.getDay() === 1) {
+                        iStartDay = i;
                         break;
                     }
                 }
 
-                //!!!!!!!Imposta highlight a true se richiesto e se c'è violazione
-                person.highlight = bShouldHighlight && bMancaRiposo;
+                ///// controllare la condizione in base alla settimana. 
+                for (let weekStart = iStartDay; weekStart + 6 <= iDaysInMonth; weekStart += 7) {
+                    let bHaRiposatoInSettimana = false;
+                    let aCurrentWeekDates = [];
 
-                if (bMancaRiposo) {
-                    iTotViolazioni++;
+                    for (let d = 0; d < 7; d++) {
+                        let oCheckDate = new Date(iYear, iMonth, weekStart + d);
+                        aCurrentWeekDates.push(new Date(oCheckDate));
+
+                        if (restDays[oCheckDate.toDateString()]) {
+                            bHaRiposatoInSettimana = true;
+                        }
+                    }
+
+                    ////// fuori condizione ?
+                    if (!bHaRiposatoInSettimana) {
+                        bPersonViolates = true; ///// basta avere una settimana fuori condizione
+
+                        ////// evidenziamo soltanto la prima settimana fuori condizione. 
+                        if (bShouldHighlight && oRow && !bFirstViolationFound) {
+                            aCurrentWeekDates.forEach(oDate => {
+                                oRow.addSpecialDate(new DateTypeRange({
+                                    startDate: oDate,
+                                    type: "NonWorking"
+                                }));
+                            });
+                            bFirstViolationFound = true;
+                        }
+
+                    }
+                }
+
+                person.highlight = bShouldHighlight && bPersonViolates;
+
+                if (bPersonViolates) {
+                    iTotalViolatingPeople++;
                 }
             });
 
-            oKpiModel.setProperty("/personaleSenzaMinimoRiposoCount", iTotViolazioni);
-
+            oKpiModel.setProperty("/personaleSenzaMinimoRiposoCount", iTotalViolatingPeople);
+            oKpiModel.setProperty("/restStatus", iTotalViolatingPeople > 0 ? "Error" : "Success");
 
             oModel.refresh(true);
 
-            return iTotViolazioni;
-        }
+            return iTotalViolatingPeople;
+        },
+
+
+        //////// per aggiornare kpi in: drag & drop(ok), delete(not ok) ...
+
+        onAfterModifyData: function () {
+            const oLocalModel = this.getView().getModel();
+
+            oLocalModel.refresh(true);
+
+
+            //// calcoli kpi
+            this.countConsecutive(false);
+            this.updateUnderstaffing();
+            this.countNonroposoSettimanale(false);
+
+            //// evidenzia kpi::
+            this.onPressRischioSalute(true);
+            this.onPressMancazaRiposso(true);
+        },
+
+
     });
 });
