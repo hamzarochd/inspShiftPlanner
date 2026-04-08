@@ -698,6 +698,9 @@ sap.ui.define([
                     });
                 });
                 oModel.setProperty("/dipendenti/" + iDipIdx + "/shifts", aShiftsNow);
+
+                this.onAfterModifyData();
+
                 oModel.refresh(true);
                 this.onAfterModifyData();
                 MessageToast.show(nCopies + " turno/i duplicato/i con successo");
@@ -961,6 +964,8 @@ sap.ui.define([
                 MessageToast.show("Filtri applicati");
             }
         },
+
+        
         onResetFilters: function () {
             // 1. Pulizia fisica dei campi con ID corretti
             this.byId("roleFilterCombo").setSelectedKey("");
@@ -974,6 +979,8 @@ sap.ui.define([
             }
             MessageToast.show("Filtri resettati");
         },
+
+
         onPressMancanzaPersonale: function () {
             const oKpiModel = this.getView().getModel("kpi");
             const bActive = oKpiModel.getProperty("/showUnderstaffingHighlight");
@@ -1004,13 +1011,12 @@ sap.ui.define([
 
         /////// funzione da chiamare all'interno di kpiCountDay-
 
-
         updateUnderstaffing: function (bUpdateCalendar) { //// true oppure false
             const oModel = this.getView().getModel(); // modello default (no nome)
             const oKpiModel = this.getView().getModel("kpi");
             const oCalendar = this.byId("planningCalendar");
 
-            const aStaff = oModel?.getProperty("/dipendenti") || [];
+            const aStaff = oModel?.getProperty("/dipendenti");
 
 
             const { iYear, iMonth, iDaysInMonth } = this.GGMMAA();
