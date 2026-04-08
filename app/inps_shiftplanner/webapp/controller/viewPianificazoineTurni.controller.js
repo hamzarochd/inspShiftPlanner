@@ -55,41 +55,27 @@ sap.ui.define([
             // Modello Dipartimenti e Ruoli
             var setRuoli = {
                 "RuoliCollezione": [
-                    { "key": "COORD", "text": "Coordinatore infermieristico" },
-                    { "key": "INF", "text": "Infermiere" },
-                    { "key": "INF_TI", "text": "Infermiere Terapia Intensiva" },
-                    { "key": "OSS", "text": "Operatore Socio Sanitario (OSS)" },
-                    { "key": "AUS", "text": "Ausiliario/Barelliere" },
-                    { "key": "MED", "text": "Medico" },
-                    { "key": "CHIR", "text": "Chirurgo" },
-                    { "key": "ANES", "text": "Anestesista" },
-                    { "key": "SPEC", "text": "Specializzando" },
-                    { "key": "STRUM", "text": "Strumentista" },
-                    { "key": "TEC", "text": "Tecnico sanitario" },
-                    { "key": "FISI", "text": "Fisioterapista" },
-                    { "key": "LOGO", "text": "Logopedista" },
-                    { "key": "SUP", "text": "Supporto esterno" }
+                    { "key": "Coordinatore infermieristico", "text": "Coordinatore infermieristico" },
+                    { "key": "Infermiere", "text": "Infermiere" },
+                    { "key": "Infermiere Terapia Intensiva", "text": "Infermiere Terapia Intensiva" },
+                    { "key": "Operatore Socio Sanitario (OSS)", "text": "Operatore Socio Sanitario (OSS)" },
+                    { "key": "Ausiliario/Barelliere", "text": "Ausiliario/Barelliere" },
+                    { "key": "Medico", "text": "Medico" },
+                    { "key": "Chirurgo", "text": "Chirurgo" },
+                    { "key": "Anestesista", "text": "Anestesista" },
+                    { "key": "Specializzando", "text": "Specializzando" },
+                    { "key": "Strumentista", "text": "Strumentista" },
+                    { "key": "Tecnico sanitario", "text": "Tecnico sanitario" },
+                    { "key": "Fisioterapista", "text": "Fisioterapista" },
+                    { "key": "Logopedista", "text": "Logopedista" },
+                    { "key": "Supporto esterno", "text": "Supporto esterno" }
                 ],
                 "Reparti": [
-                    { "key": "PS", "text": "Pronto Soccorso" },
-                    { "key": "TI", "text": "Terapia Intensiva" },
-                    { "key": "MED", "text": "Medicina Generale" },
-                    { "key": "CHIR", "text": "Chirurgia" },
-                    { "key": "SO", "text": "Sala Operatoria" },
-                    { "key": "RAD", "text": "Radiologia" },
-                    { "key": "LAB", "text": "Laboratorio Analisi" },
-                    { "key": "RIAB", "text": "Riabilitazione" },
-                    { "key": "AMB", "text": "Ambulatorio" },
-                    { "key": "DIR", "text": "Direzione Sanitaria" },
-                    { "key": "CARD", "text": "Cardiologia" },
-                    { "key": "ORT", "text": "Ortopedia" },
-                    { "key": "PED", "text": "Pediatria" },
-                    { "key": "GINE", "text": "Ginecologia" },
-                    { "key": "NEURO", "text": "Neurologia" },
-                    { "key": "ONCO", "text": "Oncologia" },
-                    { "key": "URO", "text": "Urologia" },
-                    { "key": "PSI", "text": "Psichiatria" },
-                    { "key": "DERM", "text": "Dermatologia" }
+                    { "key": "EMERGENZA", "text": "Emergenza / PS" },
+                    { "key": "DIAGNOSTICA", "text": "Diagnostica" },
+                    { "key": "AFFIANCAMENTO", "text": "Affiancamento" },
+                    { "key": "REPERIBILITA", "text": "Reperibilità" },
+                    { "key": "RIPOSO", "text": "Riposo" }
                 ],
                 "TipiTurno": [
                     { "key": "AFFIANCAMENTO", "text": "Affiancamento", "color": "#0070F2", "title": "Affiancamento", "shiftIcon": "" },
@@ -98,57 +84,12 @@ sap.ui.define([
                     { "key": "REPERIBILITA", "text": "Reperibilità", "color": "#0A6ED1", "title": "Reperibilità", "shiftIcon": "" },
                     { "key": "RIPOSO", "text": "Riposo", "color": "#8B8B8B", "title": "Riposo", "shiftIcon": "" }
                 ],
-                "Dipartimenti": [
-                    {
-                        "Dipartimento": "Emergenza-Urgenza e Area Critica",
-                        "reparti": [
-                            { "key": "PS", "text": "Pronto Soccorso e OBI" },
-                            { "key": "TI", "text": "Terapia Intensiva e Rianimazione" },
-                            { "key": "118", "text": "Centrale Operativa 118" }
-                        ]
-                    },
-                    {
-                        "Dipartimento": "Dipartimento di Chirurgia",
-                        "reparti": [
-                            { "key": "CHIR", "text": "Chirurgia Generale" },
-                            { "key": "SO", "text": "Blocco Operatorio" },
-                            { "key": "URO", "text": "Urologia" },
-                            { "key": "ORT", "text": "Ortopedia e Traumatologia" }
-                        ]
-                    },
-                    {
-                        "Dipartimento": "Dipartimento di Medicina Specialistica",
-                        "reparti": [
-                            { "key": "MED", "text": "Medicina Interna" },
-                            { "key": "CARD", "text": "Cardiologia e UTIC" },
-                            { "key": "NEURO", "text": "Neurologia" },
-                            { "key": "ONCO", "text": "Oncologia Medica" },
-                            { "key": "DERM", "text": "Dermatologia" }
-                        ]
-                    },
-                    {
-                        "Dipartimento": "Dipartimento Materno-Infantile",
-                        "reparti": [
-                            { "key": "PED", "text": "Pediatria e Neonatologia" },
-                            { "key": "GINE", "text": "Ostetricia e Ginecologia" }
-                        ]
-                    },
-                    {
-                        "Dipartimento": "Servizi Diagnostici e Riabilitazione",
-                        "reparti": [
-                            { "key": "RAD", "text": "Radiologia e Imaging" },
-                            { "key": "LAB", "text": "Laboratorio Analisi" },
-                            { "key": "RIAB", "text": "Medicina Riabilitativa" },
-                            { "key": "AMB", "text": "Poliambulatorio" }
-                        ]
-                    },
-                    {
-                        "Dipartimento": "Salute Mentale e Direzione",
-                        "reparti": [
-                            { "key": "PSI", "text": "Psichiatria (SPDC)" },
-                            { "key": "DIR", "text": "Direzione Sanitaria" }
-                        ]
-                    }
+                "TeamFiltro": [
+                    { "key": "Pronto Soccorso", "text": "Pronto Soccorso" },
+                    { "key": "Terapia Intensiva", "text": "Terapia Intensiva" },
+                    { "key": "Medicina Generale", "text": "Medicina Generale" },
+                    { "key": "Chirurgia", "text": "Chirurgia" },
+                    { "key": "Sala Operatoria", "text": "Sala Operatoria" }
                 ]
             };
             this.getView().setModel(new JSONModel(setRuoli), "ruoliModel");
@@ -164,7 +105,7 @@ sap.ui.define([
 
             const oODataModel = this.getOwnerComponent().getModel("odata");
             const oListBinding = oODataModel.bindList("/staffs", null, null, null, {
-                "$expand": "Appointments"
+                "$expand": "Appointments,MemberOf"
             });
 
             oListBinding.requestContexts(0, 9999).then(function (aContexts) {
@@ -184,15 +125,16 @@ sap.ui.define([
                 const nowInner = new Date();
 
                 const aDipendenti = aStaffData.map(function (oStaff) {
+                    const sTeamName = oStaff.MemberOf ? oStaff.MemberOf.Name : "no team";
                     return {
                         staffId: oStaff.ID,
                         name: (oStaff.Name || "") + " " + (oStaff.Surname || ""),
                         role: oStaff.Role || "",
-                        department: oStaff.Department || "",
-                        repartoKey: oStaff.RepartoKey || "",
+                        teamName: sTeamName,
+                        //repartoKey: sTeamName,
                         icon: oStaff.icon || "",
                         highlight: false,
-                        teamName: oStaff.MemberOf ? oStaff.MemberOf.Name : "no team",
+                        //teamName: sTeamName,
                         teamID: oStaff.MemberOf ? oStaff.MemberOf.ID : null,
                         shifts: (oStaff.Appointments || []).map(function (oAppt) {
 
@@ -315,7 +257,7 @@ sap.ui.define([
                 if (!oRes.ok) throw new Error("PATCH fallito: " + oRes.status);
                 MessageToast.show("Turno aggiornato");
 
-                
+
             }).catch(function (oErr) {
                 MessageToast.show("Errore salvataggio: " + oErr.message);
             });
@@ -1000,42 +942,49 @@ sap.ui.define([
         },
 
         onSearch: function () {
-            const sRuoloChiave = this.byId("roleFilterCombo").getSelectedKey();
-            const sDipartimento = this.byId("Dipartimenti").getSelectedKey();
-            const sRepartoChiave = this.byId("repartoFilterCombo").getSelectedKey();
-
             const oCalendar = this.byId("planningCalendar");
             const oBinding = oCalendar.getBinding("rows");
             const aFiltri = [];
 
-            if (sRuoloChiave) {
-                aFiltri.push(new Filter("role", FilterOperator.EQ, sRuoloChiave));
+            const sRuolo = this.byId("roleFilterCombo").getSelectedKey();
+            const sTeam = this.byId("groupFilter").getSelectedKey(); 
+            const sRepartoAttivita = this.byId("repartoFilterCombo").getSelectedKey(); 
+
+            // 1. Filtro Ruolo
+            if (sRuolo) {
+                aFiltri.push(new Filter("role", FilterOperator.EQ, sRuolo));
             }
-            if (sDipartimento) {
-                aFiltri.push(new Filter("department", FilterOperator.EQ, sDipartimento));
+            if (sTeam){
+                aFiltri.push(new Filter("teamName",FilterOperator.EQ,sTeam));
             }
-            if (sRepartoChiave) {
-                aFiltri.push(new Filter("repartoKey", FilterOperator.EQ, sRepartoChiave));
+            if (sRepartoAttivita) {
+                aFiltri.push(new Filter({
+                    path: "shifts",
+                    test: function (aShifts) {
+                        if (!aShifts) return false;
+                        return aShifts.some(s => s.type === sRepartoAttivita);
+                    }
+                }));
             }
 
             if (oBinding) {
                 oBinding.filter(aFiltri);
-                MessageToast.show("Risultati aggiornati");
+                MessageToast.show("Filtri applicati");
             }
         },
-
         onResetFilters: function () {
+            // 1. Pulizia fisica dei campi con ID corretti
             this.byId("roleFilterCombo").setSelectedKey("");
-            this.byId("Dipartimenti").setSelectedKey("");
+            this.byId("groupFilter").setSelectedKey("");
             this.byId("repartoFilterCombo").setSelectedKey("");
 
+            // 2. Rilascio dei filtri sul calendario
             const oBinding = this.byId("planningCalendar").getBinding("rows");
             if (oBinding) {
                 oBinding.filter([]);
             }
             MessageToast.show("Filtri resettati");
         },
-
         onPressMancanzaPersonale: function () {
             const oKpiModel = this.getView().getModel("kpi");
             const bActive = oKpiModel.getProperty("/showUnderstaffingHighlight");
