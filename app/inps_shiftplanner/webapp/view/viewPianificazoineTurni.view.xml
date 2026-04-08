@@ -27,12 +27,80 @@
                 </content>
                 <footer>
                     <Toolbar>
-                        <Button text="Elimina" type="Reject" press="onDeleteAppointment" />
+                        <Button icon="sap-icon://delete" type="Reject" press="onDeleteAppointment" tooltip="Elimina" />
+                        <Button icon="sap-icon://edit" press="onEditAppointment" tooltip="Modifica" />
                         <ToolbarSpacer />
-                        <Button text="Chiudi" press="onClosePopover" />
+                        <Button icon="sap-icon://decline" press="onClosePopover" tooltip="Chiudi" />
                     </Toolbar>
                 </footer>
             </ResponsivePopover>
+
+            <Dialog id="editAppointmentDialog" title="Modifica Turno">
+                <content>
+                    <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
+                        <Label text="Tipo turno" design="Bold" />
+                        <Select
+                            selectedKey="{editAppt>/type}"
+                            change="onEditTypeChange"
+                            width="100%"
+                            class="sapUiTinyMarginBottom"
+                            items="{ruoliModel>/TipiTurno}">
+                            <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+                        </Select>
+                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="editStartPicker"
+                            dateValue="{editAppt>/startDate}"
+                            displayFormat="dd/MM/yyyy HH:mm"
+                            class="sapUiTinyMarginBottom" />
+                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="editEndPicker"
+                            dateValue="{editAppt>/endDate}"
+                            displayFormat="dd/MM/yyyy HH:mm" />
+                    </VBox>
+                </content>
+                <beginButton>
+                    <Button icon="sap-icon://save" text="Salva" type="Emphasized" press="onSaveEditAppointment" />
+                </beginButton>
+                <endButton>
+                    <Button icon="sap-icon://decline" text="Annulla" press="onCancelEditAppointment" />
+                </endButton>
+            </Dialog>
+            <Dialog id="createAppointmentDialog" title="Nuovo Turno">
+                <content>
+                    <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
+                        <Label text="Tipo turno" design="Bold" />
+                        <Select
+                            id="newTypeSelect"
+                            selectedKey="{newAppt>/type}"
+                            forceSelection="false"
+                            change="onNewTypeChange"
+                            width="100%"
+                            class="sapUiTinyMarginBottom"
+                            items="{ruoliModel>/TipiTurno}">
+                            <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
+                        </Select>
+                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="newStartPicker"
+                            dateValue="{newAppt>/startDate}"
+                            displayFormat="dd/MM/yyyy HH:mm"
+                            class="sapUiTinyMarginBottom" />
+                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop" />
+                        <DateTimePicker
+                            id="newEndPicker"
+                            dateValue="{newAppt>/endDate}"
+                            displayFormat="dd/MM/yyyy HH:mm" />
+                    </VBox>
+                </content>
+                <beginButton>
+                    <Button icon="sap-icon://add" text="Crea" type="Emphasized" press="onSaveNewAppointment" />
+                </beginButton>
+                <endButton>
+                    <Button icon="sap-icon://decline" text="Annulla" press="onCancelNewAppointment" />
+                </endButton>
+            </Dialog>
         </dependents>
 
         <f:DynamicPage id="turniDynamicPage" headerExpanded="true" toggleHeaderOnTitleClick="true">
@@ -113,7 +181,11 @@
                                 <GenericTile class="" header="Mancanza personale"
                                     frameType="OneByHalf" press="onPressMancanzaPersonale"
                                     wrappingType="Hyphenated">
+                                    frameType="OneByHalf" press="onPressMancanzaPersonale"
+                                    wrappingType="Hyphenated">
                                     <TileContent>
+                                        <NumericContent scale="G" value="{kpi>/understaffedDays}"
+                                            valueColor="Error" indicator="Up" withMargin="false" />
                                         <NumericContent scale="G" value="{kpi>/understaffedDays}"
                                             valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
@@ -121,7 +193,10 @@
 
                                 <GenericTile class="sapUiTinyMarginBegin" header="Rischio salute"
                                     frameType="OneByHalf" press="onPressRischioSalute">
+                                    frameType="OneByHalf" press="onPressRischioSalute">
                                     <TileContent>
+                                        <NumericContent scale="P" value="{kpi>/consecutiveCount}"
+                                            valueColor="Error" indicator="Up" withMargin="false" />
                                         <NumericContent scale="P" value="{kpi>/consecutiveCount}"
                                             valueColor="Error" indicator="Up" withMargin="false" />
                                     </TileContent>
@@ -132,7 +207,12 @@
                                 <GenericTile class="sapUiTinyMarginBegin" header="Mancanza riposo"
                                     frameType="OneByHalf" press="onPressMancazaRiposso"
                                     wrappingType="Hyphenated">
+                                    frameType="OneByHalf" press="onPressMancazaRiposso"
+                                    wrappingType="Hyphenated">
                                     <TileContent>
+                                        <NumericContent scale="P"
+                                            value="{kpi>/personaleSenzaMinimoRiposoCount}"
+                                            valueColor="Error" indicator="Up" withMargin="false" />
                                         <NumericContent scale="P"
                                             value="{kpi>/personaleSenzaMinimoRiposoCount}"
                                             valueColor="Error" indicator="Up" withMargin="false" />
@@ -141,6 +221,10 @@
 
 
                             </HBox>
+                        </VBox>
+                    </f:content>
+                </f:DynamicPageHeader>
+            </f:header>
                         </VBox>
                     </f:content>
                 </f:DynamicPageHeader>
@@ -156,10 +240,12 @@
                         appointmentsVisualization="Standard"
                         showEmptyIntervalHeaders="false"
                         appointmentHeight="Regular"
-                        appointmentSelect="onAppointmentSelect">
+                        appointmentSelect="onAppointmentSelect"
+                        intervalSelect="onIntervalSelect">
 
                         <rows>
                             <PlanningCalendarRow
+                                icon="{= ${highlight} ? 'sap-icon://message-warning' : ${icon} }"
                                 icon="{= ${highlight} ? 'sap-icon://message-warning' : ${icon} }"
                                 title="{name}"
                                 text="{role}"
@@ -167,8 +253,12 @@
                                 appointments="{path: 'shifts', templateShareable: false}"
                                 enableAppointmentsDragAndDrop="true"
                                 enableAppointmentsResize="false"
+                                selected="false"
                                 appointmentDrop="handleAppointmentDrop">
                                 <customData>
+                                    <core:CustomData
+                                        key="myHighlight"
+                                        value="{= ${highlight} ? 'true' : 'false' }"
                                     <core:CustomData
                                         key="myHighlight"
                                         value="{= ${highlight} ? 'true' : 'false' }"
@@ -178,7 +268,12 @@
                                     <unified:CalendarAppointment
                                         startDate="{startDate}"
                                         endDate="{endDate}"
-                                        icon="{shiftIcon}"
+                                        icon="{= ${type} === 'AFFIANCAMENTO' ? 'sap-icon://collaborate'    :
+                                                  ${type} === 'DIAGNOSTICA'   ? 'sap-icon://stethoscope'   :
+                                                  ${type} === 'EMERGENZA'     ? 'sap-icon://alert'         :
+                                                  ${type} === 'REPERIBILITA'  ? 'sap-icon://phone'         :
+                                                  ${type} === 'RIPOSO'        ? 'sap-icon://bed'           :
+                                                  ${type} === 'COORDINAMENTO' ? 'sap-icon://manager'       : '' }"
                                         color="{color}"
                                         tooltip="{title}">
                                     </unified:CalendarAppointment>

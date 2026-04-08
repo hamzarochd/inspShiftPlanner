@@ -128,3 +128,10 @@
 .sapMListTblRow:not(.sapMLIBSelected) .sapUiCalendarRowAppsNoWork, .sapMListTblSubRow:not(.sapMLIBSelected) .sapUiCalendarRowAppsNoWork{
     background-color: #ed6a5a !important;
 }
+
+.sapMLIBSelected .sapUiCalendarRowAppsNoWork,
+.sapMLIBSelected[data-myhighlight="true"] .sapUiCalendarRowAppsNoWork {
+    background-color: #ed6a5a !important; /* Your specific red */
+    background-image: none !important;
+    opacity: 1 !important;
+}
