@@ -68,28 +68,9 @@ sap.ui.define([
                     { "key": "Tecnico sanitario", "text": "Tecnico sanitario" },
                     { "key": "Fisioterapista", "text": "Fisioterapista" },
                     { "key": "Logopedista", "text": "Logopedista" },
-                    { "key": "Supporto esterno", "text": "Supporto esterno" },
-                    { "key": "Coordinatore infermieristico", "text": "Coordinatore infermieristico" },
-                    { "key": "Infermiere", "text": "Infermiere" },
-                    { "key": "Infermiere Terapia Intensiva", "text": "Infermiere Terapia Intensiva" },
-                    { "key": "Operatore Socio Sanitario (OSS)", "text": "Operatore Socio Sanitario (OSS)" },
-                    { "key": "Ausiliario/Barelliere", "text": "Ausiliario/Barelliere" },
-                    { "key": "Medico", "text": "Medico" },
-                    { "key": "Chirurgo", "text": "Chirurgo" },
-                    { "key": "Anestesista", "text": "Anestesista" },
-                    { "key": "Specializzando", "text": "Specializzando" },
-                    { "key": "Strumentista", "text": "Strumentista" },
-                    { "key": "Tecnico sanitario", "text": "Tecnico sanitario" },
-                    { "key": "Fisioterapista", "text": "Fisioterapista" },
-                    { "key": "Logopedista", "text": "Logopedista" },
                     { "key": "Supporto esterno", "text": "Supporto esterno" }
                 ],
                 "Reparti": [
-                    { "key": "EMERGENZA", "text": "Emergenza / PS" },
-                    { "key": "DIAGNOSTICA", "text": "Diagnostica" },
-                    { "key": "AFFIANCAMENTO", "text": "Affiancamento" },
-                    { "key": "REPERIBILITA", "text": "Reperibilità" },
-                    { "key": "RIPOSO", "text": "Riposo" },
                     { "key": "EMERGENZA", "text": "Emergenza / PS" },
                     { "key": "DIAGNOSTICA", "text": "Diagnostica" },
                     { "key": "AFFIANCAMENTO", "text": "Affiancamento" },
@@ -639,19 +620,6 @@ sap.ui.define([
                 return;
             }
 
-            // Controlla se esiste già un appuntamento nello stesso giorno
-            const oModel = this.getView().getModel();
-            const aExistingShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts") || [];
-            const sStartDay = oStart.toDateString();
-            const bConflict = aExistingShifts.some(function (oShift) {
-                const oShiftDate = oShift.startDate instanceof Date ? oShift.startDate : new Date(oShift.startDate);
-                return oShiftDate.toDateString() === sStartDay;
-            });
-            if (bConflict) {
-                MessageToast.show("Esiste già un turno in questo giorno");
-                return;
-            }
-
             fetch("/odata/V4/catalog/appointments", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -670,6 +638,7 @@ sap.ui.define([
                 return oRes.status === 204 ? null : oRes.json();
             }).then(function (oData) {
                 const sNewId = oData ? (oData.ID || "") : "";
+                const oModel = this.getView().getModel();
                 const aShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts");
                 aShifts.push({
                     id: sNewId,
@@ -758,19 +727,6 @@ sap.ui.define([
                 return;
             }
 
-            // Controlla se esiste già un appuntamento nello stesso giorno
-            const oModel = this.getView().getModel();
-            const aExistingShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts") || [];
-            const sStartDay = oStart.toDateString();
-            const bConflict = aExistingShifts.some(function (oShift) {
-                const oShiftDate = oShift.startDate instanceof Date ? oShift.startDate : new Date(oShift.startDate);
-                return oShiftDate.toDateString() === sStartDay;
-            });
-            if (bConflict) {
-                MessageToast.show("Esiste già un turno in questo giorno");
-                return;
-            }
-
             fetch("/odata/V4/catalog/appointments", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -789,6 +745,7 @@ sap.ui.define([
                 return oRes.status === 204 ? null : oRes.json();
             }).then(function (oData) {
                 const sNewId = oData ? (oData.ID || "") : "";
+                const oModel = this.getView().getModel();
                 const aShifts = oModel.getProperty("/dipendenti/" + iDipIdx + "/shifts");
                 aShifts.push({
                     id: sNewId,
@@ -919,7 +876,7 @@ sap.ui.define([
             for (let d = 1; d <= iDaysInMonth; d++) {
                 const oDate = new Date(iYear, iMonth, d);
                 const isWeekend = (oDate.getDay() === 0 || oDate.getDay() === 6);
-                const threshold = isWeekend ? 3 : 5; //////// per test: min 2 per il weekend, min 3 durante i giorni lavorativi.
+                const threshold = isWeekend ? 3 : 5; //////// per test: min 2 per il weekend, min 5 durante i giorni lavorativi.
                 const count = staffCountByDate[oDate.toDateString()] || 0;
 
                 if (count < threshold) {
