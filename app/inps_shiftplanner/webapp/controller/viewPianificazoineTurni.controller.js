@@ -935,51 +935,71 @@ sap.ui.define([
 
         onSearch: function () {
             const oCalendar = this.byId("planningCalendar");
-            const oBinding = oCalendar.getBinding("rows");
+            const oRowsBinding = oCalendar.getBinding("rows");
             const aFiltri = [];
 
             const sRuolo = this.byId("roleFilterCombo").getSelectedKey();
-            const sTeam = this.byId("groupFilter").getSelectedKey(); 
-            const sRepartoAttivita = this.byId("repartoFilterCombo").getSelectedKey(); 
+            const sTeam = this.byId("groupFilter").getSelectedKey();
+            const sRepartoAttivita = this.byId("repartoFilterCombo").getSelectedKey();
 
-            // 1. Filtro Ruolo
             if (sRuolo) {
-                aFiltri.push(new Filter("role", FilterOperator.EQ, sRuolo));
+                aFiltri.push(new sap.ui.model.Filter("role", sap.ui.model.FilterOperator.EQ, sRuolo));
             }
-            if (sTeam){
-                aFiltri.push(new Filter("teamName",FilterOperator.EQ,sTeam));
+            if (sTeam) {
+                aFiltri.push(new sap.ui.model.Filter("teamName", sap.ui.model.FilterOperator.EQ, sTeam));
             }
             if (sRepartoAttivita) {
-                aFiltri.push(new Filter({
+                aFiltri.push(new sap.ui.model.Filter({
                     path: "shifts",
                     test: function (aShifts) {
-                        if (!aShifts) return false;
-                        return aShifts.some(s => s.type === sRepartoAttivita);
+                        return aShifts ? aShifts.some(o => o.type === sRepartoAttivita) : false;
                     }
                 }));
             }
 
-            if (oBinding) {
-                oBinding.filter(aFiltri);
-                MessageToast.show("Filtri applicati");
+            if (oRowsBinding) {
+                oRowsBinding.filter(aFiltri);
             }
+
+            const aRows = oCalendar.getRows();
+
+            const oApptFilter = sRepartoAttivita ? new Filter("type", FilterOperator.EQ, sRepartoAttivita) : [];
+
+            aRows.forEach(function (oRow) {
+                const oApptBinding = oRow.getBinding("appointments");
+                if (oApptBinding) {
+                    oApptBinding.filter(oApptFilter);
+                }
+            });
+
+            MessageToast.show(sRepartoAttivita ? "Filtro tipo: " + sRepartoAttivita : "Filtri aggiornati");
         },
 
-        
         onResetFilters: function () {
-            // 1. Pulizia fisica dei campi con ID corretti
+            const oCalendar = this.byId("planningCalendar");
+            const oRowsBinding = oCalendar.getBinding("rows");
+
             this.byId("roleFilterCombo").setSelectedKey("");
             this.byId("groupFilter").setSelectedKey("");
             this.byId("repartoFilterCombo").setSelectedKey("");
 
-            // 2. Rilascio dei filtri sul calendario
-            const oBinding = this.byId("planningCalendar").getBinding("rows");
-            if (oBinding) {
-                oBinding.filter([]);
+            if (oRowsBinding) {
+                oRowsBinding.filter([]);
             }
-            MessageToast.show("Filtri resettati");
-        },
 
+            const aRows = oCalendar.getRows();
+
+            aRows.forEach(function (oRow) {
+                const oApptBinding = oRow.getBinding("appointments");
+                if (oApptBinding) {
+                    oApptBinding.filter([]);
+                }
+            });
+
+
+            MessageToast.show("Filtri resettati: tutti i turni ripristinati");
+
+        },
 
         onPressMancanzaPersonale: function () {
             const oKpiModel = this.getView().getModel("kpi");
@@ -1069,17 +1089,21 @@ sap.ui.define([
             let bNewActive;
 
             if (bIsRefreshOnly === true) {
-
                 bNewActive = oKpiModel.getProperty("/showConsecutiveHighlight");
             } else {
                 const bCurrentlyActive = oKpiModel.getProperty("/showConsecutiveHighlight") || false;
                 bNewActive = !bCurrentlyActive;
+
+                if (bNewActive) {
+                    oKpiModel.setProperty("/showRestHighlight", false);
+                }
+
                 oKpiModel.setProperty("/showConsecutiveHighlight", bNewActive);
 
                 if (bNewActive) {
                     MessageToast.show('Evidenziazione rischio salute attiva');
                 } else {
-                    MessageToast.show('Evidenziazione rimossa');
+                    MessageToast.show('Evidenziazione rischio salute rimossa');
                 }
             }
 
@@ -1191,7 +1215,20 @@ sap.ui.define([
             } else {
                 const bCurrentlyActive = oKpiModel.getProperty("/showRestHighlight") || false;
                 bNewActive = !bCurrentlyActive;
+
+                if (bNewActive) {
+                    oKpiModel.setProperty('/showConsecutiveHighlight', false);
+                }
+
                 oKpiModel.setProperty("/showRestHighlight", bNewActive);
+
+
+                if (bNewActive) {
+
+                    MessageToast.show('Evidenziazione mancanza riposo attiva');
+                } else {
+                    MessageToast.show('Evidenziazione mancanza riposo rimossa');
+                }
             }
 
             this.countNonroposoSettimanale(bNewActive);
