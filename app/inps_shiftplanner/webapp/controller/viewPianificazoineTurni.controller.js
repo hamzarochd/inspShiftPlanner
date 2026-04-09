@@ -54,42 +54,12 @@ sap.ui.define([
 
             // Modello Dipartimenti e Ruoli
             var setRuoli = {
-                "RuoliCollezione": [
-                    { "key": "Coordinatore infermieristico", "text": "Coordinatore infermieristico" },
-                    { "key": "Infermiere", "text": "Infermiere" },
-                    { "key": "Infermiere Terapia Intensiva", "text": "Infermiere Terapia Intensiva" },
-                    { "key": "Operatore Socio Sanitario (OSS)", "text": "Operatore Socio Sanitario (OSS)" },
-                    { "key": "Ausiliario/Barelliere", "text": "Ausiliario/Barelliere" },
-                    { "key": "Medico", "text": "Medico" },
-                    { "key": "Chirurgo", "text": "Chirurgo" },
-                    { "key": "Anestesista", "text": "Anestesista" },
-                    { "key": "Specializzando", "text": "Specializzando" },
-                    { "key": "Strumentista", "text": "Strumentista" },
-                    { "key": "Tecnico sanitario", "text": "Tecnico sanitario" },
-                    { "key": "Fisioterapista", "text": "Fisioterapista" },
-                    { "key": "Logopedista", "text": "Logopedista" },
-                    { "key": "Supporto esterno", "text": "Supporto esterno" }
-                ],
-                "Reparti": [
-                    { "key": "EMERGENZA", "text": "Emergenza / PS" },
-                    { "key": "DIAGNOSTICA", "text": "Diagnostica" },
-                    { "key": "AFFIANCAMENTO", "text": "Affiancamento" },
-                    { "key": "REPERIBILITA", "text": "Reperibilità" },
-                    { "key": "RIPOSO", "text": "Riposo" }
-                ],
                 "TipiTurno": [
                     { "key": "AFFIANCAMENTO", "text": "Affiancamento", "color": "#0070F2", "title": "Affiancamento", "shiftIcon": "" },
                     { "key": "DIAGNOSTICA", "text": "Diagnostica", "color": "#E76500", "title": "Diagnostica", "shiftIcon": "" },
                     { "key": "EMERGENZA", "text": "Emergenza", "color": "#D20000", "title": "Emergenza", "shiftIcon": "" },
                     { "key": "REPERIBILITA", "text": "Reperibilità", "color": "#0A6ED1", "title": "Reperibilità", "shiftIcon": "" },
                     { "key": "RIPOSO", "text": "Riposo", "color": "#8B8B8B", "title": "Riposo", "shiftIcon": "" }
-                ],
-                "TeamFiltro": [
-                    { "key": "Pronto Soccorso", "text": "Pronto Soccorso" },
-                    { "key": "Terapia Intensiva", "text": "Terapia Intensiva" },
-                    { "key": "Medicina Generale", "text": "Medicina Generale" },
-                    { "key": "Chirurgia", "text": "Chirurgia" },
-                    { "key": "Sala Operatoria", "text": "Sala Operatoria" }
                 ]
             };
             this.getView().setModel(new JSONModel(setRuoli), "ruoliModel");
@@ -111,7 +81,6 @@ sap.ui.define([
             oListBinding.requestContexts(0, 9999).then(function (aContexts) {
 
                 // Mappa tipo → { shiftIcon, color, title } per derivare icone/colori mancanti
-                const aTipi = this.getView().getModel("ruoliModel").getProperty("/TipiTurno");
                 const oTipoMap = {};
                 aTipi.forEach(function (t) { oTipoMap[t.key] = t; });
 
@@ -153,11 +122,26 @@ sap.ui.define([
                     };
                 });
 
+
+                ////// prendere i nomi degli appuntamenti：：：：
+                const allTypes = aDipendenti.flatMap(d => d.shifts.map(s => s.type));
+                const aApptName = [...new Set(allTypes)].map(sName => ({type :sName}));
+
+                ///// prendere i nomi dei ruoli::::
+                const aRuoliName =  [...new Set(aDipendenti.map(d => d.role))].map(sName => ({role:sName}));
+
+                ///// prendere i nomi del team::::::
+                const aTeamName = [...new Set(aDipendenti.map(d => d.teamName))].map(sName => ({ Name: sName }));
+
                 // Usa setData sull'istanza esistente — non creare un nuovo JSONModel
                 // altrimenti il PlanningCalendar perde il binding
                 oViewModel.setData({
                     startDate: UI5Date.getInstance(nowInner.getFullYear(), nowInner.getMonth(), 1),
-                    dipendenti: aDipendenti
+                    dipendenti: aDipendenti,
+                    teams: aTeamName,
+                    reparti:aApptName,
+                    ruoli: aRuoliName,
+
                 });
                 oViewModel.refresh(true);
 

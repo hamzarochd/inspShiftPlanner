@@ -17,11 +17,11 @@
                 placement="Auto">
                 <content>
                     <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
-                        <Label text="Tipo turno" design="Bold" />
+                        <Label text="{i18n>TipoTurno}" design="Bold" />
                         <Text text="{appt>/type}" class="sapUiTinyMarginBottom" />
-                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop" />
+                        <Label text="{i18n>Inizio}" design="Bold" class="sapUiTinyMarginTop" />
                         <Text text="{appt>/startDate}" class="sapUiTinyMarginBottom" />
-                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop" />
+                        <Label text="{i18n>Fine}" design="Bold" class="sapUiTinyMarginTop" />
                         <Text text="{appt>/endDate}" />
                     </VBox>
                 </content>
@@ -39,7 +39,7 @@
             <Dialog id="editAppointmentDialog" title="Modifica Turno">
                 <content>
                     <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
-                        <Label text="Tipo turno" design="Bold" />
+                        <Label text="{i18n>TipoTurno}" design="Bold" />
                         <Select
                             selectedKey="{editAppt>/type}"
                             change="onEditTypeChange"
@@ -48,13 +48,13 @@
                             items="{ruoliModel>/TipiTurno}">
                             <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
                         </Select>
-                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop" />
+                        <Label text="{i18n>Inizio}" design="Bold" class="sapUiTinyMarginTop" />
                         <DateTimePicker
                             id="editStartPicker"
                             dateValue="{editAppt>/startDate}"
                             displayFormat="dd/MM/yyyy HH:mm"
                             class="sapUiTinyMarginBottom" />
-                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop" />
+                        <Label text="{i18n>Fine}" design="Bold" class="sapUiTinyMarginTop" />
                         <DateTimePicker
                             id="editEndPicker"
                             dateValue="{editAppt>/endDate}"
@@ -72,7 +72,7 @@
             <Dialog id="duplicateAppointmentDialog" title="Duplica Turno">
                 <content>
                     <VBox class="sapUiSmallMargin sapUiSmallMarginEnd">
-                        <Label text="Tipo turno" design="Bold" />
+                        <Label text="{i18n>TipoTurno}" design="Bold" />
                         <Select
                             selectedKey="{dupAppt>/type}"
                             change="onDupTypeChange"
@@ -81,13 +81,13 @@
                             items="{ruoliModel>/TipiTurno}">
                             <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
                         </Select>
-                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop" />
+                        <Label text="{i18n>Inizio}" design="Bold" class="sapUiTinyMarginTop" />
                         <DateTimePicker
                             id="dupStartPicker"
                             dateValue="{dupAppt>/startDate}"
                             displayFormat="dd/MM/yyyy HH:mm"
                             class="sapUiTinyMarginBottom" />
-                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop" />
+                        <Label text="{i18n>Fine}" design="Bold" class="sapUiTinyMarginTop" />
                         <DateTimePicker
                             id="dupEndPicker"
                             dateValue="{dupAppt>/endDate}"
@@ -124,13 +124,13 @@
                             items="{ruoliModel>/TipiTurno}">
                             <core:Item key="{ruoliModel>key}" text="{ruoliModel>text}" />
                         </Select>
-                        <Label text="Inizio" design="Bold" class="sapUiTinyMarginTop" />
+                        <Label text="{i18n>Inizio}" design="Bold" class="sapUiTinyMarginTop" />
                         <DateTimePicker
                             id="newStartPicker"
                             dateValue="{newAppt>/startDate}"
                             displayFormat="dd/MM/yyyy HH:mm"
                             class="sapUiTinyMarginBottom" />
-                        <Label text="Fine" design="Bold" class="sapUiTinyMarginTop" />
+                        <Label text="{i18n>Fine}" design="Bold" class="sapUiTinyMarginTop" />
                         <DateTimePicker
                             id="newEndPicker"
                             dateValue="{newAppt>/endDate}"
@@ -155,6 +155,7 @@
                     <f:expandedContent>
                         <Label text="Gestione e monitoraggio turni del personale"></Label>
                         <Button text="Vai al mio Turno" icon="sap-icon://person-placeholder" press="onNavToProfilo"/>
+                        <Label text="{i18n>sottotitolo}"></Label>
                     </f:expandedContent>
                 </f:DynamicPageTitle>
             </f:title>
@@ -180,39 +181,39 @@
                                         <fb:control>
                                             <ComboBox id="groupFilter"
                                                 width="100%"
-                                                items="{ruoliModel>/TeamFiltro}"
-                                                placeholder="Seleziona Team"
+                                                items="{/teams}"
+                                                placeholder="{i18n>SelectTeam}"
                                                 showClearIcon="true">
-                                                <core:Item key="{ruoliModel>key}"
-                                                    text="{ruoliModel>text}" />
+                                                <core:Item key="{Name}"
+                                                    text="{Name}" />
                                             </ComboBox>
                                         </fb:control>
                                     </fb:FilterGroupItem>
 
                                     <fb:FilterGroupItem groupName="cd" name="Reparti"
-                                        label="Reparto" visibleInFilterBar="true">
+                                        label="{i18n>Reparto}" visibleInFilterBar="true">
                                         <fb:control>
                                             <ComboBox id="repartoFilterCombo"
                                                 width="100%"
-                                                items="{ruoliModel>/Reparti}"
-                                                placeholder="Seleziona reparto"
+                                                items="{/reparti}"
+                                                placeholder="{i18n>SelectRepart}"
                                                 showClearIcon="true">
-                                                <core:Item key="{ruoliModel>key}"
-                                                    text="{ruoliModel>text}" />
+                                                <core:Item key="{type}"
+                                                    text="{type}" />
                                             </ComboBox>
                                         </fb:control>
                                     </fb:FilterGroupItem>
 
                                     <fb:FilterGroupItem groupName="Main" name="Ruolo"
-                                        label="Qualifica professionale" visibleInFilterBar="true">
+                                        label="{i18n>Qualificazione}" visibleInFilterBar="true">
                                         <fb:control>
                                             <ComboBox id="roleFilterCombo"
                                                 width="100%"
-                                                items="{ruoliModel>/RuoliCollezione}"
-                                                placeholder="Seleziona qualifica"
+                                                items="{/ruoli}"
+                                                placeholder="{i18n>SelectQual}"
                                                 showClearIcon="true">
-                                                <core:Item key="{ruoliModel>text}"
-                                                    text="{ruoliModel>text}" />
+                                                <core:Item key="{role}"
+                                                    text="{role}" />
                                             </ComboBox>
                                         </fb:control>
                                     </fb:FilterGroupItem>
@@ -221,7 +222,7 @@
                             <HBox
                                 class="sapUiSmallMarginEnd sapUiSmallMarginTop sapUiSmallMarginBottom">
                                 <!-- Chenyu KPIS -->
-                                <GenericTile class="" header="Mancanza personale"
+                                <GenericTile class="" header="{i18n>MancanzaPersonale}"
                                     frameType="OneByHalf" press="onPressMancanzaPersonale"
                                     wrappingType="Hyphenated">
                                     <TileContent>
@@ -230,7 +231,7 @@
                                     </TileContent>
                                 </GenericTile>
 
-                                <GenericTile class="sapUiTinyMarginBegin" header="Rischio salute"
+                                <GenericTile class="sapUiTinyMarginBegin" header="{i18n>RischioSalute}"
                                     frameType="OneByHalf" press="onPressRischioSalute">
                                     <TileContent>
                                         <NumericContent scale="P" value="{kpi>/consecutiveCount}"
@@ -240,7 +241,7 @@
 
                                 <!-- card: avere almeno un giorno di riposto alla settimana-->
 
-                                <GenericTile class="sapUiTinyMarginBegin" header="Mancanza riposo"
+                                <GenericTile class="sapUiTinyMarginBegin" header="{i18n>MancanzaRiposo}"
                                     frameType="OneByHalf" press="onPressMancazaRiposso"
                                     wrappingType="Hyphenated">
                                     <TileContent>
@@ -268,7 +269,8 @@
                         showEmptyIntervalHeaders="false"
                         appointmentHeight="Regular"
                         appointmentSelect="onAppointmentSelect"
-                        intervalSelect="onIntervalSelect">
+                        intervalSelect="onIntervalSelect"
+                        stickyHeader="true">
 
                         <rows>
                             <PlanningCalendarRow
