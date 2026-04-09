@@ -208,9 +208,7 @@
                             <Text text="8 ore"/>
                             </VBox>
                         </HBox>
-                        </FlexBox>
                     </VBox>
-
                 </FlexBox>
 
                 <!--Calendario-->
