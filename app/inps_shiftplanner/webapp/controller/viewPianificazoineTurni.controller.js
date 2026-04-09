@@ -116,12 +116,7 @@ sap.ui.define([
                 aTipi.forEach(function (t) { oTipoMap[t.key] = t; });
 
                 const aStaffData = aContexts.map(oCtx => oCtx.getObject());
-                // DEBUG — rimuovi dopo aver trovato il problema
-                console.log("Staff ricevuti:", aStaffData.length);
-                if (aStaffData[0]) {
-                    console.log("Primo staff ID:", aStaffData[0].ID);
-                    console.log("Appointments del primo staff:", aStaffData[0].Appointments);
-                }
+                
                 const nowInner = new Date();
 
                 const aDipendenti = aStaffData.map(function (oStaff) {
