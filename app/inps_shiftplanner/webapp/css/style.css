@@ -1,130 +1,4 @@
-/* Enter your custom styles here */
-.cardBox {
-  border-radius: 12px;
-  padding: 1rem;
-  background: #f8f9fb;
-}
-
-/* Stile della card appointment del PlanningCalendar.
-   Agiamo su .sapUiCalendarApp (contenitore esterno) che è sicuro da modificare
-   senza rompere il layout interno di SAP UI5. */
-.sapUiCalendarApp {
-    box-sizing: border-box !important;
-    border-radius: 4px !important;
-    /* border: 2px solid rgba(230, 15, 15, 1) !important;       evidenzia appointment*/
-}
-
-.cardProfile {
-    border-radius: 16px;
-    padding: 1.5rem;
-    background: #f9fafb;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-}
-
-.infoItem {
-    width: 45%;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.label {
-    font-size: 0.75rem;
-    color: #6b7280;
-}
-
-.value {
-    font-weight: 600;
-}
-
-.icon {
-    font-size: 1.5rem;
-    padding: 10px;
-    border-radius: 10px;
-}
-
-.blue   { background: #e0edff; color: #2563eb; }
-.green  { background: #dcfce7; color: #16a34a; }
-.purple { background: #f3e8ff; color: #9333ea; }
-.orange { background: #fff7ed; color: #ea580c; }
-.violet { background: #ede9fe; color: #7c3aed; }
-
-.kpiCard {
-    flex: 1;
-    min-width: 280px;
-    max-width: 350px;
-    padding: 1rem;
-    border-radius: 14px;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    margin: 2rem;
-}
-
-.kpiIcon {
-    margin-right: 8px;
-}
-
-.cardProfile {
-    border-radius: 16px;
-    padding: 1.5rem;
-    background: #f9fafb;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-}
-
-.infoItem {
-    width: 45%;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.label {
-    font-size: 0.75rem;
-    color: #6b7280;
-}
-
-.value {
-    font-weight: 600;
-}
-
-.icon {
-    font-size: 1.5rem;
-    padding: 10px;
-    border-radius: 10px;
-}
-
-.blue   { background: #e0edff; color: #2563eb; }
-.green  { background: #dcfce7; color: #16a34a; }
-.purple { background: #f3e8ff; color: #9333ea; }
-.orange { background: #fff7ed; color: #ea580c; }
-.violet { background: #ede9fe; color: #7c3aed; }
-
-.kpiCard {
-    flex: 1;
-    min-width: 280px;
-    max-width: 350px;
-    padding: 1rem;
-    border-radius: 14px;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    margin: 2rem;
-}
-
-.kpiIcon {
-    margin-right: 8px;
-}
-
-
-/* per kpi --> evidenziare le righe. 
-[data-myHighlight="true"] {
-    background-color: #fef3f3 !important;
-    box-shadow: inset 8px 0 0 0 #ed6a5a !important; 
-}*/
-
-
-
+/* parte Chenyu*/
 .sapMListTblRow:not(.sapMLIBSelected) .sapUiCalendarRowAppsNoWork, .sapMListTblSubRow:not(.sapMLIBSelected) .sapUiCalendarRowAppsNoWork{
     background-color: #ed6a5a !important;
 }
@@ -134,4 +8,114 @@
     background-color: #ed6a5a !important; /* Your specific red */
     background-image: none !important;
     opacity: 1 !important;
+}
+
+/* ========================================================================
+   1. LAYOUT & CARD BASE
+   ======================================================================== */
+
+/* Spaziatura per i contenitori delle card */
+.kpiContainer, .teamContainer {
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* Stile unico per tutte le card (Profilo, Team e KPI) */
+.cardProfile, .kpiCard, .teamMemberCard {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ========================================================================
+   2. SEZIONE PROFILO & TEAM
+   ======================================================================== */
+
+/* Singola "figurina" del membro del team */
+.teamMemberCard {
+    width: calc(33.33% - 1rem) !important;
+    min-width: 250px;
+    padding: 1rem;
+    margin: 0.5rem;
+    display: flex !important;
+    align-items: center;
+}
+
+/* Effetto azzurro per la tua card personale */
+.currentMember {
+    background: #eff6ff !important;
+    border-color: #3b82f6 !important;
+}
+
+/* Allineamento icone/testi nel profilo in alto */
+.infoItem {
+    width: 45%;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ========================================================================
+   3. SEZIONE KPI (STATISTICHE)
+   ======================================================================== */
+
+.kpiCard {
+    flex: 1;
+    min-width: 300px;
+    padding: 1.5rem;
+    margin: 0.5rem;
+}
+
+/* Numeri grandi nelle statistiche */
+.valueKPI {
+    font-size: 1.5rem !important;
+    font-weight: 800 !important;
+    color: #111827;
+}
+
+/* Label piccole e testi secondari */
+.label, .percentLabel {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+}
+
+/* ========================================================================
+   4. ICONE E COLORI SEMANTICI
+   ======================================================================== */
+
+/* Base per le icone circolari (sia profilo che KPI) */
+.icon, .iconKPI {
+    font-size: 1.2rem;
+    padding: 10px;
+    border-radius: 50%;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Palette colori (sfondo, testo e bordo coordinati) */
+.blue   { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
+.green  { background: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; }
+.purple { background: #faf5ff; color: #7e22ce; border: 1px solid #f3e8ff; }
+.orange { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; }
+.violet { background: #ede9fe; color: #7c3aed; border: 1px solid #ddd6fe; }
+
+/* ========================================================================
+   5. OVERRIDE COMPONENTI SAP
+   ======================================================================== */
+
+/* Barra di progresso sottile e arrotondata */
+.sapMPI {
+    border-radius: 8px !important;
+    height: 8px !important;
+}
+
+/* Arrotondamento per il calendario principale */
+.sapUiCalendarApp {
+    border-radius: 6px !important;
 }

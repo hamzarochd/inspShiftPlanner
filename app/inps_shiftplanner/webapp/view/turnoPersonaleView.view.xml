@@ -1,4 +1,5 @@
-<mvc:View xmlns:cards="sap.f.cards"
+<mvc:View 
+    xmlns:cards="sap.f.cards"
     controllerName="inpsshiftplanner.controller.turnoPersonale"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
@@ -8,8 +9,6 @@
     xmlns:unified="sap.ui.unified">
 
     <f:DynamicPage>
-
-        <!-- Inizio Pagina -->
         <f:title>
             <f:DynamicPageTitle>
                 <f:heading>
@@ -18,34 +17,36 @@
                 <f:expandedContent>
                     <Text text="Visualizza turni e informazioni personali"/>
                 </f:expandedContent>
+                <f:actions>
+                    <Button 
+                    id="btnIndietro"
+                    text="Torna alla Pianificazione"
+                    icon="sap-icon://nav-back"
+                    type="Transparent"
+                    press="onNavBack"/>
+                </f:actions>
             </f:DynamicPageTitle>
         </f:title>
 
-        <!-- CONTENUTO -->
         <f:content>
             <VBox class="sapUiMediumMargin">
 
-                <!-- CARD PROFILO -->
-                <f:Card class="cardProfile sapUiMediumMarginBotton"> <!-- Capire sapUiMediumMarginBotton e anche f:card-->
-
+                <f:Card class="cardProfile sapUiMediumMarginBottom">
                     <f:content>
-                        <FlexBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="sapUiMediumMargin"> <!--Capire SapMediumMrgin-->
+                        <FlexBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="sapUiMediumMargin">
 
-                            <!-- Profilo-->
                             <VBox class="sapUiMediumMarginEnd">
-                                <Avatar initials="MR" displaySize="XL" backgroundColor="Accent6"/> <!-- capire "Accent6"-->
-                                <Title text="Mario Rossi" class="sapUiSmallMarginTop" titleStyle="H4"/> <!-- H4?-->
+                                <Avatar initials="MR" displaySize="XL" backgroundColor="Accent6"/>
+                                <Title text="Mario Rossi" class="sapUiSmallMarginTop" titleStyle="H4"/>
                                 <Text text="Matricola: INF-2458"/>
                             </VBox>
-
-                            <!-- INFO -->
-                            <FlexBox wrap="Wrap" width="70%" justifyContent="SpaceBetween"> <!-- Cambiato width-->
-
+<!-- Info-->
+                            <FlexBox wrap="Wrap" width="70%" justifyContent="SpaceBetween">
                                 <HBox class="infoItem">
                                     <core:Icon src="sap-icon://briefcase" class="icon blue"/>
                                     <VBox>
                                         <Text text="RUOLO" class="label"/>
-                                        <Text text="Infermiere" class="value"/> <!-- da cambiare funzione text più avanti, collegandolo al db-->
+                                        <Text text="Infermiere" class="value"/>
                                     </VBox>
                                 </HBox>
 
@@ -93,157 +94,140 @@
                     </f:content>
                 </f:Card>
 
-                <!--Card Gruppo-->
                 <f:Card class="sapUiMediumMarginBottom cardProfile">
                     <f:header>
                         <cards:Header
-                        title="Team A- Terapia Intensiva"
-                        subtitle="6 membri-Coordinatore :"
-                        iconSrc="sap-icon://group-2"/>
+                            title="Team A - Terapia Intensiva"
+                            subtitle="6 membri • Coordinatore: Dr. Laura Bianchi"
+                            iconSrc="sap-icon://group-2"/>
                     </f:header>
-
+<!-- Gruppo-->
                     <f:content>
-                        <FlexBox  wrap="Wrap"  justifyContent="Start" class="sapUiSmallMargin">
-                          <HBox class ="teamMemberCard currentMember">
+                        <FlexBox wrap="Wrap" justifyContent="Start" class="sapUiSmallMargin">
+                            <HBox class="teamMemberCard currentMember">
                                 <Avatar initials="MR" displaySize="S" class="sapUiTinyMarginEnd"/>
-                                <VBox >
-                                <HBox  alignItems="Center">
-                                    <Title text="Mario Rossi" class="value"/>
-                                    <ObjectStatus text="Tu" state="Information"  class="sapUiTinyMarginBegin"/>
-                                </HBox>
-                                <Text  text="Cordinatore" class="label"/>
-                            </VBox>
-                           </HBox>
+                                <VBox>
+                                    <HBox alignItems="Center">
+                                        <Text text="Mario Rossi" class="value"/>
+                                        <ObjectStatus text="Tu" state="Information" class="sapUiTinyMarginBegin"/>
+                                    </HBox>
+                                    <Text text="Coordinatore" class="label"/>
+                                </VBox>
+                            </HBox>
 
-                           <HBox class ="teamMemberCard ">
+                            <HBox class="teamMemberCard">
                                 <Avatar initials="GV" displaySize="S" class="sapUiTinyMarginEnd"/>
                                 <VBox>
                                     <Text text="Giulia Verdi" class="value"/>
-                                    <Text text="Infermiera"  class="label"/>
+                                    <Text text="Infermiera" class="label"/>
                                 </VBox>
-                             </HBox>
+                            </HBox>
 
-                            <HBox class ="teamMemberCard ">
+                            <HBox class="teamMemberCard">
                                 <Avatar initials="PN" displaySize="S" class="sapUiTinyMarginEnd"/>
                                 <VBox>
                                     <Text text="Paolo Neri" class="value"/>
-                                    <Text text="Infermiere"  class="label"/>
+                                    <Text text="Infermiere" class="label"/>
                                 </VBox>
                             </HBox>
 
-                            <HBox class ="teamMemberCard ">
+                            <HBox class="teamMemberCard">
                                 <Avatar initials="SG" displaySize="S" class="sapUiTinyMarginEnd"/>
                                 <VBox>
                                     <Text text="Sara Gialli" class="value"/>
-                                    <Text text="OSS"  class="label"/>
+                                    <Text text="OSS" class="label"/>
                                 </VBox>
                             </HBox>
 
-                           <HBox class ="teamMemberCard ">
+                            <HBox class="teamMemberCard">
                                 <Avatar initials="MB" displaySize="S" class="sapUiTinyMarginEnd"/>
                                 <VBox>
                                     <Text text="Marco Blu" class="value"/>
-                                    <Text text="OSS"  class="label"/>
-                                </VBox>
-                            </HBox>
-                            <HBox class ="teamMemberCard ">
-                                <Avatar initials="EB" displaySize="S" class="sapUiTinyMarginEnd"/>
-                                <VBox>
-                                    <Text text="Elena Bianchi" class="value"/>
-                                    <Text text="Medico Specializzando"  class="label"/>
+                                    <Text text="OSS" class="label"/>
                                 </VBox>
                             </HBox>
 
+                            <HBox class="teamMemberCard">
+                                <Avatar initials="EB" displaySize="S" class="sapUiTinyMarginEnd"/>
+                                <VBox>
+                                    <Text text="Elena Bianchi" class="value"/>
+                                    <Text text="Medico Specializzando" class="label"/>
+                                </VBox>
+                            </HBox>
                         </FlexBox>
                     </f:content>
                 </f:Card>
 
-                <!-- KPI -->
-                <FlexBox wrap="Wrap" justifyContent="SpaceBetween" class="sapUiSmallMargin"> 
-
-                    <!-- Ore -->
-                    <VBox class="kpiCard blue>Card">
+                <FlexBox wrap="Wrap" justifyContent="SpaceBetween" class="kpiContainer"> 
+<!--Ore-->                   
+                    <VBox class="kpiCard">
                         <HBox alignItems="Center" class="sapUiSmallMarginBottom">
-                            <core:Icon src="sap-icon://history" class="kpiIcon"/>
-                            <Title text="Ore Lavorate (Marzo)"/>
+                            <core:Icon src="sap-icon://history" class="icon blue"/>
+                            <Title text="Ore Lavorate (Marzo)" titleStyle="H6"/>
                         </HBox>
-
-                        <HBox alignItems="End">
-                            <Text text="0/168 ore" class="sapUiSmallMarginBegin"/>
+                        <HBox justifyContent="SpaceBetween" alignItems="End" class="sapUiTinyMarginBottom">
+                            <Text text="156 / 168 ore" class="valueKPI"/>
+                            <Text text="92%" class="percentLabel"/>
                         </HBox>
-
-                        <ProgressIndicator percentValue="0"/>
+                        <ProgressIndicator percentValue="92" displayValue="" state="Information" height="8px"/>
                     </VBox>
-
-                    <!-- Turni -->
-                    <VBox class="kpiCard green">
-                        <HBox alignItems="Center">
-                            <core:Icon src="sap-icon://calendar" class="kpiIcon"/>
-                            <Title text="Turni Completati"/>
+<!--Turni-->
+                    <VBox class="kpiCard">
+                        <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                            <core:Icon src="sap-icon://calendar" class="icon green"/>
+                            <Title text="Turni Completati" titleStyle="H6"/>
                         </HBox>
-
-                        <HBox alignItems="End">
-                           <Text text="0/ 21 turni" class="sapUiSmallMarginBegin"/>
+                        <HBox justifyContent="SpaceBetween" alignItems="End" class="sapUiTinyMarginBottom">
+                           <Text text="18 / 21 turni" class="valueKPI"/>
+                           <Text text="85%" class="percentLabel"/>
                         </HBox>
-
-                        <ProgressIndicator percentValue="0"/>  <!--state=""(usalo per segnalare un  successo)-->
+                        <ProgressIndicator percentValue="85" displayValue="" state="Success" height="8px"/>
                     </VBox>
-
-                    <!-- Ferie -->
-                    <VBox class="kpiCard purple">
-                        <HBox alignItems="Center">
-                            <core:Icon src="sap-icon://calendar" class="kpiIcon"/>
-                            <Title text="Ferie e Recuperi"/>
+<!--Ferie e recuperi-->
+                    <VBox class="kpiCard">
+                        <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                            <core:Icon src="sap-icon://accidental-leave" class="icon purple"/>
+                            <Title text="Ferie e Recuperi" titleStyle="H6"/>
                         </HBox>
-
-                        <FlexBox wrap="Wrap" width="600px" justifyContent="SpaceBetween"> <!--Simple form-->
-                         <HBox  justifyContent="SpaceBetween" width="55%">
-                            <VBox >
-                            <Title text="Ferie residue"/>
-                            <Text text="12 giorni"/>
-                            </VBox>
-
+                        <HBox justifyContent="SpaceBetween" class="sapUiSmallMarginTop">
                             <VBox>
-                            <Title text="Recuperi"/>
-                            <Text text="8 ore"/>
+                                <Text text="FERIE RESIDUE" class="label"/>
+                                <Text text="12 giorni" class="valueKPI"/>
+                            </VBox>
+                            <VBox alignItems="End">
+                                <Text text="RECUPERI" class="label"/>
+                                <Text text="8 ore" class="valueKPI" />
                             </VBox>
                         </HBox>
                     </VBox>
                 </FlexBox>
 
-                <!--Calendario-->
-                <Panel headerText="I miei turni" class="sapUiMediumMarginTop">
-
-                    <PlanningCalendar
-                        id="PlanningCalendar"
-                        startDate="{/startDate}"
-                        viewKey="One Month"
-                        rows="{/dipendenti}">
-
-                        <rows>
-                            <PlanningCalendarRow
-                                title="{name}"
-                                text="{role}"
-                                appointments="{path: 'shifts'}">
-
-                                <appointments>
-                                    <unified:CalendarAppointment
-                                        startDate="{startDate}"
-                                        endDate="{endDate}"
-                                        title="{title}"
-                                        color="{color}"/>
-                                </appointments>
-
-                            </PlanningCalendarRow>
-                        </rows>
-
-                    </PlanningCalendar>
-
-                </Panel>
-
+                <f:DynamicPage >
+                    <f:header>
+                    </f:header>
+                    <f:content>
+                        <SinglePlanningCalendar
+                        id="SPC1"
+                        class="sapUiSmallMargin"
+                        title="Turni di :{ Name } {Surname}"
+                        appointments="{ path:'ToShifts' }">
+                        <views>
+                         <SinglePlanningCalendarMonthView key="MonthView" title="Mese" />
+                        </views>
+                            <appointments>
+                                <unified:CalendarAppointment
+                                title= "{Title}"
+                                text= "{Notes}"
+                                type= "{ColorType}"
+                                icon= "{icon}"
+                                startDate= "{StartDate}"
+                                endDate= "{EndDate}">
+                                </unified:CalendarAppointment>
+                            </appointments>
+			            </SinglePlanningCalendar>
+                    </f:content>
+                </f:DynamicPage>
             </VBox>
         </f:content>
-
     </f:DynamicPage>
-
 </mvc:View>
