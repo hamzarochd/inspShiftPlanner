@@ -180,11 +180,11 @@
                                         <fb:control>
                                             <ComboBox id="groupFilter"
                                                 width="100%"
-                                                items="{ruoliModel>/TeamFiltro}"
+                                                items="{/teams}"
                                                 placeholder="{i18n>SelectTeam}"
                                                 showClearIcon="true">
-                                                <core:Item key="{ruoliModel>key}"
-                                                    text="{ruoliModel>text}" />
+                                                <core:Item key="{Name}"
+                                                    text="{Name}" />
                                             </ComboBox>
                                         </fb:control>
                                     </fb:FilterGroupItem>
@@ -194,11 +194,11 @@
                                         <fb:control>
                                             <ComboBox id="repartoFilterCombo"
                                                 width="100%"
-                                                items="{ruoliModel>/Reparti}"
+                                                items="{/reparti}"
                                                 placeholder="{i18n>SelectRepart}"
                                                 showClearIcon="true">
-                                                <core:Item key="{ruoliModel>key}"
-                                                    text="{ruoliModel>text}" />
+                                                <core:Item key="{type}"
+                                                    text="{type}" />
                                             </ComboBox>
                                         </fb:control>
                                     </fb:FilterGroupItem>
@@ -208,11 +208,11 @@
                                         <fb:control>
                                             <ComboBox id="roleFilterCombo"
                                                 width="100%"
-                                                items="{ruoliModel>/RuoliCollezione}"
+                                                items="{/ruoli}"
                                                 placeholder="{i18n>SelectQual}"
                                                 showClearIcon="true">
-                                                <core:Item key="{ruoliModel>text}"
-                                                    text="{ruoliModel>text}" />
+                                                <core:Item key="{role}"
+                                                    text="{role}" />
                                             </ComboBox>
                                         </fb:control>
                                     </fb:FilterGroupItem>
