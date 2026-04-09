@@ -154,6 +154,7 @@
                     </f:heading>
                     <f:expandedContent>
                         <Label text="Gestione e monitoraggio turni del personale"></Label>
+                        <Button text="Vai al mio Turno" icon="sap-icon://person-placeholder" press="onNavToProfilo"/>
                     </f:expandedContent>
                 </f:DynamicPageTitle>
             </f:title>

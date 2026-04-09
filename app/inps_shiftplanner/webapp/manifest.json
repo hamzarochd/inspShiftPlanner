@@ -12,8 +12,7 @@
     "resources": "resources.json",
     "sourceTemplate": {
       "id": "@sap/generator-fiori:basic",
-      "version": "1.21.0",
-      "toolsId": "e37e9a9c-35dd-4b6c-a5c9-6714b75bf307"
+      "version": "1.21.0"
     },
     "dataSources": {
       "mainService": {
@@ -24,31 +23,10 @@
           "odataVersion": "4.01"
         }
       }
-    },
-    "crossNavigation": {
-      "inbounds": {
-        "inps_shiftplanner-display": {
-          "semanticObject": "inps_shiftplanner",
-          "action": "display",
-          "title": "{{inps_shiftplanner-display.flpTitle}}",
-          "signature": {
-            "parameters": {},
-            "additionalParameters": "allowed"
-          }
-        }
-      }
     }
   },
   "sap.ui": {
     "technology": "UI5",
-    "icons": {
-      "icon": "",
-      "favIcon": "",
-      "phone": "",
-      "phone@2": "",
-      "tablet": "",
-      "tablet@2": ""
-    },
     "deviceTypes": {
       "desktop": true,
       "tablet": true,
@@ -95,7 +73,7 @@
       ]
     },
     "routing": {
-      "config": {
+    "config": {
         "routerClass": "sap.m.routing.Router",
         "controlAggregation": "pages",
         "controlId": "app",
@@ -103,46 +81,34 @@
         "type": "View",
         "viewType": "XML",
         "path": "inpsshiftplanner.view",
-        "async": true,
-        "viewPath": "inpsshiftplanner.view"
-      },
-      "routes": [
-        {
-          "name": "RouteviewPianificazoineTurni",
-          "pattern": ":?query:",
-          "target": ["TargetviewPianificazoineTurni"]
-        },
-        {
-          "name": "RoutePianificazione",
-          "pattern": "turno",
-          "target":["TargetTurnoPersonale"]
-        }
-      ],
-      "targets": {
-        "TargetviewPianificazoineTurni": {
-          "id": "viewPianificazoineTurni",
-          "name": "viewPianificazoineTurni"
-        },
-        "TargetTurnoPersonale":{
-          "id":"turnoPersonaleView",
-          "name":"turnoPersonaleView"
-        }
-      }
+        "async": true
     },
+    "routes": [
+        {
+            "name": "RouteMain",
+            "pattern": "",
+            "target": ["TargetMain"]
+        },
+        {
+            "name": "RouteTurno",
+            "pattern": "turno",
+            "target": ["TargetTurno"]
+        }
+    ],
+    "targets": {
+        "TargetMain": {
+            "viewName": "viewPianificazoineTurni"
+        },
+        "TargetTurno": {
+            "viewName": "turnoPersonaleView" 
+        }
+    }
+},
     "rootView": {
       "viewName": "inpsshiftplanner.view.App",
       "type": "XML",
       "id": "App",
       "async": true
     }
-  },
-  "sap.cloud": {
-    "public": true,
-    "service": "inps_shiftplanner"
-  },
-  "libs":{
-    "sap.m":{},
-    "sap.ui.core":{},
-    "sap.f":{}
   }
 }

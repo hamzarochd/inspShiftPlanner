@@ -1351,6 +1351,14 @@ sap.ui.define([
             this.countNonroposoSettimanale(bRestActive, true);
         },
 
+        onNavToProfilo: function () {
+            this.getOwnerComponent().getRouter().navTo("RouteTurno");
+            },
+
+        onNavBack: function (){
+            var oRouter = this.getOwnerComponent().getRouter();
+            oRouter.navTo("RoutePianificazione");
+        },
 
     });
 });
