@@ -82,7 +82,7 @@ sap.ui.define([
 
                 // Mappa tipo → { shiftIcon, color, title } per derivare icone/colori mancanti
                 const oTipoMap = {};
-                aTipi.forEach(function (t) { oTipoMap[t.key] = t; });
+                //aTipi.forEach(function (t) { oTipoMap[t.key] = t; });
 
                 const aStaffData = aContexts.map(oCtx => oCtx.getObject());
                 // DEBUG — rimuovi dopo aver trovato il problema
@@ -1335,14 +1335,6 @@ sap.ui.define([
             this.countNonroposoSettimanale(bRestActive, true);
         },
 
-        onNavToProfilo: function () {
-            this.getOwnerComponent().getRouter().navTo("RouteTurno");
-            },
-
-        onNavBack: function (){
-            var oRouter = this.getOwnerComponent().getRouter();
-            oRouter.navTo("RoutePianificazione");
-        },
 
     });
 });
