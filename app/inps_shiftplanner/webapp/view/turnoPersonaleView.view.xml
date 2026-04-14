@@ -36,8 +36,8 @@
                         <FlexBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="sapUiMediumMargin">
 
                             <VBox class="sapUiMediumMarginEnd">
-                                <Avatar initials="MR" displaySize="XL" backgroundColor="Accent6"/>
-                                <Title text="Mario Rossi" class="sapUiSmallMarginTop" titleStyle="H4"/>
+                                <Avatar initials="MB" displaySize="XL" backgroundColor="Accent6"/>
+                                <Title text="{odata>Name} {odata>Surname}" class="sapUiSmallMarginTop" titleStyle="H4"/>
                                 <Text text="Matricola: INF-2458"/>
                             </VBox>
 <!-- Info-->
@@ -46,7 +46,7 @@
                                     <core:Icon src="sap-icon://briefcase" class="icon blue"/>
                                     <VBox>
                                         <Text text="RUOLO" class="label"/>
-                                        <Text text="Infermiere" class="value"/>
+                                        <Text text="{odata>Role}" class="value"/>
                                     </VBox>
                                 </HBox>
 
@@ -209,19 +209,19 @@
                         <SinglePlanningCalendar
                         id="SPC1"
                         class="sapUiSmallMargin"
-                        title="Turni di :{ Name } {Surname}"
-                        appointments="{ path:'ToShifts' }">
+                        title="Turni di :{ odata>Name } {odata>Surname}"
+                        appointments="{odata>Appointments}">
                         <views>
                          <SinglePlanningCalendarMonthView key="MonthView" title="Mese" />
                         </views>
                             <appointments>
                                 <unified:CalendarAppointment
-                                title= "{Title}"
-                                text= "{Notes}"
-                                type= "{ColorType}"
-                                icon= "{icon}"
-                                startDate= "{StartDate}"
-                                endDate= "{EndDate}">
+                                title= "{odata>title}"
+                                text= "{odata>notes}"
+                                icon= "{odata>shiftIcon}"
+                                startDate= "{odata>startDate}"
+                                endDate= "{odata>endDate}"
+                                type="{path:'odata>type',formatter:'.formatType'}">
                                 </unified:CalendarAppointment>
                             </appointments>
 			            </SinglePlanningCalendar>
