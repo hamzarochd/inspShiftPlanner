@@ -4,7 +4,7 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:f="sap.f"
-    xmlns:l="sap.ui.layout" 
+    xmlns:l-="sap.ui.layout" 
     xmlns:core="sap.ui.core"
     xmlns:unified="sap.ui.unified">
 
@@ -33,62 +33,76 @@
 
                 <f:Card class="cardProfile sapUiMediumMarginBottom">
                     <f:content>
-                        <FlexBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="sapUiMediumMargin">
+                        <FlexBox justifyContent="Start" alignItems="Start" wrap="Wrap" class="sapUiMediumMargin">
 
-                            <VBox class="sapUiMediumMarginEnd">
+                            <VBox width="400px" class="sapUiMediumMarginEnd sapUiSmallMarginBottom">
                                 <Avatar initials="MB" displaySize="XL" backgroundColor="Accent6"/>
                                 <Title text="{odata>Name} {odata>Surname}" class="sapUiSmallMarginTop" titleStyle="H4"/>
                                 <Text text="Matricola: INF-2458"/>
                             </VBox>
-<!-- Info-->
-                            <FlexBox wrap="Wrap" width="70%" justifyContent="SpaceBetween">
-                                <HBox class="infoItem">
-                                    <core:Icon src="sap-icon://briefcase" class="icon blue"/>
-                                    <VBox>
-                                        <Text text="RUOLO" class="label"/>
-                                        <Text text="{odata>Role}" class="value"/>
-                                    </VBox>
-                                </HBox>
 
-                                <HBox class="infoItem">
-                                    <core:Icon src="sap-icon://map-marker" class="icon purple"/>
-                                    <VBox>
-                                        <Text text="REPARTO" class="label"/>
-                                        <Text text="Terapia Intensiva" class="value"/>
-                                    </VBox>
-                                </HBox>
+                            <FlexBox  justifyContent="SpaceBetween" wrap="Wrap">
+                                
+                                <VBox width="400px" class="sapUiSmallMarginBottom">
+                                    <HBox class="infoItem sapUiSmallMarginBottom">
+                                        <core:Icon src="sap-icon://briefcase" class="icon blue"/>
+                                        <VBox>
+                                            <Text text="RUOLO" class="label" wrapping="false"/>
+                                            <Text text="{odata>Role}" class="value" wrapping="false"/>
+                                        </VBox>
+                                    </HBox>
+                                    <HBox class="infoItem sapUiSmallMarginBottom">
+                                        <core:Icon src="sap-icon://email" class="icon green"/>
+                                        <VBox>
+                                            <Text text="EMAIL" class="label" wrapping="false"/>
+                                            <Text text="mario.rossi@ospedale.it" class="value" wrapping="false"/>
+                                        </VBox>
+                                    </HBox>
+                                    <HBox class="infoItem">
+                                        <core:Icon src="sap-icon://calendar" class="icon violet"/>
+                                        <VBox>
+                                            <Text text="ASSUNTO DAL" class="label" wrapping="false"/>
+                                            <Text text="15/03/2020" class="value" wrapping="false"/>
+                                        </VBox>
+                                    </HBox>
+                                </VBox>
 
-                                <HBox class="infoItem">
-                                    <core:Icon src="sap-icon://email" class="icon green"/>
-                                    <VBox>
-                                        <Text text="EMAIL" class="label"/>
-                                        <Text text="mario.rossi@ospedale.it" class="value"/>
-                                    </VBox>
-                                </HBox>
+                                <VBox width="400px" class="sapUiSmallMarginBottom">
+                                    <HBox class="infoItem sapUiSmallMarginBottom">
+                                        <core:Icon src="sap-icon://map-marker" class="icon purple"/>
+                                        <VBox>
+                                            <Text text="REPARTO" class="label" wrapping="false"/>
+                                            <Text text="Terapia Intensiva" class="value" wrapping="false"/>
+                                        </VBox>
+                                    </HBox>
+                                    <HBox class="infoItem sapUiSmallMarginBottom">
+                                        <core:Icon src="sap-icon://call" class="icon orange"/>
+                                        <VBox>
+                                            <Text text="TELEFONO" class="label" wrapping="false"/>
+                                            <Text text="+39 348 123 4567" class="value" wrapping="false"/>
+                                        </VBox>
+                                    </HBox>
+                                    <HBox class="infoItem">
+                                        <core:Icon src="sap-icon://employee" class="icon green"/>
+                                        <VBox>
+                                            <Text text="STATO" class="label" wrapping="false"/>
+                                            <ObjectStatus text="Attivo" state="Success"/>
+                                        </VBox>
+                                    </HBox>
+                                </VBox>
 
-                                <HBox class="infoItem">
-                                    <core:Icon src="sap-icon://call" class="icon orange"/>
-                                    <VBox>
-                                        <Text text="TELEFONO" class="label"/>
-                                        <Text text="+39 348 123 4567" class="value"/>
+                                <VBox width="300px"  class="sapUiSmallMarginBottom">
+                                    <HBox alignItems="Center" class="sapUiTinyMarginBottom">
+                                        <core:Icon src="sap-icon://comment" class="icon orange"/>
+                                        <Text text="NOTE E COMUNICAZIONI" class="label" wrapping="false" />
+                                    </HBox>
+                                    <VBox class="notesContainer">
+                                        <Text
+                                            text="{odata>NoteRicevute}" 
+                                            wrapping="true"
+                                            class="receivedNoteText"/>
                                     </VBox>
-                                </HBox>
-
-                                <HBox class="infoItem">
-                                    <core:Icon src="sap-icon://calendar" class="icon violet"/>
-                                    <VBox>
-                                        <Text text="ASSUNTO DAL" class="label"/>
-                                        <Text text="15/03/2020" class="value"/>
-                                    </VBox>
-                                </HBox>
-
-                                <HBox class="infoItem">
-                                    <core:Icon src="sap-icon://employee" class="icon green"/>
-                                    <VBox>
-                                        <Text text="STATO" class="label"/>
-                                        <ObjectStatus text="Attivo" state="Success"/>
-                                    </VBox>
-                                </HBox>
+                                </VBox>
                             </FlexBox>
                         </FlexBox>
                     </f:content>
@@ -177,11 +191,11 @@
                             <core:Icon src="sap-icon://calendar" class="icon green"/>
                             <Title text="Turni Completati" titleStyle="H6"/>
                         </HBox>
-                        <HBox justifyContent="SpaceBetween" alignItems="End" class="sapUiTinyMarginBottom">
-                           <Text text="18 / 21 turni" class="valueKPI"/>
-                           <Text text="85%" class="percentLabel"/>
-                        </HBox>
-                        <ProgressIndicator percentValue="85" displayValue="" state="Success" height="8px"/>
+                         <ProgressIndicator
+					      percentValue="30"
+					      displayValue="30%"
+					      showValue="true"
+					      state="None"/>
                     </VBox>
 <!--Ferie e recuperi-->
                     <VBox class="kpiCard">

@@ -50,11 +50,31 @@
 
 /* Allineamento icone/testi nel profilo in alto */
 .infoItem {
-    width: 45%;
-    margin-bottom: 1.5rem;
+    width: auto; 
+    margin-bottom: 1rem;
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.notesContainer {
+    background: #f9fafb !important;
+    border: 1px dashed #d1d5db !important;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+/* Pulizia TextArea */
+.customNotesArea.sapMTextArea .sapMTextAreaInner {
+    background: transparent !important;
+    border: none !important;
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+/* Per evitare che le icone si rimpiccioliscano */
+.icon {
+    flex-shrink: 0;
 }
 
 /* ========================================================================
@@ -68,14 +88,14 @@
     margin: 0.5rem;
 }
 
-/* Numeri grandi nelle statistiche */
+
 .valueKPI {
     font-size: 1.5rem !important;
     font-weight: 800 !important;
     color: #111827;
 }
 
-/* Label piccole e testi secondari */
+
 .label, .percentLabel {
     font-size: 0.75rem;
     font-weight: 600;
@@ -109,7 +129,7 @@
    5. OVERRIDE COMPONENTI SAP
    ======================================================================== */
 
-/* Barra di progresso sottile e arrotondata */
+/* Barra di progresso */
 .sapMPI {
     border-radius: 8px !important;
     height: 8px !important;
@@ -118,4 +138,15 @@
 /* Arrotondamento per il calendario principale */
 .sapUiCalendarApp {
     border-radius: 6px !important;
+}
+
+/*Area note*/
+
+.noteTextArea .sapMTextAreaInner{
+    background-color: transparent !important;
+    border: none !important;
+    font-style: italic;
+    padding: 0;
+    color:#555;
+    resize: none;
 }
