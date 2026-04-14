@@ -154,7 +154,6 @@
                     </f:heading>
                     <f:expandedContent>
                         <Label text="{i18n>sottotitolo}"></Label>
-                        <Button text="Vai al mio Turno" icon="sap-icon://person-placeholder" press="onNavToProfilo"/>
                     </f:expandedContent>
                     <f:actions>
                         <Button text="Vai al mio Turno" icon="sap-icon://person-placeholder" press="onNavToProfilo"/>
