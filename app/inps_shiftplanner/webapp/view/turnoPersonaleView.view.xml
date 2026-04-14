@@ -223,19 +223,20 @@
                         <SinglePlanningCalendar
                         id="SPC1"
                         class="sapUiSmallMargin"
-                        title="Turni di :{ odata>Name } {odata>Surname}"
-                        appointments="{odata>Appointments}">
+                        title="Turni di :{odata>Name} {odata>Surname}"
+                        appointments="{path: 'appointments>/items', templateShareable: false}">
                         <views>
                          <SinglePlanningCalendarMonthView key="MonthView" title="Mese" />
                         </views>
                             <appointments>
                                 <unified:CalendarAppointment
-                                title= "{odata>title}"
-                                text= "{odata>notes}"
-                                icon= "{odata>shiftIcon}"
-                                startDate= "{odata>startDate}"
-                                endDate= "{odata>endDate}"
-                                type="{path:'odata>type',formatter:'.formatType'}">
+                                title= "{appointments>title}"
+                                text= "{appointments>notes}"
+                                icon= "{appointments>shiftIcon}"
+                                startDate= "{appointments>startDate}"
+                                endDate= "{appointments>endDate}"
+                                color= "{appointments>color}"
+                                type="{path:'appointments>type',formatter:'.formatType'}">
                                 </unified:CalendarAppointment>
                             </appointments>
 			            </SinglePlanningCalendar>
