@@ -51,17 +51,18 @@
 /* Allineamento icone/testi nel profilo in alto */
 .infoItem {
     width: auto; 
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     display: flex;
     align-items: center;
     gap: 12px;
 }
-
+/*conteiner delle note */
 .notesContainer {
     background: #f9fafb !important;
     border: 1px dashed #d1d5db !important;
     border-radius: 8px;
-    padding: 4px;
+    padding: 40px;
+    min-height: 150px;
 }
 
 /* Pulizia TextArea */

@@ -40,18 +40,18 @@
                                 <Title text="{odata>Name} {odata>Surname}" class="sapUiSmallMarginTop" titleStyle="H4"/>
                                 <Text text="Matricola: INF-2458"/>
                             </VBox>
-
+<!-- Info-->
                             <FlexBox  justifyContent="SpaceBetween" wrap="Wrap">
                                 
                                 <VBox width="400px" class="sapUiSmallMarginBottom">
-                                    <HBox class="infoItem sapUiSmallMarginBottom">
+                                    <HBox class="infoItem sapUiMediumMarginBottom">
                                         <core:Icon src="sap-icon://briefcase" class="icon blue"/>
                                         <VBox>
                                             <Text text="RUOLO" class="label" wrapping="false"/>
                                             <Text text="{odata>Role}" class="value" wrapping="false"/>
                                         </VBox>
                                     </HBox>
-                                    <HBox class="infoItem sapUiSmallMarginBottom">
+                                    <HBox class="infoItem sapUimediumMarginBottom">
                                         <core:Icon src="sap-icon://email" class="icon green"/>
                                         <VBox>
                                             <Text text="EMAIL" class="label" wrapping="false"/>
@@ -68,14 +68,14 @@
                                 </VBox>
 
                                 <VBox width="400px" class="sapUiSmallMarginBottom">
-                                    <HBox class="infoItem sapUiSmallMarginBottom">
+                                    <HBox class="infoItem sapUiMediumMarginBottom">
                                         <core:Icon src="sap-icon://map-marker" class="icon purple"/>
                                         <VBox>
                                             <Text text="REPARTO" class="label" wrapping="false"/>
                                             <Text text="Terapia Intensiva" class="value" wrapping="false"/>
                                         </VBox>
                                     </HBox>
-                                    <HBox class="infoItem sapUiSmallMarginBottom">
+                                    <HBox class="infoItem sapUimediumMarginBottom">
                                         <core:Icon src="sap-icon://call" class="icon orange"/>
                                         <VBox>
                                             <Text text="TELEFONO" class="label" wrapping="false"/>
@@ -91,7 +91,7 @@
                                     </HBox>
                                 </VBox>
 
-                                <VBox width="300px"  class="sapUiSmallMarginBottom">
+                                <VBox width="300px"  class="sapUimediumMarginBottom">
                                     <HBox alignItems="Center" class="sapUiTinyMarginBottom">
                                         <core:Icon src="sap-icon://comment" class="icon orange"/>
                                         <Text text="NOTE E COMUNICAZIONI" class="label" wrapping="false" />
